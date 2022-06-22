@@ -1,0 +1,71 @@
+/* fonts */
+.font-sourcecode {
+    font-family: 'Source Code Pro', monospace;
+    font-style: normal;
+}
+
+.font-manrope {
+    font-family: 'Manrope', sans-serif;
+    font-feature-settings: 'tnum' on, 'lnum' on;                
+    font-style: normal;
+}
+
+.font-inter {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+}
+
+/* colors */
+@gray1: #333333;
+@gray3: #828282;
+@accent: #00A881;
+@blue2: #2D9CDB;
+@bright-multiply: #CE0031;
+
+@grayA2: #a2a2a2;
+@grayC5: #c5c5c5;
+@grayD6: #D6D6D6;
+@blueC5: #C5D0D8;
+
+/* utilities */
+.no-scrollbars {
+    /*FireFox*/
+    scrollbar-width: none;
+    /*IE10+*/
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    &::-webkit-scrollbar {
+    /*Chrome, Safari, Edge*/
+        display: none;
+    } 
+}
+
+.unselecteble {
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.mobile(@rules) {
+    @media only screen and (max-width: 600px) {
+        @rules();
+    }
+}
+
+.desktop(@rules) {
+    @media only screen and (min-width: 601px) {
+        @rules();
+    }
+}
+
+.mobile({
+    ::ng-deep .layout-desktop {
+        display: none !important;
+    }
+});
+
+.desktop({
+    ::ng-deep .layout-mobile {
+        display: none !important;
+    }
+});

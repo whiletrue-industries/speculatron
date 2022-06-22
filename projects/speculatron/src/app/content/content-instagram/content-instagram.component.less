@@ -1,0 +1,136 @@
+@import '../../../common.less';
+
+.ig-font {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-style: normal;
+}
+
+@ig-gray: #848484;
+@ig-lightgray: #EFEFEF;
+@ig-blue: #008AF5;
+
+.card {
+    .desktop({
+        width: 344px;
+    });
+    .mobile({
+        width: 100%;
+    });
+    display: flex;
+    flex-flow: column;
+    align-items: stretch;
+
+    background: white;
+    border: 1px solid @grayD6;
+    border-radius: 3px;
+
+    .header {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        padding: 12px;
+        width: 100%;
+
+        .profile-image {
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-right: 8px;
+        }
+
+        .user {
+            display: block;
+            .name {
+                .ig-font;
+                font-weight: 600;
+                font-size: 12px;
+                line-height: 14px;
+                color: black;
+            }
+            .followers {
+                .ig-font;
+                font-weight: 500;
+                font-size: 12px;
+                line-height: 14px;
+                color: @ig-gray;
+            }
+        }
+        .ig-view-profile {
+            margin-left: auto;
+        }
+    }
+
+    .image {
+        width: 100%;
+        height: 100%;
+        padding-bottom: 100%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    
+    .view-more {
+        margin: 0 16px;
+        padding: 13px 0;
+        .ig-font;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 14px;
+        color: @ig-blue;
+        border-bottom: 1px solid @ig-lightgray;
+    }
+
+    .buttons {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        margin: 0 16px;
+        padding: 8px 0;
+        .icon {
+            margin-right: 14px;
+            &:last-child {
+                margin-left: auto;
+                margin-right: 0;
+            }
+        }
+    }
+    .social {
+        margin: 0 16px;
+        padding: 0 0 8px 0;
+        .ig-font;
+        font-weight: 700;
+        font-size: 12px;
+        line-height: 14px;
+        color: black;
+    }
+    .comments {
+        margin: 0 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid @ig-lightgray;
+        margin-bottom: 2px;
+
+        div {
+            .ig-font;
+            font-size: 12px;
+            line-height: 14px;
+            color: black;    
+        }
+        .username {
+            font-weight: 700;
+        }
+        .comment {
+            margin-top: 6px;
+            font-weight: 400;
+        }
+    }
+    .footer {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        justify-content: flex-end;
+        margin: 8px 16px;
+    }
+}

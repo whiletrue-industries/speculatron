@@ -1,0 +1,31 @@
+<div class='card'>
+    <div class='header'>
+        <div class='profile-image' [style.background-image]='"url(" + item.profile_image[0].thumbnails.small.url + ")"'></div>
+        <div class='user'>
+            <div class='name'>{{item.name}}</div>
+            <div class='followers'>{{item.follower_count}} followers</div>
+        </div>
+        <img class='ig-view-profile' src='assets/img/spectours-ig-view-profile.svg'>
+    </div>
+    <div class='image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+    <div class='view-more'>
+        View More on Instagram
+    </div>
+    <div class='buttons'>
+        <img class='heart icon' src='assets/img/spectours-ig-heart-icon.svg'>
+        <img class='comment icon' src='assets/img/spectours-ig-comment-icon.svg'>
+        <img class='share icon' src='assets/img/spectours-ig-share-icon.svg'>
+        <img class='save icon' src='assets/img/spectours-ig-save-icon.svg'>
+    </div>
+    <div class='social'>
+        {{item.like_count}} likes
+    </div>
+    <div class='comments'>
+        <div class='username'>{{item.username}}</div>
+        <div class='comment'>{{item.content}}</div>
+    </div>
+    <div class='footer'>
+        <img class='logo' src='assets/img/spectours-ig-logo.svg'>
+    </div>
+
+</div>

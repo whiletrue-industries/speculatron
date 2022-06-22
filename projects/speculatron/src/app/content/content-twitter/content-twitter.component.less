@@ -1,0 +1,171 @@
+@import '../../../common.less';
+
+.twitter-font {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@twitter-black: #141719;
+@twitter-gray: #5A6C7B;
+
+.card {
+    background: white;
+    border: 1px solid @blueC5;
+    box-sizing: border-box;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-flow: column;
+    align-items: stretch;
+    width: 344px;
+    max-width: 100%;
+
+    ::ng-deep {
+        a, a:hover, a:visited {
+            color: #1B97F0;
+        }
+    }
+
+    .header {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        margin-bottom: 8px;
+        .profile-image {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;    
+        }
+        .user {
+            margin: 0 10px;
+            .name {
+                .font-inter;
+                font-weight: bold;
+                font-size: 15px;
+                line-height: 18px;
+                color: @twitter-black;
+            }
+            .username {
+                .font-inter;
+                font-weight: 500;
+                font-size: 12px;
+                line-height: 15px;
+                color: @twitter-gray;
+            }
+        }
+        .twitter-logo {
+            width: 23px;
+            height: 19px;
+            align-self: flex-start;
+            margin: 6px 0;
+            margin-left: auto;
+        }
+    }
+
+    .caption {
+        .twitter-font;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 19px;
+        line-height: 23px;
+        color: @twitter-black;
+        margin-bottom: 8px;
+    }
+
+    .image {
+        width: 100%;
+        height: 250px;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        border-radius: 16px;
+        margin: 0 0;
+        margin-bottom: 8px;
+    }
+
+    .link {
+        height: 250px;
+        display: flex;
+        flex-flow: column;
+        border: 1px solid @blueC5;
+        box-sizing: border-box;
+        border-radius: 2px;
+        margin: 8px 0;
+
+        .link-image {
+            flex: 1 1 auto;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            width: 100%;
+        }
+        .link-container {
+            padding: 8px;
+            flex: 0 0 auto;
+            .link-title {
+                .twitter-font;
+                font-weight: 500;
+                font-size: 16px;
+                color: @twitter-gray;
+            }
+            .link-domain {
+                .twitter-font;
+                font-weight: normal;
+                font-size: 14px;
+                line-height: 17px;
+                color: @gray3;
+                margin-top: 2px;
+            }
+        }
+    }
+
+    .deets {
+        border-bottom: 1px solid @blueC5;
+        padding-bottom: 8px;
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+
+        .timestamp {
+            .twitter-font;
+            font-style: normal;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 18px;
+            color: @twitter-gray;    
+        }
+
+        .info {
+            margin-left: auto;
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    .social {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        padding-top: 8px;
+
+        .count {
+            .twitter-font;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 18px;
+            color: @twitter-gray;
+        }
+
+        .icon {
+            margin-right: 6px;
+            width: 20px;
+            max-height: 20px;
+
+            &.comment {
+                margin-left: auto;
+            }
+        }
+    }
+}

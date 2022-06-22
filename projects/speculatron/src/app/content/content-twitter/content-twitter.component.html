@@ -1,0 +1,31 @@
+
+<div class='card'>
+    <div class='header'>
+        <div class='profile-image' [style.background-image]='"url(" + item.profile_image[0].thumbnails.large.url + ")"'></div>
+        <div class='user'>
+            <div class='name'>{{item.name}}</div>
+            <div class='username'>@{{item.username}}</div>
+        </div>
+        <img class='twitter-logo' src='assets/img/spectours-twitter-logo.svg'>
+    </div>
+    <div class='caption' [innerHtml]='marked(item.content)'></div>
+    <div *ngIf='!item.link_title && item.image' class='image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+    <div *ngIf='item.link_title' class='link'>
+        <div *ngIf='item.image' class='link-image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+        <div class='link-container'>
+            <div class='link-title'>{{item.link_title}}</div>        
+            <div class='link-domain'>{{item.link_domain}}</div>        
+        </div>
+    </div>
+    
+    <div class='deets'>
+        <div class='timestamp'>{{timestamp}}</div>
+        <img class='info' src='assets/img/spectours-twitter-info-icon.svg'>
+    </div>
+    <div class='social'>
+        <img class='heart icon' src='assets/img/spectours-twitter-heart-icon.svg'>
+        <div class='like count'>{{item.like_count}}K</div>
+        <img class='comment icon' src='assets/img/spectours-twitter-comment-icon.svg'>
+        <div class='comment count'>{{item.comment_count}}K people are talking about this</div>
+    </div>
+</div>

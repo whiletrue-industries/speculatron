@@ -1,0 +1,107 @@
+@import '../../common.less';
+
+@timeline-width: 70px;
+@header-height: 40px;
+
+:host {
+    width: 100%;
+    pointer-events: none;
+    display: block;
+
+    .wrapper {
+        min-height: calc(~'100vh - 64px');
+        &.medium {  
+            min-height: 75vh;
+        }
+        width: 100%;
+        display: flex;
+        flex-flow: column;
+        align-items: flex-start;
+        background: linear-gradient(270deg, rgba(0, 0, 0, 0) 55.4%, rgba(0, 0, 0, 0.1) 67.51%);
+        position: relative;
+        z-index: 0;
+        overflow: hidden;
+ 
+        outline: 1px dashed #c5c5c5;
+        border-top: 2px solid #fff;
+        border-bottom: 3px solid #fff;
+         
+        .header {
+            flex: 0 0 auto;
+            display: flex;
+            flex-flow: row;
+            align-items: flex-start;
+            padding: 8px 16px;
+            height: @header-height;
+            position: relative;
+            z-index: 1;
+
+            .year {
+                .font-manrope;
+                font-weight: bold;
+                font-size: 16px;
+                color: @bright-multiply;                
+            }
+            .title {
+                .font-manrope;
+                font-weight: bold;
+                font-size: 16px;
+                color: @gray1;
+                text-transform: uppercase;
+                margin-left: 20px;
+            }
+        }
+        .timeline {
+            flex: 1 1 100%;
+            width: @timeline-width;
+            height: 100%;
+            background-image: url(../../assets/img/spectours-timeline-dots.svg);
+            background-repeat: repeat-y;
+            background-position-x: center;
+            background-position-y: top;
+            position: absolute;
+            top: @header-height;
+            left: 0;
+            z-index: 1;
+        }
+
+        .content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 0;
+            pointer-events: all;
+            overflow: hidden;
+            flex: 1 1 auto;
+            display: flex;
+            flex-flow: column-reverse;
+
+            .mobile({
+                padding: 8px;
+                margin-top: 50vh;
+            });
+
+            app-spectours-content-image, 
+            app-spectours-content-audio, 
+            app-spectours-content-video, 
+            app-spectours-content-twitter,
+            app-spectours-content-instagram,
+            app-spectours-content-wikipedia
+            {
+                display: flex;
+                flex-flow: column;
+                justify-content: flex-end;
+
+                .desktop({
+                    width: calc(100% ~'-' 2*@timeline-width);
+                    margin: @header-height @timeline-width;
+                });
+                .mobile({
+                    width: 100%;
+                    margin: @header-height 0 0 0;
+                });
+                height: calc(100% ~'-' 2*@header-height);
+            }
+        }
+    }
+}

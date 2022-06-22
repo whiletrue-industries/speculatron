@@ -1,0 +1,13 @@
+<div class='layout'>
+    <ng-content select='.content'></ng-content>
+    <div class='header' [class.hidden]='hideHeader'>
+        <a href='/'>
+            <img class='logo layout-mobile' src='assets/img/globe-logo-left.svg'>
+            <img class='logo layout-desktop' src='assets/img/globe-logo-up.svg'>
+        </a>
+        <div class='text'>
+            <ng-content select='.header-title'></ng-content>
+        </div>
+        <img class='info' src='assets/img/wawb-info-icon.svg' (click)='info.emit(true)'>
+    </div>
+</div>
