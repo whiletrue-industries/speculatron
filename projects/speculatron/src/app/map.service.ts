@@ -3,12 +3,14 @@ import * as mapboxgl from 'mapbox-gl';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+import { MAPBOX_ACCESS_TOKEN } from '../../../../CONFIGURATION';
+
 @Injectable({
   providedIn: 'root'
 })
 export class MapService {
 
-  ACCESS_TOKEN = 'pk.eyJ1IjoiYXRsYXNtZWRsaXEiLCJhIjoiY2tpbXgzNW5qMHhhcjJ5cGtydHpkNnJqYyJ9.vfietFuvTA8S1vaGlm3CUQ';
+  ACCESS_TOKEN = MAPBOX_ACCESS_TOKEN;
 
   constructor(private http: HttpClient) {
     (mapboxgl as any).accessToken = this.ACCESS_TOKEN;

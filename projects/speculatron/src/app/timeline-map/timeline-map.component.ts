@@ -1,6 +1,7 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
+import { MAPBOX_STYLE } from '../../../../../CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
 import { ReplaySubject } from 'rxjs';
 import { switchMap, first, delay } from 'rxjs/operators';
@@ -19,7 +20,6 @@ export class TimelineMapComponent implements OnInit {
   @Input() subtitle: SafeHtml;
   @Input() infobarTitle: string;
   @Input() infobarSubtitle: string;
-  @Input() mapStyle: string;
   @Input() api: TimelineMapService;
 
   timeline: any[] = [];
@@ -64,7 +64,7 @@ export class TimelineMapComponent implements OnInit {
     });
     this.theMap = new mapboxgl.Map({
       container: this.mapEl.nativeElement,
-      style: this.mapStyle,
+      style: MAPBOX_STYLE,
       minZoom: 3,
     });
     this.theMap.on('style.load', () => {
