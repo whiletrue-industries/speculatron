@@ -5,10 +5,10 @@
         </div>
         <div class='timeline'>
             <ng-container *ngFor='let item of timeline'>
-                <app-content-placeholder [attr.data-year]='"Y" + item.year' [item]='item' *ngIf='item.content.length === 0'></app-content-placeholder>
+                <app-content-placeholder [attr.data-year]='"Y" + item.year' [item]='item' *ngIf='!item.hasContent'></app-content-placeholder>
                 <app-content [attr.data-year]='"Y" + item.year' 
                     [active]='item.year === activeYear'
-                    [item]='item' *ngIf='item.content.length > 0'
+                    [item]='item' *ngIf='item.hasContent'
                     (mapView)='changeMapView($event)'
                 ></app-content>
             </ng-container>
@@ -19,7 +19,7 @@
         ></app-infobar>
     </div>
     <div class='header-title'>
-        <h2>{{ subtitle }}</h2>
-        <h1>{{ title }}</h1>
+        <h2>{{subtitle}}</h2>
+        <h1>{{title}}</h1>
     </div>
 </app-layout>

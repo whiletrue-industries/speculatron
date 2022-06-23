@@ -18,6 +18,6 @@ export class ContentTwitterComponent implements OnInit {
   }
 
   get timestamp() {
-    return dayjs(this.item.post_timestamp[0]).format(('h:mm A - MMM D, YYYY'));
+    return dayjs(this.item.post_timestamp).format(('h:mm A - MMM D, YYYY'));
   }
 }

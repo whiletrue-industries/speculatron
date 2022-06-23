@@ -9,9 +9,14 @@ export class TimelineMapService {
   YEAR_START = 1901;
   YEAR_END = 2100;
   YEAR_CURRENT = 2050;
+  TITLE = '';
+  SUBTITLE = '';
+  INFOBAR_TITLE = '';
+  INFOBAR_SUBTITLE = '';
   ABOUT = '';
 
   ready = new ReplaySubject<boolean>(1);
+  data = new ReplaySubject<any[]>(1);
 
   constructor(
       private api: ApiService, 
@@ -43,11 +48,7 @@ export class TimelineMapService {
   }
 
   fetchContent() {
-    return this.api.airtableFetch(this.baseId, 'Content', 'website').pipe(this.api.airtableToMapping());
-  }
-
-  fetchTimeline() {
-    return this.api.airtableFetch(this.baseId, 'Timeline', 'website').pipe(
+    return this.api.airtableFetch(this.baseId, 'Content', 'website').pipe(
       map((response: any) => response.records.map((i: any) => i.fields))
     );
   }
@@ -82,25 +83,27 @@ export class TimelineMapService {
         this.YEAR_END = parseInt(settings['to year']);
         this.YEAR_CURRENT = parseInt(settings['start year']);
         this.ABOUT = settings['about'];
+        this.TITLE = settings['title'];
+        this.SUBTITLE = settings['subtitle'];
+        this.INFOBAR_TITLE = settings['infobar_title'];
+        this.INFOBAR_SUBTITLE = settings['infobar_subtitle'];
         return forkJoin([
           this.fetchAudioTimestamps(),
           this.fetchContent(),
-          this.fetchTimeline(),
         ]);
       }),
-      map(([audioTimestamps, content, timeline]) => {
-        Object.values(content).forEach((item: any) => {
+      map(([audioTimestamps, content]) => {
+        content.forEach((item: any) => {
           if (item.audio_timestamps) {
             item.audio_timestamps = item.audio_timestamps.map((x: string) => audioTimestamps[x]);
           } else {
             item.audio_timestamps = []
           }
+          item.hasContent = true;
+          item.year = dayjs(item.post_timestamp).year();
         });
-        timeline.forEach((item: any) => {
-          item.content = item.content.map((id: any) => content[id]);
-          item.year = dayjs(item.date).year();
-        });
-        return (timeline as any[]).sort((a, b) => a.year - b.year);
+        // console.log('CONTENT', JSON.stringify(content));
+        return (content as any[]).sort((a, b) => a.year - b.year);
       }),
       map((timeline) => {
         const ret = [];
@@ -115,7 +118,9 @@ export class TimelineMapService {
           ret.push({year, content});
         }
         this.ready.next(true);
-        return ret;
+        this.ready.complete();
+        this.data.next(ret);
+        this.data.complete();
       })
     );
   }

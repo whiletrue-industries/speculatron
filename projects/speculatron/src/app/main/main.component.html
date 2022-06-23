@@ -1,10 +1,11 @@
 <app-timeline-map
-    id='M2'
-    airtableBase='appk4QxOhg2XleeTM'
-    subtitle='Speculative Tourism / '
-    title='Sea Change'
-    infobarTitle='Speculative Tourism: Sea change'
-    infobarSubtitle='A turn of the tide in the Mediterranean'
+    *ngIf='title'
+    id='Speculatron'
+    [api]='timelineService'
+    [title]='title'
+    [subtitle]='subtitle'
+    [infobarTitle]='infobarTitle'
+    [infobarSubtitle]='infobarSubtitle'
     mapStyle='mapbox://styles/atlasmedliq/ckiodibg82x1k17tcof8e9pmd'
 >
 </app-timeline-map>

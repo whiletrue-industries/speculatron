@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 
+import { AIRTABLE_API_KEY } from '../../../../CONFIGURATION';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
 
-  API_KEY = 'key7jIbxK4zBiOYDr';
+  API_KEY = AIRTABLE_API_KEY;
   AIRTABLE_BASE = 'https://api.airtable.com/v0';
   
   constructor(private http: HttpClient) { }

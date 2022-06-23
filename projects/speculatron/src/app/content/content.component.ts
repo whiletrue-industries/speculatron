@@ -37,8 +37,8 @@ export class ContentComponent implements OnInit, AfterViewInit {
       // console.log('CONTENT VISIBLE', visible, this.item);
       this.contentVisible = this.contentVisible || visible;
     });
-    if (this.item.content && this.item.content.length > 0) {
-      this.content = this.item.content[0];
+    if (this.item.hasContent) {
+      this.content = this.item;
       this.contentType = this.content.type;
     }
   }
@@ -51,18 +51,15 @@ export class ContentComponent implements OnInit, AfterViewInit {
 
   handleGeo() {
     let mapView = null;
-    for (const content of this.item.content) {
-      if (content.map_view && content.map_view.length) {
-        mapView = content.map_view[0];
-        this.mapView.next(mapView);
-        break;
-      }
+    if (this.item.map_view && this.item.map_view.length) {
+      mapView = this.item.map_view[0];
+      this.mapView.next(mapView);
     }
   }
 
   classes() {
-    if (this.item && this.item.content && this.item.content.length && this.item.content[0].variants) {
-      return this.item.content[0].variants.join(' ');
+    if (this.item && this.item.variants) {
+      return this.item.variants.join(' ');
     }
     return '';
   }
