@@ -3,7 +3,7 @@ import { SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { MAPBOX_STYLE } from '../../../../../CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
-import { ReplaySubject } from 'rxjs';
+import { forkJoin, ReplaySubject } from 'rxjs';
 import { switchMap, first, delay } from 'rxjs/operators';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
@@ -68,7 +68,16 @@ export class TimelineMapComponent implements OnInit {
       minZoom: 3,
     });
     this.theMap.on('style.load', () => {
-      this.api.fetchMapData().subscribe((views) => {
+      forkJoin([this.api.fetchMapData(), this.api.data]).subscribe(([views, timeline]) => {
+        timeline.forEach((item) => {
+          if (item.hasContent) {
+            if (item.map_view && item.map_view.length > 0) {
+              return;
+            }
+            item.map_view = [item.title];
+            views[item.title] = item;
+          }
+        });
         this.mapViews.next(views);
       });  
     })
@@ -78,12 +87,12 @@ export class TimelineMapComponent implements OnInit {
     this.mapViews.pipe(first()).subscribe((mapViews) => {
       const mapView: any = mapViews[mapViewName];
       const options = this.mapSvc.parseMapView(mapView);
-      for (const l of mapView.onLayers) {
+      for (const l of mapView.onLayers || []) {
         if (this.theMap.getLayer(l)) {
           this.theMap.setLayoutProperty(l, 'visibility', 'visible');
         }
       }
-      for (const l of mapView.offLayers) {
+      for (const l of mapView.offLayers || []) {
         if (this.theMap.getLayer(l)) {
           this.theMap.setLayoutProperty(l, 'visibility', 'none');
         }

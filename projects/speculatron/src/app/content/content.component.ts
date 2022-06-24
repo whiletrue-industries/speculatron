@@ -54,6 +54,8 @@ export class ContentComponent implements OnInit, AfterViewInit {
     if (this.item.map_view && this.item.map_view.length) {
       mapView = this.item.map_view[0];
       this.mapView.next(mapView);
+    } else {
+      this.mapView.next(this.item.title);
     }
   }
 
