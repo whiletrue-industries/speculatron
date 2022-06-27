@@ -14,6 +14,7 @@ export class TimelineMapService {
   INFOBAR_TITLE = '';
   INFOBAR_SUBTITLE = '';
   ABOUT = '';
+  CONTRIBUTE_MESSAGE = '';
 
   ready = new ReplaySubject<boolean>(1);
   data = new ReplaySubject<any[]>(1);
@@ -87,6 +88,8 @@ export class TimelineMapService {
         this.SUBTITLE = settings['subtitle'];
         this.INFOBAR_TITLE = settings['infobar_title'];
         this.INFOBAR_SUBTITLE = settings['infobar_subtitle'];
+        this.CONTRIBUTE_MESSAGE = settings['contribute_message'];
+
         return forkJoin([
           this.fetchAudioTimestamps(),
           this.fetchContent(),

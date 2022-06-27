@@ -1,0 +1,242 @@
+@import '../../common.less';
+
+:host {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    background: white;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+
+    .desktop({
+        max-width: 360px;
+        padding: 24px;
+    });
+    .mobile({
+        max-height: 100%;
+        overflow-y: scroll;
+        padding: 10px 24px;
+        .no-scrollbars;
+    });
+    
+    ::ng-deep {
+        a, a:visited, a:hover {
+            color: @accent;
+            font-weight: 500;
+        }    
+    }
+
+    p {
+        .font-manrope;
+        font-weight: normal;
+        font-size: 15px;
+        letter-spacing: 0.01em;
+        color: @gray1;
+        margin: 0px 8px;
+    }
+
+    .controls {
+        flex: 0 0 auto;
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-items: center;
+        .control {
+            cursor: pointer;
+        }
+    }
+    .slides {
+        height: 100%;    
+        overflow: hidden;
+        flex: 1 1 auto;
+        position: relative;
+
+        .slide {
+            display: flex;
+            flex-flow: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            width: 100%;
+            height: 100%;
+            transform: translateX(0);
+            transition: transform 0.25s linear;
+            position: absolute;
+            top: 0;
+            left: 0;
+    
+            &.pre {
+                transform: translateX(100%);
+            }
+            &.post {
+                transform: translateX(-100%);
+            }
+
+            .header {
+                display: flex;
+                flex-flow: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 4px;
+                padding-top: 16px;
+
+                h1 {
+                    .font-sourcecode;
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 18px;
+                    line-height: 21px;
+                    letter-spacing: 0.02em;
+                    text-transform: uppercase;
+                    color: @gray1;
+                    margin: 0;
+                }
+                h2 {
+                    .font-sourcecode;
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 15px;
+                    line-height: 21px;
+                    letter-spacing: -0.01em;
+                    color: @gray1;    
+                    padding-bottom: 8px;
+                    border-bottom: 0.5px solid @gray1;
+                    margin-bottom: 32px;
+                }
+
+                ::ng-deep {
+                    p {
+                        .font-manrope;
+                        font-style: normal;
+                        font-weight: 400;
+                        font-size: 15px;
+                        line-height: 23px;
+                        letter-spacing: 0.01em;
+                        color: @gray1;
+                    }
+                }
+            }
+            
+            .bottom {
+                flex: 0 0 auto;
+                display: flex;
+                flex-flow: column;
+                align-items: center;
+                width: 100%;
+                margin-top: auto;
+            }
+            button {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 12px;
+                padding: 8px 24px;
+
+                height: 40px;
+                background: @pale;
+
+                border: 1px solid rgba(252, 13, 28, 0.25);
+                border-radius: 24px;
+
+                .font-sourcecode;
+                font-style: normal;
+                font-weight: 400;
+                font-size: 18px;
+                line-height: 21px;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                color: @bright-multiply;
+
+                cursor: pointer;
+            }
+            .content-types {
+                display: flex;
+                flex-flow: column;
+                align-items: flex-start;
+                justify-content: flex-start;
+                gap: 8px;
+
+                .content-type {
+                    display: flex;
+                    flex-flow: row;
+                    align-items: center;
+                    justify-content: flex-start;
+                    gap: 16px;
+                    cursor: pointer;
+
+                    .icon {
+                        width: 48px;
+                        height: 48px;
+                        overflow: auto;
+                        border-radius: 24px;
+                        border: 1px solid rgba(252, 13, 28, 0.25);
+                        display: flex;
+                        flex-flow: column;
+                        align-items: center;
+                        justify-content: center;
+
+                        img {
+                            width: 24px;
+                            height: 24px;
+                            object-fit: contain;
+                        }
+                    }
+                    .name {
+                        .font-sourcecode;
+                        font-style: normal;
+                        font-weight: 400;
+                        font-size: 18px;
+                        line-height: 23px;
+                        color: @bright-multiply;    
+                    }
+                }
+            }
+            .date-selector {
+                border: 1px solid rgba(252, 13, 28, 0.25);
+                border-radius: 4px;
+                height: 48px;
+                padding-left: 44px;
+                padding-right: 16px;
+                border-radius: 4px;
+                color: @bright-multiply;
+                .font-sourcecode;
+                font-style: normal;
+                font-weight: 400;
+                font-size: 18px;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+
+                background-image: url('../../assets/img/icon-calendar.svg');
+                background-repeat: no-repeat;
+                background-position: 12px center;
+            }
+        }
+    }
+    .progress {
+        flex: 0 0 auto;
+        margin-top: 16px;
+        height: 7px;
+        display: flex;
+        flex-flow: row;
+        align-items: stretch;
+        justify-content: stretch;
+        gap: 8px;
+
+        .progress-item {
+            flex: 1 1 auto;
+            height: 100%;
+            border-radius: 2px;
+            background: @gray5;
+
+            &.active {
+                background: @bright-multiply;
+            }
+
+            transition: background 0.25s linear;
+        }
+    }
+}

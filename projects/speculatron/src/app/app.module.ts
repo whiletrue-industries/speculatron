@@ -17,6 +17,9 @@ import { ContentInstagramComponent } from './content/content-instagram/content-i
 import { ContentWikipediaComponent } from './content/content-wikipedia/content-wikipedia.component';
 import { AudioPlayerComponent } from './audio-player/audio-player.component';
 import { HttpClientModule } from '@angular/common/http';
+import { AddNewBarComponent } from './add-new-bar/add-new-bar.component';
+import { FormsModule } from '@angular/forms';
+import { MapSelectorComponent } from './map-selector/map-selector.component';
 
 @NgModule({
   declarations: [
@@ -33,11 +36,14 @@ import { HttpClientModule } from '@angular/common/http';
     ContentTwitterComponent,
     ContentInstagramComponent,
     ContentWikipediaComponent,
-    AudioPlayerComponent
+    AudioPlayerComponent,
+    AddNewBarComponent,
+    MapSelectorComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
+    FormsModule,
     AppRoutingModule
   ],
   providers: [],

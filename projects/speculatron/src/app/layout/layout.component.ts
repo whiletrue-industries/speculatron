@@ -9,6 +9,7 @@ export class LayoutComponent implements OnInit {
 
   @Input() hideHeader = false;
   @Output() info = new EventEmitter<boolean>();
+  @Output() addNew = new EventEmitter<boolean>();
 
 
   constructor() { }

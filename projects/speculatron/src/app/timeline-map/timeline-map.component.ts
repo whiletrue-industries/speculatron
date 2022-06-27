@@ -3,7 +3,7 @@ import { SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { MAPBOX_STYLE } from '../../../../../CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
-import { forkJoin, ReplaySubject } from 'rxjs';
+import { forkJoin, ReplaySubject, timer } from 'rxjs';
 import { switchMap, first, delay } from 'rxjs/operators';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
@@ -27,6 +27,8 @@ export class TimelineMapComponent implements OnInit {
   theMap: mapboxgl.Map;
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
   _info = false;
+  _addNew = false;
+  addNewOpen = false;
   activeYear = -1;
 
   constructor(private activatedRoute: ActivatedRoute, private mapSvc: MapService) {
@@ -35,8 +37,17 @@ export class TimelineMapComponent implements OnInit {
   get info() { return this._info; }
   set info(value) {
     console.log('INFO=', value);
+    this._addNew = false;
     this._info = value;
     localStorage.setItem(this.id, 'opened');
+  }
+
+  get addNew() { return this._addNew; }
+  set addNew(value) {
+    console.log('ADDNEW=', value);
+    this._info = false;
+    this._addNew = value;
+    timer(0).subscribe(() => {this.addNewOpen = value;});
   }
 
   ngOnInit(): void {

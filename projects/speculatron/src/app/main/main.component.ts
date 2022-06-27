@@ -7,6 +7,7 @@ import { first } from 'rxjs';
 import { ApiService } from '../api.service';
 import { DomSanitizer, SafeHtml, Title } from '@angular/platform-browser';
 import { TimelineMapService } from '../timeline-map.service';
+import { MapSelectorService } from '../map-selector.service';
 @Component({
   selector: 'app-spectours',
   templateUrl: './main.component.html',
@@ -19,7 +20,7 @@ export class MainComponent {
   infobarSubtitle: string;
   timelineService: TimelineMapService;
 
-  constructor(private api: ApiService, private titleSvc: Title) {
+  constructor(private api: ApiService, private titleSvc: Title, public mapSelector: MapSelectorService) {
   }
 
   ngOnInit() {

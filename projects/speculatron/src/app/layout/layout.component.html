@@ -8,6 +8,7 @@
         <div class='text'>
             <ng-content select='.header-title'></ng-content>
         </div>
+        <img class='addNew' src='assets/img/icon-add-new.svg' (click)='addNew.emit(true)'>
         <img class='info' src='assets/img/wawb-info-icon.svg' (click)='info.emit(true)'>
     </div>
 </div>
