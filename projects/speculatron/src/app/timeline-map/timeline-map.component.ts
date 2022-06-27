@@ -44,7 +44,6 @@ export class TimelineMapComponent implements OnInit {
 
   get addNew() { return this._addNew; }
   set addNew(value) {
-    console.log('ADDNEW=', value);
     this._info = false;
     this._addNew = value;
     timer(0).subscribe(() => {this.addNewOpen = value;});

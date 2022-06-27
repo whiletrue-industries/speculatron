@@ -12,6 +12,7 @@ export class ApiService {
 
   API_KEY = AIRTABLE_API_KEY;
   AIRTABLE_BASE = 'https://api.airtable.com/v0';
+  CONTENT_TABLE = 'Content';
   
   constructor(private http: HttpClient) { }
 

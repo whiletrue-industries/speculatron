@@ -49,8 +49,8 @@ export class TimelineMapService {
   }
 
   fetchContent() {
-    return this.api.airtableFetch(this.baseId, 'Content', 'website').pipe(
-      map((response: any) => response.records.map((i: any) => i.fields))
+    return this.api.airtableFetch(this.baseId, this.api.CONTENT_TABLE, 'website').pipe(
+      this.api.airtableToArray(),
     );
   }
 

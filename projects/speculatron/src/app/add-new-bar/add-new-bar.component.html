@@ -1,9 +1,9 @@
 <div class='controls'>
     <div class='control'>
-        <img *ngIf='slide > 0' src='assets/img/button-back.svg' (click)='slide=slide-1' />
+        <img *ngIf='slide > 0 && slide < 5' src='assets/img/button-back.svg' (click)='slide=slide-1' />
     </div>
     <div class='control'>
-        <img src='assets/img/button-close.svg' (click)='close.emit()' />
+        <img src='assets/img/button-close.svg' (click)='closeMe()' />
     </div>
 </div>
 <div class='slides'>
@@ -78,9 +78,18 @@
         </div>
         <iframe [src]='iframeSrc' frameborder='0' onmousewheel='' width='100%' height='100%' *ngIf='iframeSrc'></iframe>
     </div>
+    <div class='slide' [class.pre]='slide < 5' [class.post]='slide > 5'>
+        <div class='header'>
+            <h1>Thank you!</h1>
+            <h2>We will review your contribution and email you if it is added to the timeline</h2>
+        </div>
+        <div class='bottom'>
+            <button (click)='closeMe()'>close</button>
+        </div>
+    </div>
 </div>
 <div class='progress'>
-    <ng-container *ngIf='slide >= 1'>
+    <ng-container *ngIf='slide > 0 && slide < 5'>
         <div class='progress-item' [class.active]='slide==1'></div>
         <div class='progress-item' [class.active]='slide==2'></div>
         <div class='progress-item' [class.active]='slide==3'></div>
