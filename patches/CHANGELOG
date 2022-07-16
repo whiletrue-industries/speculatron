@@ -1,4 +1,10 @@
 v0.1.0: Add dialog for selecting which authors to show on the timeline
+        Airtable modifications: There are 5 new/updated columns -
+        - NEW: original_author (checkbox)
+        - RENAMED: existing_author_submission (checkbox)
+        - RENAMED: new_author_name (string)
+        - RENAMED: new_author_email (email)
+        - RENAMED: existing_author_email (email)
 
 v0.0.0: Initial release
 
