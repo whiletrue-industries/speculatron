@@ -103,20 +103,47 @@
                     }
                 }
             }
-            .addNew {
+            .layers {
                 .desktop({
                     margin-top: auto;
                 });
                 .mobile({
                     margin-left: auto;
                 });
+                position: relative;
+                img {
+                    width: 100%;
+                    height: 100%;
+                }
+                .contrib {
+                    width: 16px;
+                    height: 16px;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    border-radius: 8px;
+                    background-color: #CE0031;
+                    color: white;
+                    .font-manrope;
+                    font-weight: 700;
+                    font-size: 10px;
+                    line-height: 14px;
+                    display: flex;
+                    flex-flow: row;
+                    align-items: center;
+                    justify-content: center;
+                }
             }
-            .info, .addNew {
+            .addNew, .layers {
+                .desktop({
+                    width: 48px;
+                    height: 48px;
+                });
+            }
+            .info, .addNew, .layers {
                 cursor: pointer;
 
                 .desktop({
-                    width: 24px;
-                    height: 24px;
                     margin-bottom: 12px;
                 });
                 .mobile({

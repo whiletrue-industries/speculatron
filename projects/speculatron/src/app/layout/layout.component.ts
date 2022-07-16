@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TimelineMapService } from '../timeline-map.service';
 
 @Component({
   selector: 'app-layout',
@@ -8,8 +9,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 export class LayoutComponent implements OnInit {
 
   @Input() hideHeader = false;
+  @Input() api: TimelineMapService;
   @Output() info = new EventEmitter<boolean>();
   @Output() addNew = new EventEmitter<boolean>();
+  @Output() layers = new EventEmitter<boolean>();
 
 
   constructor() { }

@@ -1,4 +1,4 @@
-<app-layout (info)='info = $event' (addNew)='addNew = $event'>
+<app-layout [api]='api' (info)='info = $event' (addNew)='addNew = $event' (layers)='layers = $event'>
     <div class='content'>
         <div class='map'>
             <div #mapEl></div>
@@ -19,6 +19,8 @@
         ></app-infobar>
         <app-add-new-bar *ngIf='addNew' [class.open]='addNewOpen' [api]='api' (close)='addNew=false'
         ></app-add-new-bar>
+        <app-layers-bar *ngIf='layers' [class.open]='layersOpen' [api]='api' (close)='layers=false' (addNew)='addNew=true'
+        ></app-layers-bar>
     </div>
     <div class='header-title'>
         <h2>{{subtitle}}</h2>

@@ -8,6 +8,10 @@
         <div class='text'>
             <ng-content select='.header-title'></ng-content>
         </div>
+        <div class='layers'>
+            <img src='assets/img/icon-layers.svg' (click)='layers.emit(true)'/>
+            <div class='contrib' *ngIf='api.contribCount > 0'>{{api.contribCount}}</div>
+        </div>
         <img class='addNew' src='assets/img/icon-add-new.svg' (click)='addNew.emit(true)'>
         <img class='info' src='assets/img/wawb-info-icon.svg' (click)='info.emit(true)'>
     </div>

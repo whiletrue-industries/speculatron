@@ -28,7 +28,10 @@ export class TimelineMapComponent implements OnInit {
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
   _info = false;
   _addNew = false;
+  _layers = false;
   addNewOpen = false;
+  layersOpen = false;
+
   activeYear = -1;
 
   constructor(private activatedRoute: ActivatedRoute, private mapSvc: MapService) {
@@ -38,6 +41,7 @@ export class TimelineMapComponent implements OnInit {
   set info(value) {
     console.log('INFO=', value);
     this._addNew = false;
+    this._layers = false;
     this._info = value;
     localStorage.setItem(this.id, 'opened');
   }
@@ -45,32 +49,41 @@ export class TimelineMapComponent implements OnInit {
   get addNew() { return this._addNew; }
   set addNew(value) {
     this._info = false;
+    this._layers = false;
     this._addNew = value;
     timer(0).subscribe(() => {this.addNewOpen = value;});
   }
 
+  get layers() { return this._layers; }
+  set layers(value) {
+    this._info = false;
+    this._addNew = false;
+    this._layers = value;
+    timer(0).subscribe(() => {this.layersOpen = value;});
+  }
+
   ngOnInit(): void {
     this._info = localStorage.getItem(this.id) !== 'opened';
-    this.api.data.pipe(
-      switchMap((timeline: any) => {
-        this.timeline = timeline;
-        return this.activatedRoute.fragment;
-      }),
-      first(),
-      delay(1000),
-    ).subscribe((fragment) => {
-      this.activeYear = this.api.YEAR_CURRENT;
-      if (fragment ) {
-        this.activeYear = parseInt(fragment.slice(1));
-        if (!this.activeYear) {
+    this.api.data.subscribe((timeline: any) => {
+      if (!this.timeline) {
+        this.activatedRoute.fragment.pipe(
+          delay(1000),
+        ).subscribe((fragment) => {
           this.activeYear = this.api.YEAR_CURRENT;
-        }
+          if (fragment ) {
+            this.activeYear = parseInt(fragment.slice(1));
+            if (!this.activeYear) {
+              this.activeYear = this.api.YEAR_CURRENT;
+            }
+          }
+          fragment = 'Y' + this.activeYear;
+          const el = document.querySelector(`[data-year=${fragment}]`);
+          if (el) {
+            el.scrollIntoView({block: 'center', behavior: 'auto'});
+          }
+        });
       }
-      fragment = 'Y' + this.activeYear;
-      const el = document.querySelector(`[data-year=${fragment}]`);
-      if (el) {
-        el.scrollIntoView({block: 'center', behavior: 'auto'});
-      }
+      this.timeline = timeline;
     });
     this.theMap = new mapboxgl.Map({
       container: this.mapEl.nativeElement,

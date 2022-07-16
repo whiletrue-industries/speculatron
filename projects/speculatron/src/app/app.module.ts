@@ -20,6 +20,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { AddNewBarComponent } from './add-new-bar/add-new-bar.component';
 import { FormsModule } from '@angular/forms';
 import { MapSelectorComponent } from './map-selector/map-selector.component';
+import { LayersBarComponent } from './layers-bar/layers-bar.component';
+import { LayersBarItemComponent } from './layers-bar/layers-bar-item/layers-bar-item.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +40,9 @@ import { MapSelectorComponent } from './map-selector/map-selector.component';
     ContentWikipediaComponent,
     AudioPlayerComponent,
     AddNewBarComponent,
-    MapSelectorComponent
+    LayersBarComponent,
+    MapSelectorComponent,
+    LayersBarItemComponent
   ],
   imports: [
     BrowserModule,

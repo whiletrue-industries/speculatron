@@ -14,6 +14,8 @@ This repo is intended for you to fork and modify based on your needs.
 
 It contains a simple configuration file, which, after modifying, can be used to create a new instance of the app. The site is automatically built and deployed using GitHub Pages - all you need to do is connect it with your credentials and you're good to go.
 
+If you want to create multiple instances of this repo under the same account, you can use the "Create repo from template" option to 'copy' the repo instead of forking it. In this case, getting upstream updates is more tricky - please consult the [CHANGLELOG](patches/CHANGELOG) file for more information.
+
 ### Configuration File
 
 The main configuration file is `CONFIGURATION.ts`.
@@ -53,7 +55,7 @@ Once you have it, add the style and access token to the config file.
 
 For everything to work you might need to enable Actions and Github Pages in your forked repository.
 
-To deploy the site on a custom domain, add a CNAME file to the root of the repository containing the name of your domain. You also need to make some DNS modifications to point your domain to the GitHub Pages domain - please consult with the GitHub documentation for more information.
+To deploy the site on a custom domain, add a CNAME file to the root of the repository containing the name of your domain. You also need to make some DNS modifications to point your domain to the GitHub Pages domain - please consult with the [GitHub documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for more information.
 
 ## Development of this project 
 

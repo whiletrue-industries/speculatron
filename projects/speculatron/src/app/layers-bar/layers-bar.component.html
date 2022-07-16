@@ -1,0 +1,22 @@
+<div class='controls'>
+    <div class='control'>
+        <img src='assets/img/button-close.svg' (click)='closeMe()' />
+    </div>
+</div>
+<div class='header'>
+    <h1>Perspective Layers</h1>
+    <h2>This timeline features additional media fragments contributed by speculative tourists like you. Each adds another perspective to the original storyline.</h2>
+</div>
+<p>Original Author(s):</p>
+<div class='items' *ngFor='let author of api.authorsList'>
+    <app-layers-bar-item [author]='author' *ngIf='author.originalAuthor' (changed)='api.updateTimeline()'></app-layers-bar-item>
+</div>    
+<div class='contributors'>
+    <p>Contributors:</p>
+    <div class='items' *ngFor='let author of api.authorsList'>
+        <app-layers-bar-item [author]='author' *ngIf='!author.originalAuthor' (changed)='api.updateTimeline()'></app-layers-bar-item>
+    </div>    
+</div>
+<div class='bottom'>
+    <button (click)='addNew.emit()'>Add a moment</button>
+</div>
