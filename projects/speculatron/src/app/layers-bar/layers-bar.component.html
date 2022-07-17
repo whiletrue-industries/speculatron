@@ -13,8 +13,10 @@
 </div>    
 <div class='contributors'>
     <p>Contributors:</p>
-    <div class='items' *ngFor='let author of api.authorsList'>
-        <app-layers-bar-item [author]='author' *ngIf='!author.originalAuthor' (changed)='api.updateTimeline()'></app-layers-bar-item>
+    <div class='items'>
+        <ng-container *ngFor='let author of api.authorsList'>
+            <app-layers-bar-item [author]='author' *ngIf='!author.originalAuthor' (changed)='api.updateTimeline()'></app-layers-bar-item>
+        </ng-container>
     </div>    
 </div>
 <div class='bottom'>

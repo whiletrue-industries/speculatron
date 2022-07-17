@@ -137,7 +137,7 @@ export class TimelineMapService {
       }),
       map((timeline) => {
         this.timeline = timeline;
-        this.contribCount = timeline.filter((i: any) => !(this.authorsMap[i.author]?.originalAuthor)).length;
+        this.contribCount = this.authorsList.filter((i: any) => !i.originalAuthor).length;
         const ret = this.updateTimeline(false);
         this.ready.next(true);
         this.ready.complete();
