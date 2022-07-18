@@ -1,9 +1,9 @@
 <div>
   <app-audio-player [audio]='item.audio_s3url || item.audio[0].url' [image]='item.image[0].thumbnails.large.url'>
-    <div *ngIf='item.link_title' class='link'>
-      <div class='link-container'>
-          <a href='{{item.link_domain}}' target="blank" class='link-title'>{{item.link_title}}</a>
-      </div>
-    </div>
   </app-audio-player>
+  <div *ngIf='item.link_title' class='link'>
+    <div class='link-container'>
+        <a href='{{item.link_domain}}' target="blank" class='link-title'>{{item.link_title}}</a>
+    </div>
+  </div>
 </div>
