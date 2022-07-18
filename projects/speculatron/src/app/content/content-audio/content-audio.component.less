@@ -6,3 +6,26 @@
         align-items: flex-start;
     }        
 });
+
+.link-title{
+  z-index: 1;
+  position: absolute;
+  bottom: 50px;
+  .font-manrope;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 700;
+  
+  a {
+    padding: 4px 16px;
+    border-radius: 16px;
+    text-decoration: none;
+    background: white;
+    color: @bright-multiply; 
+    
+    &:hover{
+      background: @bright-multiply;
+      color: white; 
+    }
+  }
+}
