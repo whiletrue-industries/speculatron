@@ -6,11 +6,10 @@
     <div class='content'>
         <div class='text'>
             <div class='excerpt' [innerHtml]='marked(item.content)'></div>
-            <a class='link' [href]='item.link_domain' target='_blank'>Learn more at the English Wikipedia</a>
         </div>
         <div *ngIf='item.image && item.image.length' class='image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
         <div class='bottom'>
-            <a class='image-license' [href]='item.source_link' target='_blank'>Image licensing information here</a>
+            <a class='link' [href]='item.link_domain' target='_blank'>Learn more at the English Wikipedia</a>
         </div>
     </div>
 </div>
