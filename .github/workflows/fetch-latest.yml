@@ -25,8 +25,9 @@ jobs:
       - name: build
         run: |
           wget https://github.com/akariv/speculatron/archive/refs/heads/main.zip
+          ln -s . speculatron-main
           unzip -o main.zip
-          rm main.zip
+          rm main.zip speculatron-main
           git checkout CONFIGURATION.ts package.json README.md
           git add .
           git commit -m "Update to latest version"
