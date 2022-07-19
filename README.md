@@ -50,12 +50,21 @@ The map in this site uses MapBox. You can create a free account there, design yo
 
 Once you have it, add the style and access token to the config file.
 
-
 ### GitHub
 
-For everything to work you might need to enable Actions and Github Pages in your forked repository.
+For everything to work you need to enable Actions and Github Pages in your forked repository.
 
 To deploy the site on a custom domain, add a CNAME file to the root of the repository containing the name of your domain. You also need to make some DNS modifications to point your domain to the GitHub Pages domain - please consult with the [GitHub documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for more information.
+
+### Pulling an updated version
+
+You will find in your GitHub repository two actions.
+The one named 'Fetch Latest Version' can be run in order to fetch the latest version of the repository from upstream.
+It will overwrite all the files in the repository - except the configuration file and `package.json`.
+
+### Manually updating the site
+
+The action named 'Deploy' can be run manually in order to push an updated version of the site to the GitHub pages domain, in case there's something out of sync there (might happen after pulling the latest version).
 
 ## Development of this project 
 
