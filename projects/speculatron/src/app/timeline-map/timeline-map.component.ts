@@ -91,15 +91,17 @@ export class TimelineMapComponent implements OnInit {
       minZoom: 3,
     });
     this.theMap.on('style.load', () => {
-      forkJoin([this.api.fetchMapData(), this.api.data]).subscribe(([views, timeline]) => {
-        timeline.forEach((item) => {
-          if (item.hasContent) {
-            if (item.map_view && item.map_view.length > 0) {
-              return;
+      this.api.fetchMapData().subscribe((views) => {
+        this.api.data.subscribe((timeline) => {
+          timeline.forEach((item) => {
+            if (item.hasContent && !item.map_view && !views[item.title]) {
+              if (item.map_view && item.map_view.length > 0) {
+                return;
+              }
+              item.map_view = [item.title];
+              views[item.title] = item;
             }
-            item.map_view = [item.title];
-            views[item.title] = item;
-          }
+          });
         });
         this.mapViews.next(views);
       });  
