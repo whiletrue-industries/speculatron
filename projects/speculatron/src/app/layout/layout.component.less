@@ -108,7 +108,9 @@
                     margin-top: auto;
                 });
                 .mobile({
-                    margin-left: auto;
+                  margin-left: auto;
+                  width: 40px;
+                  height: 40px;
                 });
                 position: relative;
                 img {
@@ -122,8 +124,8 @@
                     top: 0;
                     right: 0;
                     border-radius: 8px;
-                    background-color: #CE0031;
-                    color: white;
+                    background-color: white;
+                    color: @bright-multiply;
                     .font-manrope;
                     font-weight: 700;
                     font-size: 10px;
@@ -152,6 +154,11 @@
                     margin-right: 12px;
                 });
             }
+          .addNew {
+                .mobile({
+                    display: none;
+                });
+          }
         }
     }
 }
