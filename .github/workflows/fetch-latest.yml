@@ -31,5 +31,6 @@ jobs:
           git status
           git checkout CONFIGURATION.ts package.json README.md
           git add .
+          git reset .github
           git commit -m "Update to latest version"
-          # git pushh
+          git push
