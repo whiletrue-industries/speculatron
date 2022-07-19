@@ -1,3 +1,5 @@
+v0.1.2: Minor UI fixes
+
 v0.1.1: Minor UI fixes
 
 v0.1.0: Add dialog for selecting which authors to show on the timeline
@@ -19,3 +21,5 @@ and then use the following command:
 `git apply v0.1.0.patch`
 
 This command must be run in the *root directory* of your repository.
+
+Note that if you're upgrading across multiple versions, you need to apply the patches one at a time, in chronological order.
