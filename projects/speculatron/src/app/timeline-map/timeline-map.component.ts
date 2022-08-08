@@ -7,13 +7,14 @@ import { forkJoin, ReplaySubject, timer } from 'rxjs';
 import { switchMap, first, delay } from 'rxjs/operators';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
+import { BaseTimelineMapComponent } from './base-timeline';
 
 @Component({
   selector: 'app-timeline-map',
   templateUrl: './timeline-map.component.html',
   styleUrls: ['./timeline-map.component.less']
 })
-export class TimelineMapComponent implements OnInit {
+export class TimelineMapComponent extends BaseTimelineMapComponent implements OnInit {
 
   @Input() id: string;
   @Input() title: SafeHtml;
@@ -22,69 +23,18 @@ export class TimelineMapComponent implements OnInit {
   @Input() infobarSubtitle: string;
   @Input() api: TimelineMapService;
 
-  timeline: any[] = [];
   mapViews = new ReplaySubject<any>(1);
   theMap: mapboxgl.Map;
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
-  _info = false;
-  _addNew = false;
-  _layers = false;
-  addNewOpen = false;
-  layersOpen = false;
 
   activeYear = -1;
 
-  constructor(private activatedRoute: ActivatedRoute, private mapSvc: MapService) {
-  }
-
-  get info() { return this._info; }
-  set info(value) {
-    console.log('INFO=', value);
-    this._addNew = false;
-    this._layers = false;
-    this._info = value;
-    localStorage.setItem(this.id, 'opened');
-  }
-
-  get addNew() { return this._addNew; }
-  set addNew(value) {
-    this._info = false;
-    this._layers = false;
-    this._addNew = value;
-    timer(0).subscribe(() => {this.addNewOpen = value;});
-  }
-
-  get layers() { return this._layers; }
-  set layers(value) {
-    this._info = false;
-    this._addNew = false;
-    this._layers = value;
-    timer(0).subscribe(() => {this.layersOpen = value;});
+  constructor(activatedRoute: ActivatedRoute, mapSvc: MapService) {
+    super(activatedRoute, mapSvc);
   }
 
   ngOnInit(): void {
-    this._info = localStorage.getItem(this.id) !== 'opened';
-    this.api.data.subscribe((timeline: any) => {
-      if (!this.timeline) {
-        this.activatedRoute.fragment.pipe(
-          delay(1000),
-        ).subscribe((fragment) => {
-          this.activeYear = this.api.YEAR_CURRENT;
-          if (fragment ) {
-            this.activeYear = parseInt(fragment.slice(1));
-            if (!this.activeYear) {
-              this.activeYear = this.api.YEAR_CURRENT;
-            }
-          }
-          fragment = 'Y' + this.activeYear;
-          const el = document.querySelector(`[data-year=${fragment}]`);
-          if (el) {
-            el.scrollIntoView({block: 'center', behavior: 'auto'});
-          }
-        });
-      }
-      this.timeline = timeline;
-    });
+    this.initialize(this.id, this.api);
     this.theMap = new mapboxgl.Map({
       container: this.mapEl.nativeElement,
       style: MAPBOX_STYLE,
@@ -106,6 +56,21 @@ export class TimelineMapComponent implements OnInit {
         this.mapViews.next(views);
       });  
     })
+  }
+
+  override goto(fragment: string) {
+    this.activeYear = this._api.YEAR_CURRENT;
+    if (fragment ) {
+      this.activeYear = parseInt(fragment.slice(1));
+      if (!this.activeYear) {
+        this.activeYear = this.api.YEAR_CURRENT;
+      }
+    }
+    fragment = 'Y' + this.activeYear;
+    const el = document.querySelector(`[data-year=${fragment}]`);
+    if (el) {
+      el.scrollIntoView({block: 'center', behavior: 'auto'});
+    }
   }
 
   changeMapView(mapViewName: string) {

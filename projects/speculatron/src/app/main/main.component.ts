@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { AIRTABLE_BASE } from '../../../../../CONFIGURATION';
+import { AIRTABLE_BASE, LAYOUT } from '../../../../../CONFIGURATION';
 
 import { marked } from 'marked';
 import { first } from 'rxjs';
@@ -33,5 +33,9 @@ export class MainComponent {
       this.infobarSubtitle = this.timelineService.INFOBAR_SUBTITLE || '';
     });
     this.timelineService.fetchData().subscribe(() => { console.log('fetchData'); });
+  }
+
+  public get hLayout(): boolean {
+    return LAYOUT === 'horizontal';
   }
 }

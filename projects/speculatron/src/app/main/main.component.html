@@ -1,5 +1,5 @@
 <app-timeline-map
-    *ngIf='title'
+    *ngIf='title && !hLayout'
     id='Speculatron'
     [api]='timelineService'
     [title]='title'
@@ -8,4 +8,14 @@
     [infobarSubtitle]='infobarSubtitle'
 >
 </app-timeline-map>
+<app-timeline-map-h
+    *ngIf='title && hLayout'
+    id='Speculatron'
+    [api]='timelineService'
+    [title]='title'
+    [subtitle]='subtitle'
+    [infobarTitle]='infobarTitle'
+    [infobarSubtitle]='infobarSubtitle'
+>
+</app-timeline-map-h>
 <app-map-selector *ngIf='mapSelector.showMapSelector'></app-map-selector>

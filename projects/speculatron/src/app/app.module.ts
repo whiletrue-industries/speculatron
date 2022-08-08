@@ -22,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { MapSelectorComponent } from './map-selector/map-selector.component';
 import { LayersBarComponent } from './layers-bar/layers-bar.component';
 import { LayersBarItemComponent } from './layers-bar/layers-bar-item/layers-bar-item.component';
+import { TimelineMapHComponent } from './timeline-map-h/timeline-map-h.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { LayersBarItemComponent } from './layers-bar/layers-bar-item/layers-bar-
     AddNewBarComponent,
     LayersBarComponent,
     MapSelectorComponent,
-    LayersBarItemComponent
+    LayersBarItemComponent,
+    TimelineMapHComponent
   ],
   imports: [
     BrowserModule,
