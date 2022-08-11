@@ -6,7 +6,7 @@ import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
 import { BaseTimelineMapComponent } from '../timeline-map-base/base-timeline';
-import { timer, tap, delay, debounceTime, Subject, filter } from 'rxjs';
+import { timer, tap, delay, debounceTime, Subject, filter, first } from 'rxjs';
 import { TimeLineComponent } from './time-line/time-line.component';
 
 @Component({
@@ -27,6 +27,8 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   @ViewChild('detailMapEl', {static: true}) detailMapEl: ElementRef;
   @ViewChild('timeLine') timeLineComponent: TimeLineComponent;
   @ViewChild('scroller') scrollerComponent: ElementRef;
+  @ViewChild('baseMarkers') baseMarkersElement: ElementRef;
+  @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
 
   // Maps
   baseMap: mapboxgl.Map;
@@ -50,9 +52,11 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   baseMapWidth: string = '100%';
   detailWidth: string = '50%';
   changing: number = 0;
+  markers: mapboxgl.Marker[] = []
+  markersTimeline: any[] = [];
 
   constructor(activatedRoute: ActivatedRoute, private mapSvc: MapService) {
-    super(activatedRoute);
+    super(activatedRoute);  
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
         this.syncWidths();
@@ -71,6 +75,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.initialize(this.api);
     this.api.data.subscribe(() => {
       this.saveState();
+      this.updateMarkers();
     });
   }
 
@@ -103,6 +108,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.resizeObserver.observe(this.baseMapEl.nativeElement);
     timer(0).subscribe(() => {
       this.syncWidths();
+      this.updateMarkers();
     });
   }
 
@@ -208,6 +214,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       ).subscribe(() => {
         this.currentItem = {};
         this.contentVisible = false;
+        this.updateMarkers();
       });
       return;
     }
@@ -227,6 +234,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         } else {
           this.applyMapView(item.title, this.detailMap);
         }
+        this.updateMarkers();
       }),
       delay(100),
     ).subscribe(() => {
@@ -249,5 +257,43 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       return '#333333'; // gray1
     }
     return PRIMARY_COLOR;
+  }
+
+  updateMarkers() {
+    this.markers.forEach((marker) => {
+      marker.remove();
+    });
+    this.markersTimeline = this.timeline.slice();
+    timer(100).subscribe(() => {
+      const conf: {el: HTMLElement, map: mapboxgl.Map}[] = [
+        {el: this.baseMarkersElement.nativeElement, map: this.baseMap},
+        {el: this.detailMarkersElement.nativeElement, map: this.detailMap},
+      ];
+      this.mapViews.pipe(first()).subscribe((mapViews) => {
+        for (const c of conf) {
+          const markers = c.el.children;
+          for (let i=0; i<markers.length; i++) {
+            const markerEl = markers[i] as HTMLElement; 
+            const item = this.timeline[i];
+            let mapViewName = item.title;
+            if (item.map_view && item.map_view.length) {
+              mapViewName = item.map_view[0];
+            }
+            const mapView: any = mapViews[mapViewName];
+            const options = this.parseMapView(mapView);
+            const coordinates = options.center as mapboxgl.LngLatLike;
+            const clonedElement = markerEl.cloneNode(true) as HTMLElement;
+            clonedElement.addEventListener('click', () => {
+              console.log('CLICK', item.title);
+              this.itemSelected(item);
+            });
+            this.markers.push(
+                new mapboxgl.Marker(clonedElement)
+                      .setLngLat(coordinates)
+                      .addTo(c.map));
+          }
+        }
+      });
+    });
   }
 }
