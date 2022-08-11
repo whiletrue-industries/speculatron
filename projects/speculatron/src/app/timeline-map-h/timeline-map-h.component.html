@@ -1,2 +1,46 @@
-<app-layout [api]='api' (info)='info = $event' (addNew)='addNew = $event' (layers)='layers = $event'>
-</app-layout>
+<app-timeline-map-base [id]='id' [title]='title' [subtitle]='subtitle' [infobarTitle]='infobarTitle' [infobarSubtitle]='infobarSubtitle' [api]='api'>
+    <div class='wrapper'>
+        <div class='base-map'>
+            <div #baseMapEl></div>
+        </div>
+        <app-time-line #timeLine *ngIf='initialTimelineState !== null' 
+            [minDate]='minDate' [maxDate]='maxDate' [items]='timeline' [state]='initialTimelineState' 
+            (changed)='timelineStateChanged($event)'
+            (selected)='itemSelected($event)'
+        ></app-time-line>
+        <div class='detail-bg'>
+            <div class='detail' [class.open]='detailOpen' [style.width]='detailOpen ? detailWidth : "0px"'>
+                <div class='detail-map' #detailMapEl [style.width]='baseMapWidth'>
+                </div>
+                <div class='content' [style.width]='baseMapWidth'>
+                    <div class='scroller' #scroller [style.width]='detailWidth'>
+                        <div class='scroll-card' *ngFor='let item of timeline' [style.width]='detailWidth'>
+                            <app-content-item 
+                                *ngIf='contentVisible'
+                                [attr.data-id]='item.id' 
+                                [content]='item' [contentType]='item.type'
+                                [activeItem]='currentItem'
+                                [parentElement]='scroller'
+                                (activated)='itemActivated($event)'
+                            ></app-content-item>
+                        </div>
+                    </div>
+                    <div class='button-close' (click)='itemSelected(null)'></div>
+                    <div class='description' [style.width]='detailWidth'>
+                        <app-media-icon [type]='currentItem.type' [color]='markerColor(currentItem)'></app-media-icon>
+                        <span class='title' [style.color]='markerColor(currentItem)'>{{currentItem.title}}</span>
+                        <span class='date' [style.color]='markerColor(currentItem)'>{{currentItem.niceTimestamp}}</span>
+                    </div>
+                    <div class='arrow' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'></div>
+                    <div class='arrow rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'></div>
+                    <div class='arrow-icon' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'>
+                        <app-media-icon [type]='currentItem.prev.type' color='#fff'></app-media-icon>
+                    </div>
+                    <div class='arrow-icon rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'>
+                        <app-media-icon [type]='currentItem.next.type' color='#fff'></app-media-icon>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+</app-timeline-map-base>

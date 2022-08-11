@@ -11,7 +11,7 @@ import { first } from 'rxjs/operators';
 export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
 
   @Input() item: any;
-  @Input() active = false;
+  @Input() activeItem: any;
   @ViewChild('frame', {static: true}) frame: ElementRef;
   player: YT.Player;
   playerReady = new ReplaySubject<void>(1);
@@ -22,17 +22,18 @@ export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges() {
-    if (this.active) {
+    const active = this.activeItem === this.item;
+    if (active) {
       this.playerReady.pipe(first())
       .subscribe(() => {
-        if (this.active && this.player.getPlayerState() !== YT.PlayerState.PLAYING) {
+        if (active && this.player.getPlayerState() !== YT.PlayerState.PLAYING) {
           this.player.playVideo();
         }
       });  
     } else {
       this.playerReady.pipe(first())
       .subscribe(() => {
-        if (!this.active && this.player.getPlayerState() !== YT.PlayerState.PAUSED && this.player.getPlayerState() !== YT.PlayerState.ENDED) {
+        if (!active && this.player.getPlayerState() !== YT.PlayerState.PAUSED && this.player.getPlayerState() !== YT.PlayerState.ENDED) {
           this.player.pauseVideo();
         }
       });  

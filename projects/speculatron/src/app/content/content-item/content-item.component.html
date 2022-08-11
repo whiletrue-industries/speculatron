@@ -1,0 +1,8 @@
+<ng-container *ngIf='contentVisible'>
+    <app-content-audio *ngIf='contentType === "audio"' [item]='content' [activeItem]='activeItem' (mapView)='mapView.emit($event)'></app-content-audio>
+    <app-content-video *ngIf='contentType === "video"' [item]='content' [activeItem]='activeItem'></app-content-video>
+    <app-content-image *ngIf='contentType === "image"' [item]='content'></app-content-image>
+    <app-content-twitter *ngIf='contentType === "twitter"' [item]='content'></app-content-twitter>
+    <app-content-instagram *ngIf='contentType === "instagram"' [item]='content'></app-content-instagram>
+    <app-content-wikipedia *ngIf='contentType === "wikipedia"' [item]='content'></app-content-wikipedia>    
+</ng-container>

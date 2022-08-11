@@ -28,7 +28,7 @@ export class ApiService {
 
   airtableToArray() {
     return map((response: any) => {
-      const ret = response.records.map((i: any) => i.fields);
+      const ret = response.records.map((i: any) => Object.assign({id: i.id}, i.fields));
       return ret;
     });
   }

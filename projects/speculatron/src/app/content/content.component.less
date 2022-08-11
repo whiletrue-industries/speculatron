@@ -82,26 +82,28 @@
                 margin-top: 50vh;
             });
 
-            app-content-image, 
-            app-content-audio, 
-            app-content-video, 
-            app-content-twitter,
-            app-content-instagram,
-            app-content-wikipedia
-            {
-                display: flex;
-                flex-flow: column;
-                justify-content: flex-end;
-
-                .desktop({
-                    width: calc(100% ~'-' 2*@timeline-width);
-                    margin: @header-height @timeline-width;
-                });
-                .mobile({
-                    width: 100%;
-                    margin: @header-height 0 0 0;
-                });
-                height: calc(100% ~'-' 2*@header-height);
+            ::ng-deep {
+                app-content-image, 
+                app-content-audio, 
+                app-content-video, 
+                app-content-twitter,
+                app-content-instagram,
+                app-content-wikipedia
+                {
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: flex-end;
+    
+                    .desktop({
+                        width: calc(100% ~'-' 2*@timeline-width);
+                        margin: @header-height @timeline-width;
+                    });
+                    .mobile({
+                        width: 100%;
+                        margin: @header-height 0 0 0;
+                    });
+                    height: calc(100% ~'-' 2*@header-height);
+                }
             }
         }
     }

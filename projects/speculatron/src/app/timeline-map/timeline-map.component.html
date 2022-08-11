@@ -1,29 +1,16 @@
-<app-layout [api]='api' (info)='info = $event' (addNew)='addNew = $event' (layers)='layers = $event'>
-    <div class='content'>
-        <div class='map'>
-            <div #mapEl></div>
-        </div>
-        <div class='timeline'>
-            <ng-container *ngFor='let item of timeline'>
-                <app-content-placeholder [attr.data-year]='"Y" + item.year' [item]='item' *ngIf='!item.hasContent'></app-content-placeholder>
-                <app-content [attr.data-year]='"Y" + item.year' 
-                    [active]='item.year === activeYear'
-                    [item]='item' *ngIf='item.hasContent'
-                    (mapView)='changeMapView($event)'
-                ></app-content>
-            </ng-container>
-        </div>
-        <app-infobar [class.open]='info' [api]='api' (close)='info=false'
-            [title]='infobarTitle'
-            [subtitle]='infobarSubtitle'
-        ></app-infobar>
-        <app-add-new-bar *ngIf='addNew' [class.open]='addNewOpen' [api]='api' (close)='addNew=false'
-        ></app-add-new-bar>
-        <app-layers-bar *ngIf='layers' [class.open]='layersOpen' [api]='api' (close)='layers=false' (addNew)='addNew=true'
-        ></app-layers-bar>
+<app-timeline-map-base [id]='id' [title]='title' [subtitle]='subtitle' [infobarTitle]='infobarTitle' [infobarSubtitle]='infobarSubtitle' [api]='api'>
+    <div class='map'>
+        <div #mapEl></div>
     </div>
-    <div class='header-title'>
-        <h1>{{title}}</h1>
-        <h2>{{subtitle}}</h2>
+    <div class='timeline'>
+        <ng-container *ngFor='let item of timeline'>
+            <app-content-placeholder [attr.data-year]='"Y" + item.year' [item]='item' *ngIf='!item.hasContent'></app-content-placeholder>
+            <app-content [attr.data-year]='"Y" + item.year' 
+                [activeItem]='activeItem'
+                [item]='item' *ngIf='item.hasContent'
+                (mapView)='changeMapView($event)'
+                (activated)='contentActivated($event)'
+            ></app-content>
+        </ng-container>
     </div>
-</app-layout>
+</app-timeline-map-base>

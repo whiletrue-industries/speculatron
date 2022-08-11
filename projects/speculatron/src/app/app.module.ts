@@ -23,6 +23,10 @@ import { MapSelectorComponent } from './map-selector/map-selector.component';
 import { LayersBarComponent } from './layers-bar/layers-bar.component';
 import { LayersBarItemComponent } from './layers-bar/layers-bar-item/layers-bar-item.component';
 import { TimelineMapHComponent } from './timeline-map-h/timeline-map-h.component';
+import { TimelineMapBaseComponent } from './timeline-map-base/timeline-map-base.component';
+import { TimeLineComponent } from './timeline-map-h/time-line/time-line.component';
+import { ContentItemComponent } from './content/content-item/content-item.component';
+import { MediaIconComponent } from './media-icon/media-icon.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +48,11 @@ import { TimelineMapHComponent } from './timeline-map-h/timeline-map-h.component
     LayersBarComponent,
     MapSelectorComponent,
     LayersBarItemComponent,
-    TimelineMapHComponent
+    TimelineMapHComponent,
+    TimelineMapBaseComponent,
+    TimeLineComponent,
+    ContentItemComponent,
+    MediaIconComponent
   ],
   imports: [
     BrowserModule,

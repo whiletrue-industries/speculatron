@@ -61,6 +61,7 @@
                     margin-top: 12px;
                 });
 
+                object-fit: contain;
                 cursor: pointer;
             }
             .text {
@@ -121,12 +122,13 @@
                     height: 100%;
                 }
                 .contrib {
-                    width: 16px;
-                    height: 16px;
+                    width: 24px;
+                    height: 24px;
                     position: absolute;
-                    top: 0;
-                    right: 0;
-                    border-radius: 8px;
+                    bottom: -4px;
+                    right: -4px;
+                    border-radius: 12px;
+                    border: 1px solid @gray5;
                     background-color: white;
                     color: @bright-multiply;
                     .font-manrope;

@@ -1,0 +1,247 @@
+@import '../../common.less';
+
+.wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: block;
+
+    .base-map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        & > div {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .detail-bg {
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        
+        .detail {
+            width: 0vw;
+            transition: width 1s ease-in-out;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            pointer-events: all;
+            position: relative;
+            
+            .detail-map {
+                position: absolute;
+                top: 0;
+                width: 100%;
+                height: 100%;    
+            }
+            .content {
+                position: absolute;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-flow: column;
+                align-items: center;
+                padding-top: 100px;
+                padding-bottom: 200px;
+
+                .scroller {
+                    display: flex;
+                    flex-flow: row;
+                    align-items: flex-start;
+                    overflow-x: scroll;
+                    .no-scrollbars;
+                    width: 50%;
+                    height: 100%;
+                    overflow-y: hidden;
+
+                    scroll-behavior: smooth;
+                    scroll-snap-type: x mandatory;
+                    padding: 0 450px;
+                
+                    .scroll-card {
+                        flex: 0 0 auto;
+                        display: flex;
+                        flex-flow: column;
+                        align-items: center;
+                        justify-content: center;
+                        scroll-snap-align: center;
+                        height: 100%;
+                        overflow-y: scroll;
+                        overflow-x: hidden;
+                        .no-scrollbars;
+
+                        ::ng-deep {
+                            app-content-item {
+                                display: flex;
+                                flex-flow: column;
+                                justify-content: flex-start;
+                                align-items: center;
+                                width: 100%;
+                                height: 100%;
+                
+                                .desktop({
+                                    padding: 0 24px;
+                                });
+                                .mobile({
+                                    width: 100%;
+                                    margin: 100px 0 0 0;
+                                });
+                                app-content-video {
+                                    width: 100%;
+                                    height: 100%;
+                                }
+                            }
+                        }            
+                    }
+                }
+                
+                .button-close {
+                    width: 24px;
+                    height: 24px;
+                    background-image: url(../../assets/img/detail-button-close.svg);
+                    background-repeat: no-repeat;
+                    background-size: contain;
+                    background-position: center;
+                    cursor: pointer;
+                    position: absolute;
+                    top: 16px;
+                    transition-delay: 0s;
+                    transition-duration: 200ms;
+                    transition-timing-function: ease-out;
+                    transition-property: right;                        
+                    right: calc(25% ~'-' 24px);
+                }
+
+                .description {
+                    position: absolute;
+                    bottom: 40px;
+                    display: flex;
+                    flex-flow: column;
+                    align-items: center;
+                    color: white;
+                    gap: 5px;
+                    transition: bottom 200ms ease-in-out;
+                    transition-delay: 0s;
+                    text-align: center;
+                    padding: 0 24px;
+
+                    .title, .date {
+                        .font-manrope;
+                        font-style: normal;
+                        font-size: 16px;
+                        line-height: 22px;
+                        text-transform: uppercase;
+                        color: @gray5;
+                    }
+                    .title {
+                        font-weight: 700;
+                    }
+                    .date {
+                        font-weight: 400;
+                    }
+                }
+
+                .arrow {
+                    width: 33px;
+                    height: 14px;
+                    background-image: url(../../assets/img/arrow-next.svg);
+                    background-repeat: no-repeat;
+                    background-size: contain;
+                    background-position: center;
+                    cursor: pointer;
+                    position: absolute;
+                    bottom: 48px;
+                    transition-delay: 0s;
+                    transition-duration: 200ms;
+                    transition-timing-function: ease-out;
+
+                    &:not(.rev) {
+                        transition-property: left;                        
+                        left: calc(25% - 50vw ~'-' 100px);
+                    }
+
+                    &.rev {
+                        transition-property: right;                        
+                        right: calc(25% ~'-' 100px);
+                        transform: scaleX(-100%);
+                    }
+                }
+
+                .arrow-icon {
+                    cursor: pointer;
+                    position: absolute;
+                    height: 24px;
+                    width: 24px;
+                    bottom: 43px;
+                    transition-delay: 0s;
+                    transition-duration: 200ms;
+                    transition-timing-function: ease-out;
+                    &:not(.rev) {
+                        transition-property: left;
+                        left: calc(25% - 50vw ~'-' 60px);
+                    }
+
+                    &.rev {
+                        transition-property: right;                        
+                        right: calc(25% ~'-' 60px);
+                    }
+                }
+            }
+
+            &.open {
+                width: 50%;
+                .content {
+                    .description {
+                        transition-delay: 2s;
+                        bottom: 70px;
+                    }
+                    .arrow {
+                        transition-delay: 2s;
+                        &:not(.rev) {
+                            left: calc(25% ~'+' 40px);
+                        }
+    
+                        &.rev {
+                            right: calc(25% ~'+' 40px);
+                        }    
+                    }
+                    .arrow-icon {
+                        transition-delay: 2s;
+                        &:not(.rev) {
+                            left: calc(25% ~'+' 81px);
+                        }
+    
+                        &.rev {
+                            right: calc(25% ~'+' 81px);
+                        }    
+                    }
+                    .button-close {
+                        right: calc(25% ~'+' 16px);
+                    }
+                }
+            }
+
+        }
+    }
+
+    app-time-line {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+    }
+}

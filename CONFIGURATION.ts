@@ -5,4 +5,7 @@ export const AIRTABLE_DETAILS_FORM = 'https://airtable.com/embed/shrynWjEy8fsje5
 export const MAPBOX_STYLE = 'mapbox://styles/atlasmedliq/ckiodibg82x1k17tcof8e9pmd';
 export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiYXRsYXNtZWRsaXEiLCJhIjoiY2tpbXgzNW5qMHhhcjJ5cGtydHpkNnJqYyJ9.vfietFuvTA8S1vaGlm3CUQ';
 
-export const LAYOUT = 'horizontal';
+export const HORIZONTAL_LAYOUT = true; // enable for horizontal layout
+
+export const PRIMARY_COLOR = '#23006E';
+// export const PRIMARY_COLOR = '#6E0023';

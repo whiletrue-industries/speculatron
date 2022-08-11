@@ -7,46 +7,31 @@ import { VisibilityDetector } from './visibility-detector';
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.less']
 })
-export class ContentComponent implements OnInit, AfterViewInit {
+export class ContentComponent implements OnInit {
 
   @Input() item: any;
-  @Input() active = false;
+  @Input() activeItem: any = null;
   @Output() mapView = new EventEmitter<any>();
+  @Output() activated = new EventEmitter<any>();
 
   contentType = '';
   content: any = null;
-  contentVisible = false;
-  visibleDetector: VisibilityDetector;
-  activeDetector: VisibilityDetector;
 
-  constructor(private el: ElementRef) {
-    this.visibleDetector = new VisibilityDetector();
-    this.activeDetector = new VisibilityDetector();
+  constructor(public el: ElementRef) {
   }
 
   ngOnInit(): void {
-    this.activeDetector.detected.subscribe((active) => {
-      // console.log('CONTENT ACTIVE', active, this.item);
-      this.active = active;
-      if (active) {
-        this.handleGeo();
-        location.replace(location.pathname + '#Y' + this.item.year);
-      }
-    });
-    this.visibleDetector.detected.subscribe((visible) => {
-      // console.log('CONTENT VISIBLE', visible, this.item);
-      this.contentVisible = this.contentVisible || visible;
-    });
     if (this.item.hasContent) {
       this.content = this.item;
       this.contentType = this.content.type;
     }
   }
 
-  ngAfterViewInit() {
-    const el: HTMLElement = this.el.nativeElement;
-    this.visibleDetector.initVisibilityDetector(el, el.parentElement, 'visible');
-    this.activeDetector.initVisibilityDetector(el, el.parentElement, 'active');
+  onActivated(item: any) {
+    if (item) {
+      this.handleGeo();
+      this.activated.next(item);
+    }
   }
 
   handleGeo() {

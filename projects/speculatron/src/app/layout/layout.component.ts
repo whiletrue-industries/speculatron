@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { PRIMARY_COLOR } from 'CONFIGURATION';
 import { TimelineMapService } from '../timeline-map.service';
 
 @Component({
@@ -14,6 +15,7 @@ export class LayoutComponent implements OnInit {
   @Output() addNew = new EventEmitter<boolean>();
   @Output() layers = new EventEmitter<boolean>();
 
+  PRIMARY_COLOR = PRIMARY_COLOR;
 
   constructor() { }
 

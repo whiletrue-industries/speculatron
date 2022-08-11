@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { AIRTABLE_BASE, LAYOUT } from '../../../../../CONFIGURATION';
+import { AIRTABLE_BASE, HORIZONTAL_LAYOUT } from '../../../../../CONFIGURATION';
 
 import { marked } from 'marked';
 import { first } from 'rxjs';
@@ -36,6 +36,6 @@ export class MainComponent {
   }
 
   public get hLayout(): boolean {
-    return LAYOUT === 'horizontal';
+    return HORIZONTAL_LAYOUT;
   }
 }

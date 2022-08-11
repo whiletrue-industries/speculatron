@@ -1,3 +1,4 @@
+import { HORIZONTAL_LAYOUT } from "CONFIGURATION";
 import { Observable, Subject } from "rxjs";
 import { distinctUntilChanged } from "rxjs/operators";
 
@@ -16,7 +17,12 @@ export class VisibilityDetector  {
 
     initVisibilityDetector(element: Element, rootElement: Element | null, kind: string) {
         // (this.el.nativeElement as HTMLElement).parentElement
-        const rootMargin = {
+        const rootMargin = HORIZONTAL_LAYOUT ? 
+        {
+          active: '0% -50% 0% -50%',
+          visible: '100% 0% 100% 0%'
+        }[kind]
+        : {
           active: '-50% 0% -50% 0%',
           visible: '100% 0% 100% 0%'
         }[kind];
