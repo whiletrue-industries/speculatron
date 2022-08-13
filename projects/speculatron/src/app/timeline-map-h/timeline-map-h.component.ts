@@ -198,6 +198,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   }
 
   saveState() {
+    if (!this.zoomState) {
+      return;
+    }
     let state = `${this.zoomState}`;
     const authors = this.api.authorsList.filter((author) => author.selected).map(a => a.hash);
     state += `/${authors.join(',')}`;
