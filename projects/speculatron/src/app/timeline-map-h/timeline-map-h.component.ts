@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeStyle } from '@angular/platform-browser';
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { MAPBOX_STYLE, PRIMARY_COLOR } from 'CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
@@ -46,6 +46,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   currentItem: any = {};
   selectedItemId: string | null = null;
   itemActivations = new Subject<any>();
+  mapMode = 'Media';
 
   // Layout
   resizeObserver: ResizeObserver;
@@ -54,8 +55,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   changing: number = 0;
   markers: mapboxgl.Marker[] = []
   markersTimeline: any[] = [];
-
-  constructor(activatedRoute: ActivatedRoute, private mapSvc: MapService) {
+  contentBackground: SafeStyle;
+  
+  constructor(activatedRoute: ActivatedRoute, private mapSvc: MapService, private sanitizer: DomSanitizer) {
     super(activatedRoute);  
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
@@ -77,6 +79,8 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       this.saveState();
       this.updateMarkers();
     });
+    this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
+    console.log('CT BG', this.contentBackground);
   }
 
   ngAfterViewInit(): void {
@@ -94,7 +98,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       style: MAPBOX_STYLE,
       minZoom: 3,
       attributionControl: false,
-      logoPosition: 'top-right',
+      logoPosition: 'bottom-right',
     });
     this.detailMap.on('style.load', () => {
       this.loadMapViews();
@@ -141,8 +145,21 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.detailWidth = (this.baseWidth/2) + 'px';
   }
 
+  getDetailWidth() {
+    if (this.detailOpen) {
+      if (this.mapMode === 'Map') {
+        return '100%';
+      } else {
+        return this.detailWidth;
+      }
+    } else {
+      return '0px';
+    }
+  }
+
   override setTimeline(timeline: any[]): void {
     super.setTimeline(timeline);
+    console.log('TIMELINE', timeline);
     const minDate = this.timeline[0].timestamp.valueOf();
     const maxDate = this.timeline[this.timeline.length - 1].timestamp.valueOf();
     const diff = maxDate - minDate;
@@ -156,9 +173,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     if (params.length > 0) {
       this.initialTimelineState = params[0];
       if (params.length > 1) {
-        const authors = params[1].split(',');
+        const authors = params[1].split(',').filter(a => a.length > 0);
         for (const author of this.api.authorsList) {
-          if (authors.includes(author.hash)) {
+          if (authors.includes(author.hash) || (authors.length === 0 && author.originalAuthor)) {
             author.selected = true;
           } else {
             author.selected = false;
@@ -208,6 +225,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       this.saveState();
       timer(0).pipe(
         tap(() => {
+          if (!this.detailOpen) {
+            this.mapMode = 'Media';
+          }
           this.detailOpen = false;
         }),
         delay(1000)
@@ -251,10 +271,12 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   }
 
   markerColor(item: any) {
-    if (item.marker_style === 'Light') {
-      return '#e0e0e0'; // gray5
-    } else if (item.marker_style === 'Dark') {
-      return '#333333'; // gray1
+    if (item) {
+      if (item.marker_style === 'Light') {
+        return '#e0e0e0'; // gray5
+      } else if (item.marker_style === 'Dark') {
+        return '#333333'; // gray1
+      }  
     }
     return PRIMARY_COLOR;
   }
@@ -295,5 +317,21 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         }
       });
     });
+  }
+
+  toggleMapMode() {
+    if (this.mapMode === 'Map') {
+      this.mapMode = 'Media';
+    } else {
+      this.mapMode = 'Map';
+    }
+  }
+
+  mapModeColor(mode: string) {
+    if (mode === this.mapMode) {
+      return PRIMARY_COLOR;
+    } else {
+      return '#ffffffc0';
+    }
   }
 }

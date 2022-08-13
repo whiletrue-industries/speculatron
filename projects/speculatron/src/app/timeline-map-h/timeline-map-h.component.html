@@ -9,10 +9,11 @@
             (selected)='itemSelected($event)'
         ></app-time-line>
         <div class='detail-bg'>
-            <div class='detail' [class.open]='detailOpen' [style.width]='detailOpen ? detailWidth : "0px"'>
+            <div class='detail' [class.open]='detailOpen' [style.width]='getDetailWidth()' [class.map-mode]='this.mapMode === "Map"'>
                 <div class='detail-map' #detailMapEl [style.width]='baseMapWidth'>
                 </div>
-                <div class='content' [style.width]='baseMapWidth'>
+                <div class='content' [style.width]='baseMapWidth'
+                     [style.background]='this.mapMode === "Map" ? null : contentBackground'>
                     <div class='scroller' #scroller [style.width]='detailWidth'>
                         <div class='scroll-card' *ngFor='let item of timeline' [style.width]='detailWidth'>
                             <app-content-item 
@@ -39,7 +40,14 @@
                     <div class='arrow-icon rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'>
                         <app-media-icon [type]='currentItem.next.type' color='#fff'></app-media-icon>
                     </div>
-                </div>                
+                </div>
+                <div class='map-toggle' (click)='toggleMapMode()' [style.background]='markerColor(null)'>
+                    <div class='circle' [class.map]='mapMode === "Map"'></div>
+                    <div class='icons'>
+                        <app-media-icon [type]='currentItem.type' marker='Media' [color]='mapModeColor("Media")'></app-media-icon>
+                        <app-media-icon type='' marker='Map' [color]='mapModeColor("Map")'></app-media-icon>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

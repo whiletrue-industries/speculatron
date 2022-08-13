@@ -1,5 +1,7 @@
 @import '../../common.less';
 
+@transition-time: 350ms;
+
 .wrapper {
     width: 100%;
     height: 100%;
@@ -32,7 +34,7 @@
         
         .detail {
             width: 0vw;
-            transition: width 1s ease-in-out;
+            transition: width @transition-time ease-in-out;
             height: 100%;
             overflow: hidden;
             display: flex;
@@ -56,7 +58,8 @@
                 flex-flow: column;
                 align-items: center;
                 padding-top: 100px;
-                padding-bottom: 200px;
+                padding-bottom: 200px;            
+                pointer-events: none;
 
                 .scroller {
                     display: flex;
@@ -72,6 +75,9 @@
                     scroll-snap-type: x mandatory;
                     padding: 0 450px;
                 
+                    opacity: 0;
+                    transition: opacity @transition-time ease-in-out;
+    
                     .scroll-card {
                         flex: 0 0 auto;
                         display: flex;
@@ -110,6 +116,7 @@
                 }
                 
                 .button-close {
+                    pointer-events: all;    
                     width: 24px;
                     height: 24px;
                     background-image: url(../../assets/img/detail-button-close.svg);
@@ -120,10 +127,10 @@
                     position: absolute;
                     top: 16px;
                     transition-delay: 0s;
-                    transition-duration: 200ms;
+                    transition-duration: @transition-time;
                     transition-timing-function: ease-out;
                     transition-property: right;                        
-                    right: calc(25% ~'-' 24px);
+                    right: calc(16px);
                 }
 
                 .description {
@@ -134,7 +141,7 @@
                     align-items: center;
                     color: white;
                     gap: 5px;
-                    transition: bottom 200ms ease-in-out;
+                    transition: bottom @transition-time ease-in-out;
                     transition-delay: 0s;
                     text-align: center;
                     padding: 0 24px;
@@ -156,6 +163,7 @@
                 }
 
                 .arrow {
+                    pointer-events: all;    
                     width: 33px;
                     height: 14px;
                     background-image: url(../../assets/img/arrow-next.svg);
@@ -166,45 +174,85 @@
                     position: absolute;
                     bottom: 48px;
                     transition-delay: 0s;
-                    transition-duration: 200ms;
+                    transition-duration: @transition-time;
                     transition-timing-function: ease-out;
 
                     &:not(.rev) {
                         transition-property: left;                        
-                        left: calc(25% - 50vw ~'-' 100px);
+                        left: calc(40px);
                     }
 
                     &.rev {
                         transition-property: right;                        
-                        right: calc(25% ~'-' 100px);
+                        right: calc(40px);
                         transform: scaleX(-100%);
                     }
                 }
 
                 .arrow-icon {
+                    pointer-events: all;    
                     cursor: pointer;
                     position: absolute;
                     height: 24px;
                     width: 24px;
                     bottom: 43px;
                     transition-delay: 0s;
-                    transition-duration: 200ms;
+                    transition-duration: @transition-time;
                     transition-timing-function: ease-out;
                     &:not(.rev) {
                         transition-property: left;
-                        left: calc(25% - 50vw ~'-' 60px);
+                        left: calc(81px);
                     }
 
                     &.rev {
                         transition-property: right;                        
-                        right: calc(25% ~'-' 60px);
+                        right: calc(81px);
                     }
                 }
             }
+            .map-toggle {
+                position: absolute;
+                top: 16px;
+                width: 70px;
+                height: 36px;
+                border-radius: 18px;
+                cursor: pointer;
+                padding: 2px;
 
-            &.open {
+                .circle {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 16px;
+                    position: absolute;
+                    top: 2px;
+                    left: 2px;
+                    transition: left @transition-time ease-in-out;
+                    background-color: #fff;
+
+                    &.map {
+                        left: 36px;
+                    }
+                }
+
+                .icons {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-flow: row;
+                    align-items: center;
+                    justify-content: space-evenly;
+                    position: relative;
+                    gap: 6px;
+                }
+            }
+
+            &.open:not(.map-mode) {
                 width: 50%;
+                pointer-events: all;    
                 .content {
+                    .scroller {
+                        opacity: 1;
+                    }
                     .description {
                         transition-delay: 2s;
                         bottom: 70px;

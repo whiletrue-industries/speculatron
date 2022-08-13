@@ -28,7 +28,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   TEXT_HEIGHT = 16;
   TICK_HEIGHT = 48;
   CIRCLE_RADIUS = 24;
-  HEIGHT = this.TEXT_HEIGHT + this.TICK_HEIGHT + 2*this.CIRCLE_RADIUS;
+  HOVER_HEIGHT = 34;
+  HEIGHT = this.TEXT_HEIGHT + this.TICK_HEIGHT + 2*this.CIRCLE_RADIUS + this.HOVER_HEIGHT;
   RANDOM_CENTERS: any = {};
 
   @ViewChild('timeLine') timeline: ElementRef;
@@ -42,6 +43,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   firstTickValue: any;
   firstInit = false;
   svg: Selection<SVGSVGElement, unknown, HTMLElement, any>;
+  hovers: Selection<HTMLDivElement, unknown, HTMLElement, any>;
   zoomBehaviour: any;
   zoomX: Date;
   zoomK = 1;
@@ -49,6 +51,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   _changed = new ReplaySubject<void>(1);
   _changeCandidates = new Subject<string>();
   resizeObserver: ResizeObserver;
+  currentHover: number | null = null;
 
   constructor(private el: ElementRef) {
     this.resizeObserver = new ResizeObserver(() => {
@@ -103,6 +106,10 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
             .attr('width', this.WIDTH)
             .attr('height', this.TEXT_HEIGHT)
             .attr('fill', '#fff');
+    
+    this.hovers = select<HTMLDivElement, unknown>(this.timeline.nativeElement)
+                    .append('div')
+                    .attr('class', 'hovers');
 
     this.g = this.svg.append('g')
                   .attr('transform', `translate(0, ${this.HEIGHT - this.TEXT_HEIGHT})`)
@@ -213,6 +220,15 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     return content;
   }
 
+  updateHovers() {
+    this.hovers.selectAll('.hover')
+               .style('display', (d: any) => {
+                console.log('CHECK', this.currentHover, d.index);
+                return d.index === this.currentHover ? 'flex' : 'none';
+               });
+
+  }
+
   updateAxis() {
     this.g.call(this.xAxis.scale(this.xt))
           .call(g => g.select(".domain").remove())
@@ -236,13 +252,40 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     const newPoints = points.enter()
         .append('g')
         .attr('class', 'point')
-        .on('click', (_, d: any) => this.onPointClick(d));
+        .on('click', (_, d: any) => this.onPointClick(d))
+        .on('mouseenter', (ev: Event, d: any) => {
+          console.log('mouseenter', d.title);
+          if (this.currentHover === null) {
+            this.currentHover = d.index;
+          }
+          this.updateHovers();
+        })
+        .on('mouseleave', (ev: Event, d: any) => {
+          console.log('mouseleave', d.title);
+          if (this.currentHover === d.index) {
+            this.currentHover = null;
+          }
+          this.updateHovers();
+        });
     newPoints
         .append('circle')
         .attr('r', this.CIRCLE_RADIUS-1)
         .style('stroke', PRIMARY_COLOR)//'rgba(252, 13, 28, 0.25)')
         .style('stroke-opacity', 0.25)
         .style('fill', '#fff');
+    let hovers = this.hovers.selectAll('.hover')
+              .data(clustered.filter((d) => d.clustered === 1), (d: any) => d.id);
+    hovers.enter()
+          .append('div')
+          .attr('class', 'hover')
+          .style('display', 'none')
+          .append('span')
+          .style('border-color', PRIMARY_COLOR)
+          .style('color', PRIMARY_COLOR)
+          .style('background', `linear-gradient(90deg, ${PRIMARY_COLOR}40, ${PRIMARY_COLOR}40), #fff`)
+          .text((d: any) => d.title);
+    hovers.exit().remove();
+
     newPoints
         .append('image')
         .attr('x', -this.CIRCLE_RADIUS/2)
@@ -253,12 +296,13 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         // .attr('xlink:href', (d: any) => `assets/img/icon-time-line-${d.type}.svg`);
     newPoints
         .append('text')
+        .attr('class', 'cluster-size')
         .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'middle');
     points.exit().remove();
     points = this.points.selectAll('.point');
     points
-        .attr('transform', (d: any) => `translate(${d.x}, ${this.CIRCLE_RADIUS})`);
+        .attr('transform', (d: any) => `translate(${d.x}, ${this.CIRCLE_RADIUS + this.HOVER_HEIGHT})`);
     points
         .select('circle')
         .attr('cx', (d: any) => d.cx)
@@ -267,9 +311,12 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .select('image')
         .style('display', (d: any) => d.clustered > 1 ? 'none' : null);
     points
-        .select('text')
+        .select('.cluster-size')
         .text((d: any) => d.clustered)
         .style('display', (d: any) => d.clustered === 1 ? 'none' : null);
+
+    this.hovers.selectAll('.hover')
+        .style('transform', (d: any) => `translate(${d.x}px, 0)`);//${this.CIRCLE_RADIUS + this.HOVER_HEIGHT}px)`);
   }
 
   onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
