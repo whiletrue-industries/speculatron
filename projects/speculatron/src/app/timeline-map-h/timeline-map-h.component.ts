@@ -47,6 +47,8 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   selectedItemId: string | null = null;
   itemActivations = new Subject<any>();
   mapMode = 'Media';
+  lastMapState: { center: mapboxgl.LngLat; zoom: number; pitch: number; bearing: number; };
+  selectItemMapState: { center: mapboxgl.LngLat; zoom: number; pitch: number; bearing: number; };
 
   // Layout
   resizeObserver: ResizeObserver;
@@ -58,6 +60,8 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   markersTimeline: any[] = [];
   contentBackground: SafeStyle;
   backdropBackground: SafeStyle;
+
+  PRIMARY_COLOR = PRIMARY_COLOR;
   
   constructor(activatedRoute: ActivatedRoute, private mapSvc: MapService, private sanitizer: DomSanitizer) {
     super(activatedRoute);  
@@ -94,7 +98,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       attributionControl: false,
       logoPosition: 'top-right',
     });
-    this.baseMap.addControl(new mapboxgl.AttributionControl(), 'top-right');
+    this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
     if (window.innerWidth > 600) {
       this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
     }
@@ -135,6 +139,12 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
               otherMap.setBearing(map.getBearing());
             }
           }
+          this.lastMapState = {
+            center: map.getCenter(),
+            zoom: map.getZoom(),
+            pitch: map.getPitch(),
+            bearing: map.getBearing(),
+          };
           this.syncing = false;
         }
       });
@@ -234,9 +244,14 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       this.saveState();
       timer(0).pipe(
         tap(() => {
-          if (!this.detailOpen) {
-            this.mapMode = 'Media';
-          }
+          if (this.detailOpen) {
+            this.baseMap.flyTo({
+              center: this.selectItemMapState.center,
+              zoom: this.selectItemMapState.zoom,
+              bearing: this.selectItemMapState.bearing,
+              pitch: this.selectItemMapState.pitch,
+            });
+          }  
           this.detailOpen = false;
         }),
         delay(1000)
@@ -256,6 +271,10 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       }),
       delay(0),
       tap(() => {
+        if (!this.detailOpen) {
+          this.mapMode = 'Media';
+          this.selectItemMapState = this.lastMapState;
+        }
         this.detailOpen = true;
         this.contentVisible = true;
         if (item.map_view && item.map_view.length) {

@@ -318,6 +318,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     newPoints
         .append('text')
         .attr('class', 'cluster-size')
+        .style('fill', PRIMARY_COLOR)
         .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'middle');
     points.exit().remove();

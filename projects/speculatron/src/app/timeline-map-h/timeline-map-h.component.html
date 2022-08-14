@@ -9,7 +9,8 @@
             (selected)='itemSelected($event)'
         ></app-time-line>
         <div class='detail-bg'>
-            <div class='detail' [class.open]='detailOpen' [style.width]='getDetailWidth()' [class.map-mode]='this.mapMode === "Map"'>
+            <div class='detail' [class.open]='detailOpen' [style.width]='getDetailWidth()' [class.map-mode]='this.mapMode === "Map"'
+                                [style.border-color]='PRIMARY_COLOR'>
                 <div class='detail-map' #detailMapEl [style.width]='baseWidthPx'>
                 </div>
                 <div class='content' [style.width]='baseWidthPx'
