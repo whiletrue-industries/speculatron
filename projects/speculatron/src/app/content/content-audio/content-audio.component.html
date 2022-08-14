@@ -1,9 +1,14 @@
 <div>
-  <app-audio-player [audio]='item.audio_s3url || item.audio[0].url' [image]='item.image[0].thumbnails.large.url'>
+  <app-audio-player [audio]='item.audio_s3url || item.audio[0].url' [image]='item.image[0].thumbnails.large.url' [color]='PRIMARY_COLOR'>
   </app-audio-player>
   <div *ngIf='item.link_title' class='link'>
     <div class='link-container'>
-        <a href='{{item.link_domain}}' target="blank" class='link-title'>{{item.link_title}}</a>
+        <a href='{{item.link_domain}}' target="blank" class='link-title' *ngIf='!linkHover'
+          (mouseover)="linkHover=true" (mouseleave)="linkHover=false"
+          [style.color]='PRIMARY_COLOR'>{{item.link_title}}</a>
+        <a href='{{item.link_domain}}' target="blank" class='link-title hover' *ngIf='linkHover'
+          (mouseover)="linkHover=true" (mouseleave)="linkHover=false"
+          [style.background-color]='PRIMARY_COLOR'>{{item.link_title}}</a>
     </div>
   </div>
 </div>

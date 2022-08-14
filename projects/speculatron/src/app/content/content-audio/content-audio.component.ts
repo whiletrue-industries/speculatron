@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import { PRIMARY_COLOR } from 'CONFIGURATION';
 import { Subscription } from 'rxjs';
 import { AudioPlayerComponent } from '../../audio-player/audio-player.component';
 
@@ -14,6 +15,9 @@ export class ContentAudioComponent implements OnInit, OnChanges, AfterViewInit{
   @Output() mapView = new EventEmitter<any>();
   @ViewChild(AudioPlayerComponent, {static: true}) player: AudioPlayerComponent;
   sub: Subscription | null = null;
+  linkHover = false;
+
+  PRIMARY_COLOR = PRIMARY_COLOR;
 
   constructor() { }
 

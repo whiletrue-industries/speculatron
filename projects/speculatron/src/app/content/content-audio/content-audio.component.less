@@ -1,6 +1,11 @@
 
 @import '../../../common.less';
 
+:host {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .desktop({
     app-player {
         align-items: flex-start;
@@ -22,9 +27,8 @@
     border-radius: 16px;
     text-decoration: none;
     background: white;
-    color: @bright-multiply; 
     
-    &:hover{
+    &.hover{
       background: @bright-multiply;
       color: white; 
     }

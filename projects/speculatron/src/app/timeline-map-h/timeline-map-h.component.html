@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class='button-close' (click)='itemSelected(null)'></div>
-                    <div class='description' [style.width]='detailWidthPx'>
+                    <div class='description' [style.width]='this.mapMode === "Map" ? "100%" : detailWidthPx'>
                         <div class='backdrop' [style.background]='backdropBackground'></div>
                         <div class='inner'>
                             <app-media-icon [type]='currentItem.type' color='#fff'></app-media-icon>

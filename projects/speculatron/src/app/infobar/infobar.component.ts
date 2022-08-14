@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'rxjs/operators';
 import { TimelineMapService } from '../timeline-map.service';
+import { PRIMARY_COLOR } from 'CONFIGURATION';
 
 @Component({
   selector: 'app-infobar',
@@ -17,6 +18,8 @@ export class InfobarComponent implements OnInit {
   @Input() api: TimelineMapService;
   @Output() close = new EventEmitter();
   
+  PRIMARY_COLOR = PRIMARY_COLOR;
+
   marked = marked;
   aboutContent: any = '';
 

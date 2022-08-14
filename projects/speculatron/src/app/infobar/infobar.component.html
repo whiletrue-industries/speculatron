@@ -1,7 +1,10 @@
 <div class='title'>
     <h1>{{title}}</h1>
     <h2>{{subtitle}}</h2>    
-    <img class='close' src='assets/img/wawb-close.svg' (click)='close.emit()'>
+    <svg class='close' width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" (click)='close.emit()'>
+        <path d="M11.3936 11.3936L32.6068 32.6068" [attr.stroke]="PRIMARY_COLOR"/>
+        <path d="M32.6064 11.3936L11.3932 32.6068" [attr.stroke]="PRIMARY_COLOR"/>
+    </svg>
 </div>
 
 <p [innerHtml]='aboutContent'></p>

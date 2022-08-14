@@ -14,6 +14,7 @@ export class AudioPlayerComponent implements OnInit, OnChanges, OnDestroy, After
 
   @Input() audio: any;
   @Input() image: any;
+  @Input() color: string;
   @Input() size = 280;
   @ViewChild('handle', {static: true}) handle: ElementRef;
   @ViewChild('component', {static: true}) component: ElementRef;
