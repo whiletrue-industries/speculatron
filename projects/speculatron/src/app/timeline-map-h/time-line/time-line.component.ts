@@ -123,6 +123,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                   .range([0, this.WIDTH]);
     this.xt = this.x;
     this.xAxis = axisTop<Date>(this.x)
+                    .ticks(40)
                     .tickSizeInner(this.TICK_HEIGHT)
                     .tickFormat((val, idx) => this.tickFormat(val, idx));
     this.updateAxis();
