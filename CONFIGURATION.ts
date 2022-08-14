@@ -7,5 +7,5 @@ export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiYXRsYXNtZWRsaXEiLCJhIjoiY2tpbXgzN
 
 export const HORIZONTAL_LAYOUT = true; // enable for horizontal layout
 
-export const PRIMARY_COLOR = '#23006E'; // #CE0031
+export const PRIMARY_COLOR = '#0085FF'; // #CE0031
 // export const PRIMARY_COLOR = '#6E0023';
