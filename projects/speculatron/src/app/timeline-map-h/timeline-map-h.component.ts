@@ -317,7 +317,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         this.changing -= 1;
       }),
     ).subscribe(() => {
-      if (window.innerWidth > 600) {
+      if (window.innerWidth > 600 && this.detailOpen) {
         const wh = window.innerHeight;
         const padding = 2*this.descriptionElement.nativeElement.getBoundingClientRect().top + 24 - wh;
         for (const map of this.maps) {

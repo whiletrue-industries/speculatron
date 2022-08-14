@@ -61,11 +61,15 @@
 </app-timeline-map-base>
 <div #baseMarkers style='display:none'>
     <ng-container *ngFor='let item of timeline'>
-        <app-media-icon [marker]='item.marker' [type]='item.type' [color]='markerColor({marker_style:"dark"})' [breathing]='item === currentItem'></app-media-icon>
+        <div class='mapmarker' [style.border-color]='PRIMARY_COLOR'>
+            <app-media-icon [marker]='item.marker' [type]='item.type' [color]='markerColor({marker_style:"dark"})' [breathing]='item === currentItem'></app-media-icon>
+        </div>
     </ng-container>
 </div>
 <div #detailMarkers style='display:none'>
     <ng-container *ngFor='let item of timeline'>
-        <app-media-icon [marker]='item.marker' [type]='item.type' [color]='markerColor(item)' [breathing]='item === currentItem'></app-media-icon>
+        <div class='mapmarker' [style.border-color]='PRIMARY_COLOR'>
+            <app-media-icon [marker]='item.marker' [type]='item.type' [color]='markerColor(item)' [breathing]='item === currentItem'></app-media-icon>
+        </div>
     </ng-container>
 </div>
