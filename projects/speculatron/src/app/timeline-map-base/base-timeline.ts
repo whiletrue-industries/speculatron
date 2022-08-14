@@ -80,10 +80,10 @@ export class BaseTimelineMapComponent {
       }
     }
   
-    applyMapView(view: string, map: mapboxgl.Map) {
+    applyMapView(view: string, map: mapboxgl.Map, extraOptions: any = null) {
       this.mapViews.pipe(first()).subscribe((mapViews) => {
         const mapView: any = mapViews[view];
-        const options = this.parseMapView(mapView);
+        const options = Object.assign({}, this.parseMapView(mapView), extraOptions || {});
         for (const l of mapView.onLayers || []) {
           if (map.getLayer(l)) {
             map.setLayoutProperty(l, 'visibility', 'visible');

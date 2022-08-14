@@ -6,7 +6,7 @@ import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
 import { BaseTimelineMapComponent } from '../timeline-map-base/base-timeline';
-import { timer, tap, delay, debounceTime, Subject, filter, first } from 'rxjs';
+import { timer, tap, delay, debounceTime, Subject, filter, first, map, switchMap, Observable } from 'rxjs';
 import { TimeLineComponent } from './time-line/time-line.component';
 
 @Component({
@@ -29,12 +29,15 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   @ViewChild('scroller') scrollerComponent: ElementRef;
   @ViewChild('baseMarkers') baseMarkersElement: ElementRef;
   @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
+  @ViewChild('description') descriptionElement: ElementRef;
 
   // Maps
   baseMap: mapboxgl.Map;
   detailMap: mapboxgl.Map;
   maps: mapboxgl.Map[] = [];
   syncing: boolean;
+  moveEnd = new Subject<void>();
+  moveEnded: Observable<void>;
 
   // App State
   minDate: Date;
@@ -47,8 +50,8 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   selectedItemId: string | null = null;
   itemActivations = new Subject<any>();
   mapMode = 'Media';
-  lastMapState: { center: mapboxgl.LngLat; zoom: number; pitch: number; bearing: number; };
-  selectItemMapState: { center: mapboxgl.LngLat; zoom: number; pitch: number; bearing: number; };
+  lastMapState: mapboxgl.FlyToOptions;
+  selectItemMapState: mapboxgl.FlyToOptions;
 
   // Layout
   resizeObserver: ResizeObserver;
@@ -77,6 +80,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       console.log('ACTIVATED', item.title);
       this.itemSelected(item);
     });
+    this.moveEnded = this.moveEnd.pipe(
+      debounceTime(1000)
+    );
   }
 
   ngOnInit(): void {
@@ -131,22 +137,27 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       map.on('move', () => {
         if (!this.syncing) {
           this.syncing = true;
-          for (const otherMap of this.maps) {
-            if (map !== otherMap) {
-              otherMap.setCenter(map.getCenter());
-              otherMap.setZoom(map.getZoom());
-              otherMap.setPitch(map.getPitch());
-              otherMap.setBearing(map.getBearing());
-            }
-          }
           this.lastMapState = {
             center: map.getCenter(),
             zoom: map.getZoom(),
             pitch: map.getPitch(),
             bearing: map.getBearing(),
           };
+          const jumpTo = Object.assign({
+            padding: map.getPadding(),
+          }, this.lastMapState);
+          for (const otherMap of this.maps) {
+            if (map !== otherMap) {
+              otherMap.jumpTo(jumpTo);
+            }
+          }
           this.syncing = false;
         }
+      });
+      map.on('moveend', () => {
+        timer(1000).subscribe(() => {
+          this.moveEnd.next();
+        });
       });
     }
   }
@@ -250,6 +261,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
               zoom: this.selectItemMapState.zoom,
               bearing: this.selectItemMapState.bearing,
               pitch: this.selectItemMapState.pitch,
+              padding: 0,
             });
           }  
           this.detailOpen = false;
@@ -265,6 +277,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.currentItem = item;
     this.selectedItemId = item.id;
     this.saveState();
+    this.changing += 1;
     timer(0).pipe(
       tap(() => {
         this.timeLineComponent?.scrollTo(item.timestamp, item);    
@@ -277,24 +290,40 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         }
         this.detailOpen = true;
         this.contentVisible = true;
+        const options: mapboxgl.FlyToOptions = {
+          speed: 2
+        };
         if (item.map_view && item.map_view.length) {
-          this.applyMapView(item.map_view[0], this.detailMap);
+          this.applyMapView(item.map_view[0], this.detailMap, options);
         } else {
-          this.applyMapView(item.title, this.detailMap);
+          this.applyMapView(item.title, this.detailMap, options);
         }
         this.updateMarkers();
       }),
       delay(100),
+      tap(() => {
+        const scrollLeft = (item.index + 0.5) * (this.detailWidth);
+        const el = this.scrollerComponent.nativeElement as HTMLElement;
+        // console.log('SCROLL', scrollLeft, el.scrollLeft, this.detailWidth, item.index);
+        el.scrollLeft = scrollLeft;
+        // children[item.index].scrollIntoView({behavior: 'smooth'});  
+      }),
+      switchMap(() => {
+        return this.moveEnded;
+      }),
+      first(),
+      delay(1000),
+      tap(() => {
+        this.changing -= 1;
+      }),
     ).subscribe(() => {
-      const scrollLeft = (item.index + 0.5) * (this.detailWidth);
-      const el = this.scrollerComponent.nativeElement as HTMLElement;
-      // console.log('SCROLL', scrollLeft, el.scrollLeft, this.detailWidth, item.index);
-      el.scrollLeft = scrollLeft;
-      // children[item.index].scrollIntoView({behavior: 'smooth'});
-    });
-    this.changing += 1;
-    timer(2500).subscribe(() => {
-      this.changing -= 1;
+      if (window.innerWidth > 600) {
+        const wh = window.innerHeight;
+        const padding = 2*this.descriptionElement.nativeElement.getBoundingClientRect().top + 24 - wh;
+        for (const map of this.maps) {
+          map.flyTo(Object.assign({}, this.lastMapState, {padding: {top: padding}}));
+        }
+      }
     });
   }
 
