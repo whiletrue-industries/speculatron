@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeStyle } from '@angular/platform-browser';
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
-import { MAPBOX_STYLE, PRIMARY_COLOR } from 'CONFIGURATION';
+import { MAPBOX_BASE_STYLE, MAPBOX_STYLE, PRIMARY_COLOR } from 'CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
@@ -89,7 +89,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   ngAfterViewInit(): void {
     this.baseMap = new mapboxgl.Map({
       container: this.baseMapEl.nativeElement,
-      style: MAPBOX_STYLE,
+      style: MAPBOX_BASE_STYLE,
       minZoom: 3,
       attributionControl: false,
       logoPosition: 'top-right',
