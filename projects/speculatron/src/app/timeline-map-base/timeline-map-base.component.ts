@@ -25,7 +25,7 @@ export class TimelineMapBaseComponent implements OnInit {
   layersOpen = false;
 
   PRIMARY_COLOR = PRIMARY_COLOR;
-  
+
   constructor() { }
 
   ngOnInit(): void {

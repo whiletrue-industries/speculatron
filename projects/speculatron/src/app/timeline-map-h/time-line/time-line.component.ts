@@ -86,7 +86,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnChanges() {
-    console.log('CHANGED', this.items.length, this.state);
+    // console.log('CHANGED', this.items.length, this.state);
     this._changed.next();
   }
 
@@ -207,7 +207,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       this.zoomK = item.k;
       this.scrollTo(item.centerTimestamp, item);
     } else {
-      console.log('click', item);
+      // console.log('click', item);
       this.scrollTo(item.timestamp, item);
       this.selected.next(item);
     }
@@ -223,9 +223,28 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   updateHovers() {
     this.hovers.selectAll('.hover')
                .style('display', (d: any) => {
-                console.log('CHECK', this.currentHover, d.index);
+                // console.log('CHECK', this.currentHover, d.index);
                 return d.index === this.currentHover ? 'flex' : 'none';
-               });
+               })
+               .style('transform', (d: any) => `translate(${d.x}px, 0)`);//${this.CIRCLE_RADIUS + this.HOVER_HEIGHT}px)`);
+  }
+
+  updatePoints() {
+    const points = this.points.selectAll('.point');
+    points
+        .attr('transform', (d: any) => `translate(${d.x}, ${this.CIRCLE_RADIUS + this.HOVER_HEIGHT})`);
+    points
+        .select('circle')
+        .attr('cx', (d: any) => d.cx)
+        .attr('cy', (d: any) => d.cy)
+        .style('fill', (d: any) => d.index === this.currentHover ? PRIMARY_COLOR+'40' : '#fff')
+    points
+        .select('image')
+        .style('display', (d: any) => d.clustered > 1 ? 'none' : null);
+    points
+        .select('.cluster-size')
+        .text((d: any) => d.clustered)
+        .style('display', (d: any) => d.clustered === 1 ? 'none' : null);
 
   }
 
@@ -254,18 +273,20 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .attr('class', 'point')
         .on('click', (_, d: any) => this.onPointClick(d))
         .on('mouseenter', (ev: Event, d: any) => {
-          console.log('mouseenter', d.title);
+          // console.log('mouseenter', d.title);
           if (this.currentHover === null) {
             this.currentHover = d.index;
           }
           this.updateHovers();
+          this.updatePoints();
         })
         .on('mouseleave', (ev: Event, d: any) => {
-          console.log('mouseleave', d.title);
+          // console.log('mouseleave', d.title);
           if (this.currentHover === d.index) {
             this.currentHover = null;
           }
           this.updateHovers();
+          this.updatePoints();
         });
     newPoints
         .append('circle')
@@ -300,23 +321,9 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'middle');
     points.exit().remove();
-    points = this.points.selectAll('.point');
-    points
-        .attr('transform', (d: any) => `translate(${d.x}, ${this.CIRCLE_RADIUS + this.HOVER_HEIGHT})`);
-    points
-        .select('circle')
-        .attr('cx', (d: any) => d.cx)
-        .attr('cy', (d: any) => d.cy);
-    points
-        .select('image')
-        .style('display', (d: any) => d.clustered > 1 ? 'none' : null);
-    points
-        .select('.cluster-size')
-        .text((d: any) => d.clustered)
-        .style('display', (d: any) => d.clustered === 1 ? 'none' : null);
 
-    this.hovers.selectAll('.hover')
-        .style('transform', (d: any) => `translate(${d.x}px, 0)`);//${this.CIRCLE_RADIUS + this.HOVER_HEIGHT}px)`);
+    this.updatePoints();
+    this.updateHovers();
   }
 
   onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {

@@ -10,12 +10,12 @@
         ></app-time-line>
         <div class='detail-bg'>
             <div class='detail' [class.open]='detailOpen' [style.width]='getDetailWidth()' [class.map-mode]='this.mapMode === "Map"'>
-                <div class='detail-map' #detailMapEl [style.width]='baseMapWidth'>
+                <div class='detail-map' #detailMapEl [style.width]='baseWidthPx'>
                 </div>
-                <div class='content' [style.width]='baseMapWidth'
+                <div class='content' [style.width]='baseWidthPx'
                      [style.background]='this.mapMode === "Map" ? null : contentBackground'>
-                    <div class='scroller' #scroller [style.width]='detailWidth'>
-                        <div class='scroll-card' *ngFor='let item of timeline' [style.width]='detailWidth'>
+                    <div class='scroller' #scroller [style.width]='detailWidthPx'>
+                        <div class='scroll-card' *ngFor='let item of timeline' [style.width]='detailWidthPx'>
                             <app-content-item 
                                 *ngIf='contentVisible'
                                 [attr.data-id]='item.id' 
@@ -27,10 +27,16 @@
                         </div>
                     </div>
                     <div class='button-close' (click)='itemSelected(null)'></div>
-                    <div class='description' [style.width]='detailWidth'>
-                        <app-media-icon [type]='currentItem.type' [color]='markerColor(currentItem)'></app-media-icon>
-                        <span class='title' [style.color]='markerColor(currentItem)'>{{currentItem.title}}</span>
-                        <span class='date' [style.color]='markerColor(currentItem)'>{{currentItem.niceTimestamp}}</span>
+                    <div class='description' [style.width]='detailWidthPx'>
+                        <div class='backdrop' [style.background]='backdropBackground'></div>
+                        <div class='inner'>
+                            <app-media-icon [type]='currentItem.type' color='#fff'></app-media-icon>
+                            <span class='title' [style.color]='"#fff"'>{{currentItem.title}}</span>
+                            <span class='date' [style.color]='"#fff"'>{{currentItem.niceTimestamp}}</span>
+                            <!-- <app-media-icon [type]='currentItem.type' [color]='markerColor(currentItem)'></app-media-icon>
+                            <span class='title' [style.color]='markerColor(currentItem)'>{{currentItem.title}}</span>
+                            <span class='date' [style.color]='markerColor(currentItem)'>{{currentItem.niceTimestamp}}</span> -->    
+                        </div>
                     </div>
                     <div class='arrow' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'></div>
                     <div class='arrow rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'></div>

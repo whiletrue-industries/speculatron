@@ -50,12 +50,14 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
 
   // Layout
   resizeObserver: ResizeObserver;
-  baseMapWidth: string = '100%';
-  detailWidth: string = '50%';
+  baseWidthPx: string = '100%';
+  detailWidth: number;
+  detailWidthPx: string = '50%';
   changing: number = 0;
   markers: mapboxgl.Marker[] = []
   markersTimeline: any[] = [];
   contentBackground: SafeStyle;
+  backdropBackground: SafeStyle;
   
   constructor(activatedRoute: ActivatedRoute, private mapSvc: MapService, private sanitizer: DomSanitizer) {
     super(activatedRoute);  
@@ -80,6 +82,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       this.updateMarkers();
     });
     this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
+    this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 10.32%, ${PRIMARY_COLOR}80 35.85%)`);
     console.log('CT BG', this.contentBackground);
   }
 
@@ -92,13 +95,15 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       logoPosition: 'top-right',
     });
     this.baseMap.addControl(new mapboxgl.AttributionControl(), 'top-right');
-    this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    if (window.innerWidth > 600) {
+      this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    }
     this.detailMap = new mapboxgl.Map({
       container: this.detailMapEl.nativeElement,
       style: MAPBOX_STYLE,
       minZoom: 3,
       attributionControl: false,
-      logoPosition: 'bottom-right',
+      logoPosition: window.innerWidth < 600 ? 'top-left' : 'bottom-right',
     });
     this.detailMap.on('style.load', () => {
       this.loadMapViews();
@@ -141,8 +146,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   }
 
   syncWidths() {
-    this.baseMapWidth = this.baseWidth + 'px';
-    this.detailWidth = (this.baseWidth/2) + 'px';
+    this.baseWidthPx = this.baseWidth + 'px';
+    this.detailWidth = Math.min(this.baseWidth, Math.max(450, this.baseWidth/2));
+    this.detailWidthPx = this.detailWidth + 'px';
   }
 
   getDetailWidth() {
@@ -150,7 +156,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       if (this.mapMode === 'Map') {
         return '100%';
       } else {
-        return this.detailWidth;
+        return this.detailWidthPx;
       }
     } else {
       return '0px';
@@ -261,9 +267,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       }),
       delay(100),
     ).subscribe(() => {
-      const scrollLeft = (item.index + 0.5) * (this.baseWidth/2);
+      const scrollLeft = (item.index + 0.5) * (this.detailWidth);
       const el = this.scrollerComponent.nativeElement as HTMLElement;
-      console.log('SCROLL', scrollLeft, el.scrollLeft, this.baseWidth/2, item.index);
+      // console.log('SCROLL', scrollLeft, el.scrollLeft, this.detailWidth, item.index);
       el.scrollLeft = scrollLeft;
       // children[item.index].scrollIntoView({behavior: 'smooth'});
     });
