@@ -354,6 +354,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
           for (let i=0; i<markers.length; i++) {
             const markerEl = markers[i] as HTMLElement; 
             const item = this.timeline[i];
+            if (item.marker === 'None') {
+              continue;
+            }
             let mapViewName = item.title;
             if (item.map_view && item.map_view.length) {
               mapViewName = item.map_view[0];
@@ -365,6 +368,12 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
             clonedElement.addEventListener('click', () => {
               console.log('CLICK', item.title);
               this.itemSelected(item);
+            });
+            clonedElement.addEventListener('mouseenter', () => {
+              this.timeLineComponent.updateHovers(item.index);
+            });
+            clonedElement.addEventListener('mouseleave', () => {
+              this.timeLineComponent.updateHovers(null);
             });
             this.markers.push(
                 new mapboxgl.Marker(clonedElement)

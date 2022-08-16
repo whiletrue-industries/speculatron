@@ -3,8 +3,12 @@
 :host {
     width: 100%;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 44.27%);
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    position: relative;
 
-    & > div {
+    .timeline {
         width: 100%;
         // height: 100%;
         display: flex;
@@ -55,6 +59,35 @@
                     }
                 }
             }
+        }
+    }
+    .zoom-controls {
+        position: absolute;
+        bottom: 24px;
+        right: 8px;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        > div {
+            width: 30px;
+            height: 30px;
+            border: 1px solid @gray5;
+            &:first-child {
+                border-radius: 4px 4px 0 0;
+            }
+            &:last-child {
+                border-radius: 0 0 4px 4px;
+                margin-top: -1px;
+            }
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            justify-content: center;
+        }
+        @media screen and (max-width: 600px) {
+            display: none;
         }
     }
 }

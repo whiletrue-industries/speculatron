@@ -32,6 +32,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   HOVER_HEIGHT = 34;
   HEIGHT = this.TEXT_HEIGHT + this.TICK_HEIGHT + 2*this.CIRCLE_RADIUS + this.HOVER_HEIGHT;
   RANDOM_CENTERS: any = {};
+  PRIMARY_COLOR = PRIMARY_COLOR;
 
   @ViewChild('timeLine') timeline: ElementRef;
 
@@ -134,6 +135,13 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
+  public zoomBy(k: number) {
+    this.svg.transition()
+            .duration(300)
+            .ease(easeQuadInOut)
+            .call(this.zoomBehaviour.scaleBy, k);
+  }
+
   public scrollTo(date: Date, item: any) {
     const newX = this.x(date) * this.zoomK;
     this.svg.transition()
@@ -223,13 +231,17 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     return content;
   }
 
-  updateHovers() {
+  public updateHovers(setTo: number | null = -1) {
+    if (setTo !== -1) {
+      this.currentHover = setTo;
+    }
     this.hovers.selectAll('.hover')
                .style('display', (d: any) => {
                 // console.log('CHECK', this.currentHover, d.index);
                 return d.index === this.currentHover ? 'flex' : 'none';
                })
                .style('transform', (d: any) => `translate(${d.x}px, 0)`);//${this.CIRCLE_RADIUS + this.HOVER_HEIGHT}px)`);
+    this.updatePoints();
   }
 
   updatePoints() {
@@ -278,18 +290,14 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .on('mouseenter', (ev: Event, d: any) => {
           // console.log('mouseenter', d.title);
           if (this.currentHover === null) {
-            this.currentHover = d.index;
+            this.updateHovers(d.index);
           }
-          this.updateHovers();
-          this.updatePoints();
         })
         .on('mouseleave', (ev: Event, d: any) => {
           // console.log('mouseleave', d.title);
           if (this.currentHover === d.index) {
-            this.currentHover = null;
+            this.updateHovers(null);
           }
-          this.updateHovers();
-          this.updatePoints();
         });
     newPoints
         .append('circle')
