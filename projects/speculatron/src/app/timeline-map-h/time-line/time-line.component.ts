@@ -5,6 +5,7 @@ import { select, Selection } from 'd3-selection';
 import { scaleTime, ScaleTime } from 'd3-scale';
 import { axisTop, Axis } from 'd3-axis';
 import { timeFormat } from 'd3-time-format';
+import { easeQuadInOut } from 'd3-ease';
 import 'd3-transition';
 import { debounceTime, mergeWith, Subject, timer, first, ReplaySubject } from 'rxjs';
 import { MediaIconComponent } from '../../media-icon/media-icon.component';
@@ -136,7 +137,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   public scrollTo(date: Date, item: any) {
     const newX = this.x(date) * this.zoomK;
     this.svg.transition()
-            .duration(250)
+            .duration(1000)
+            .ease(easeQuadInOut)
             .call(this.zoomBehaviour.transform, zoomIdentity.translate(this.WIDTH/2 - newX, 56).scale(this.zoomK))
     item.niceTimestamp = this.tickFormat(date, -1);
   }
