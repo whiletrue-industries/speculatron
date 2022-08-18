@@ -13,8 +13,7 @@
                                 [style.border-color]='PRIMARY_COLOR'>
                 <div class='detail-map' #detailMapEl [style.width]='baseWidthPx'>
                 </div>
-                <div class='content' [style.width]='baseWidthPx'
-                     [style.background]='this.mapMode === "Map" ? null : contentBackground'>
+                <div class='content' [style.background-color]='this.mapMode === "Map" ? "#00000000" : PRIMARY_COLOR + "66"'>
                     <div class='scroller' #scroller [style.width]='detailWidthPx'>
                         <div class='scroll-card' *ngFor='let item of timeline' [style.width]='detailWidthPx'>
                             <app-content-item 
@@ -28,8 +27,8 @@
                         </div>
                     </div>
                     <div class='button-close' (click)='itemSelected(null)'></div>
-                    <div class='description' [style.width]='this.mapMode === "Map" ? "100%" : detailWidthPx' #description>
-                        <div class='backdrop' [style.background]='backdropBackground'></div>
+                    <div class='description' #description>
+                        <div class='backdrop'></div>
                         <div class='inner'>
                             <app-media-icon [type]='currentItem.type' color='#fff'></app-media-icon>
                             <span class='title' [style.color]='"#fff"'>{{currentItem.title}}</span>

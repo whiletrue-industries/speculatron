@@ -91,7 +91,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       this.saveState();
       this.updateMarkers();
     });
-    this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
+    // this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
     this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 10.32%, ${PRIMARY_COLOR}80 35.85%)`);
     console.log('CT BG', this.contentBackground);
   }
@@ -105,9 +105,6 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       logoPosition: 'top-right',
     });
     this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
-    if (window.innerWidth > 600) {
-      this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
-    }
     this.detailMap = new mapboxgl.Map({
       container: this.detailMapEl.nativeElement,
       style: MAPBOX_STYLE,
@@ -115,6 +112,10 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       attributionControl: false,
       logoPosition: window.innerWidth < 600 ? 'top-left' : 'bottom-right',
     });
+    if (window.innerWidth > 600) {
+      this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
+      this.detailMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    }
     this.detailMap.on('style.load', () => {
       this.loadMapViews();
       // this.detailMap.setLayoutProperty('satellite-night', 'visibility', 'visible');
@@ -306,15 +307,13 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         const el = this.scrollerComponent.nativeElement as HTMLElement;
         // console.log('SCROLL', scrollLeft, el.scrollLeft, this.detailWidth, item.index);
         el.scrollLeft = scrollLeft;
-        // children[item.index].scrollIntoView({behavior: 'smooth'});  
+        // children[item.index].scrollIntoView({behavior: 'smooth'});
+        timer(1000).subscribe(() => {
+          this.changing -= 1;
+        });
       }),
       switchMap(() => {
         return this.moveEnded;
-      }),
-      first(),
-      delay(1000),
-      tap(() => {
-        this.changing -= 1;
       }),
     ).subscribe(() => {
       if (window.innerWidth > 600 && this.detailOpen) {

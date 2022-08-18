@@ -26,7 +26,7 @@ export class VisibilityDetector  {
           active: '-50% 0% -50% 0%',
           visible: '100% 0% 100% 0%'
         }[kind];
-        const observerOptions = {
+        const observerOptions: IntersectionObserverInit = {
             root: rootElement,
             rootMargin: rootMargin,
             threshold: 0
