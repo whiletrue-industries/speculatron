@@ -172,13 +172,12 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
           item.centerTimestamp = centerDate;
           item.k = k;
           item.clustered = pending.length;
-          if (item.clustered > 1) {
-          }
+          item.indexes = pending.map((i) => i.index);
           if (index !== pending.length - 1) {
             if (!this.RANDOM_CENTERS[index]) {
               this.RANDOM_CENTERS[index] = {
-                cx: Math.random() * 5,
-                cy: Math.random() * 5
+                cx: Math.random() * 3,
+                cy: Math.random() * 3
               };
             }
             Object.assign(item, this.RANDOM_CENTERS[index]);
@@ -252,7 +251,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .select('circle')
         .attr('cx', (d: any) => d.cx)
         .attr('cy', (d: any) => d.cy)
-        .style('fill', (d: any) => d.index === this.currentHover ? PRIMARY_COLOR+'40' : '#fff')
+        .style('fill', (d: any) => d.indexes.indexOf(this.currentHover) >= 0 ? PRIMARY_COLOR+'40' : '#fff')
     points
         .select('image')
         .style('display', (d: any) => d.clustered > 1 ? 'none' : null);
@@ -295,7 +294,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         })
         .on('mouseleave', (ev: Event, d: any) => {
           // console.log('mouseleave', d.title);
-          if (this.currentHover === d.index) {
+          if (d.indexes.indexOf(this.currentHover) >= 0) {
             this.updateHovers(null);
           }
         });
@@ -306,7 +305,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .style('stroke-opacity', 0.25)
         .style('fill', '#fff');
     let hovers = this.hovers.selectAll('.hover')
-              .data(clustered.filter((d) => d.clustered === 1), (d: any) => d.id);
+              .data(clustered, (d: any) => d.id);
     hovers.enter()
           .append('div')
           .attr('class', 'hover')
