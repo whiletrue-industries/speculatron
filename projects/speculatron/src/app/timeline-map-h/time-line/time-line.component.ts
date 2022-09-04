@@ -26,7 +26,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() selected = new EventEmitter<any>();
 
   WIDTH = 1000;
-  TEXT_HEIGHT = 16;
+  TEXT_HEIGHT = 14;
   TICK_HEIGHT = 48;
   CIRCLE_RADIUS = 24;
   HOVER_HEIGHT = 34;
