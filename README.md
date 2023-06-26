@@ -10,13 +10,16 @@ A simple demo can be found here https://akariv.github.io/speculatron/
 
 ## Creating your own
 
-This repo is intended for you to fork and modify based on your needs.
+This repo is intended for you to copy and modify based on your needs.
 
-It contains a simple configuration file, which, after modifying, can be used to create a new instance of the app. The site is automatically built and deployed using GitHub Pages - all you need to do is connect it with your credentials and you're good to go.
+If you want to create an instance (or several instances) of this repo under the same account, you can use the "Create repo from template" option to 'copy' the repo. In this case, to get upstream updates go to the Actions tab and run the `Fetch Latest Version (use carefully)` workflow.
 
-If you want to create multiple instances of this repo under the same account, you can use the "Create repo from template" option to 'copy' the repo instead of forking it. In this case, getting upstream updates is more tricky - please consult the [CHANGLELOG](patches/CHANGELOG) file for more information.
+Choose a name for your code repository like `<my-repo>` (for example).
+In the the `package.json` file replace the word `speculatron` with your repository name `<my-repo>` (for example).
 
 ### Configuration File
+
+The code contains a simple configuration file, which, after modifying, can be used to create a new instance of the app. The site is automatically built and deployed using GitHub Pages - all you need to do is connect it with your credentials and you're good to go.
 
 The main configuration file is `CONFIGURATION.ts`.
 
