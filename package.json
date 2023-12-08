@@ -1,11 +1,11 @@
 {
-  "name": "speculatron",
+  "name": "chronomaps",
   "version": "0.1.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "prod": "ng build -c production --base-href=/speculatron/",
+    "prod": "ng build -c production --base-href=/chronomaps/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -27,7 +27,7 @@
     "d3-time-format": "^4.1.0",
     "d3-transition": "^3.0.1",
     "d3-zoom": "^3.0.0",
-    "dayjs": "^1.11.3",
+    "dayjs": "^1.11.10",
     "mapbox-gl": "^2.15.0",
     "marked": "^4.0.17",
     "rxjs": "~7.5.0",

@@ -1,4 +1,4 @@
-# Speculatron
+# Chronomaps
 
 ### A clone-able repository for speculative timelines
 
@@ -6,7 +6,7 @@
 
 This project allows to collaborate around a map-based timeline, allowing to add 'content' to the timeline - fake tweets, instagram posts, wikipedia pages and others - to create an immersive story anchored in time and geographical location.
 
-A simple demo can be found here https://akariv.github.io/speculatron/
+A simple demo can be found here https://whiletrue-industries.github.io/chronomaps/
 
 ## Creating your own
 
@@ -15,7 +15,7 @@ This repo is intended for you to copy and modify based on your needs.
 If you want to create an instance (or several instances) of this repo under the same account, you can use the "Create repo from template" option to 'copy' the repo. In this case, to get upstream updates go to the Actions tab and run the `Fetch Latest Version (use carefully)` workflow.
 
 Choose a name for your code repository like `<my-repo>` (for example).
-In the the `package.json` file replace the word `speculatron` with your repository name `<my-repo>` (for example).
+In the the `package.json` file replace the word `chronomaps` with your repository name `<my-repo>` (for example).
 
 ### Configuration File
 
@@ -71,7 +71,7 @@ The action named 'Deploy' can be run manually in order to push an updated versio
 
 ## Development of this project 
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.1.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.
 
 ### Development server
 

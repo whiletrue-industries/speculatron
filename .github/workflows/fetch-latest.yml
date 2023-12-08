@@ -24,10 +24,10 @@ jobs:
           git config user.name "Adam Kariv"
       - name: build
         run: |
-          wget https://github.com/akariv/speculatron/archive/refs/heads/main.zip
-          ln -s . speculatron-main
+          wget https://github.com/whiletrue-industries/chronomaps/archive/refs/heads/main.zip
+          ln -s . chronomaps-main
           unzip -o main.zip
-          rm main.zip speculatron-main
+          rm main.zip chronomaps-main
           git status
           git checkout CONFIGURATION.ts package.json README.md
           git add .
