@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "speculatron:build:production"
+              "buildTarget": "speculatron:build:production"
             },
             "development": {
-              "browserTarget": "speculatron:build:development"
+              "buildTarget": "speculatron:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "speculatron:build"
+            "buildTarget": "speculatron:build"
           }
         },
         "test": {
