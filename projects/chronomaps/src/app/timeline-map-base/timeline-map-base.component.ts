@@ -12,8 +12,8 @@ import { TimelineMapService } from '../timeline-map.service';
 export class TimelineMapBaseComponent implements OnInit {
 
   @Input() id: string;
-  @Input() title: SafeHtml;
-  @Input() subtitle: SafeHtml;
+  @Input() title: string | null;
+  @Input() subtitle: string | null;
   @Input() infobarTitle: string;
   @Input() infobarSubtitle: string;
   @Input() api: TimelineMapService;

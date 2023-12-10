@@ -40,9 +40,6 @@ export class BaseTimelineMapComponent {
             this._api.data.subscribe((timeline) => {
               timeline.forEach((item) => {
                 if (item.hasContent && !item.map_view && !views[item.title]) {
-                  if (item.map_view && item.map_view.length > 0) {
-                    return;
-                  }
                   item.map_view = [item.title];
                   views[item.title] = item;
                 }

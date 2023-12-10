@@ -1,0 +1,25 @@
+@import '../../common.less';
+
+:host {
+    .chronomaps {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        gap: 40px;
+        padding: 40px 0;
+        align-items: stretch;
+    }
+    .title {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 24px 40px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        background: @color-white;
+        box-shadow: 0px 0px 20px 1px rgba(252, 13, 28, 0.25);
+    }
+}

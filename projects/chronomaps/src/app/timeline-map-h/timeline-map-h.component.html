@@ -3,9 +3,8 @@
         <div class='base-map'>
             <div #baseMapEl></div>
         </div>
-        <app-time-line #timeLine *ngIf='initialTimelineState !== null' 
-            [minDate]='minDate' [maxDate]='maxDate' [items]='timeline' [state]='initialTimelineState' 
-            (changed)='timelineStateChanged($event)'
+        <app-time-line #timeLine *ngIf='timelineState() !== null' 
+            [minDate]='minDate' [maxDate]='maxDate' [items]='timeline' [state]='timelineState' 
             (selected)='itemSelected($event)'
         ></app-time-line>
         <div class='detail-bg'>
@@ -72,3 +71,4 @@
         </div>
     </ng-container>
 </div>
+<app-map-selector *ngIf='mapSelector.showMapSelector'></app-map-selector>

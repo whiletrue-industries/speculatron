@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { marked } from 'marked';
+import { DataService } from './data.service';
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,7 @@ import { marked } from 'marked';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  constructor() {
+  constructor(private data: DataService) {
     // Marked.js options
     const renderer = new marked.Renderer();
     const linkRenderer = renderer.link;

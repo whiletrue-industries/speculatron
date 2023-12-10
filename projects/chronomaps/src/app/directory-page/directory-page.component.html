@@ -1,0 +1,12 @@
+<div class='title'>
+    <img [src]="data.directory.titleImageUrl()">
+    <div class='description'>
+        {{data.directory.titleImageUrl()}}
+        <div class='name'>{{data.directory.description()}}</div>
+    </div>
+</div>
+<div class='chronomaps'>
+    @for (chronomap of data.directory.chronomaps(); track chronomap.id) {
+        <app-directory-item [chronomap]="chronomap" [timelineState]='timelineState'></app-directory-item>
+    }
+</div>

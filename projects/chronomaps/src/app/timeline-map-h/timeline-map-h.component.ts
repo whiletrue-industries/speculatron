@@ -1,13 +1,15 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeHtml, SafeStyle } from '@angular/platform-browser';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, effect, signal } from '@angular/core';
+import { DomSanitizer, SafeHtml, SafeStyle, Title } from '@angular/platform-browser';
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
-import { MAPBOX_BASE_STYLE, MAPBOX_STYLE, PRIMARY_COLOR } from 'CONFIGURATION';
+import { AIRTABLE_BASE, MAPBOX_BASE_STYLE, MAPBOX_STYLE, PRIMARY_COLOR } from 'CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
 import { TimelineMapService } from '../timeline-map.service';
 import { BaseTimelineMapComponent } from '../timeline-map-base/base-timeline';
 import { timer, tap, delay, debounceTime, Subject, filter, first, map, switchMap, Observable } from 'rxjs';
-import { TimeLineComponent } from './time-line/time-line.component';
+import { TimeLineComponent } from '../time-line/time-line.component';
+import { MapSelectorService } from '../map-selector.service';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-timeline-map-h',
@@ -16,12 +18,13 @@ import { TimeLineComponent } from './time-line/time-line.component';
 })
 export class TimelineMapHComponent extends BaseTimelineMapComponent implements OnInit, AfterViewInit {
 
-  @Input() id: string;
-  @Input() title: SafeHtml;
-  @Input() subtitle: SafeHtml;
-  @Input() infobarTitle: string;
-  @Input() infobarSubtitle: string;
-  @Input() api: TimelineMapService;
+  id = 'Chronomaps';
+  title: string | null = null;
+  subtitle: string;
+  infobarTitle: string;
+  infobarSubtitle: string;
+  
+  api: TimelineMapService;
 
   @ViewChild('baseMapEl', {static: true}) baseMapEl: ElementRef;
   @ViewChild('detailMapEl', {static: true}) detailMapEl: ElementRef;
@@ -42,7 +45,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   // App State
   minDate: Date;
   maxDate: Date;
-  initialTimelineState: string | null = null;
+  timelineState = signal<string | null>(null);
   zoomState: string;
   detailOpen: boolean;
   contentVisible: boolean;
@@ -66,7 +69,10 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
 
   PRIMARY_COLOR = PRIMARY_COLOR;
   
-  constructor(activatedRoute: ActivatedRoute, private mapSvc: MapService, private sanitizer: DomSanitizer) {
+  constructor(
+    activatedRoute: ActivatedRoute, private mapSvc: MapService, private apiSvc: ApiService,
+    private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService
+  ) {
     super(activatedRoute);  
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
@@ -83,6 +89,22 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.moveEnded = this.moveEnd.pipe(
       debounceTime(1000)
     );
+    this.api = new TimelineMapService(this.apiSvc, AIRTABLE_BASE);
+    this.api.ready.pipe(first()).subscribe(() => {
+      this.title = this.api.TITLE || '';
+      this.titleSvc.setTitle(this.title);
+      this.subtitle = this.api.SUBTITLE || '';
+      this.infobarTitle = this.api.INFOBAR_TITLE || '';
+      this.infobarSubtitle = this.api.INFOBAR_SUBTITLE || '';
+    });
+    this.api.fetchData().subscribe(() => { console.log('fetchData'); });
+    effect(() => {
+      const state = this.timelineState();
+      if (state) {
+        this.zoomState = state;
+        this.saveState();  
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -199,7 +221,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     console.log('GOTO', location);
     const params = location.split('/');
     if (params.length > 0) {
-      this.initialTimelineState = params[0];
+      this.timelineState.set(params[0]);
       if (params.length > 1) {
         const authors = params[1].split(',').filter(a => a.length > 0);
         for (const author of this.api.authorsList) {
@@ -221,7 +243,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       }
     } else {
       console.log('NO STATE');
-      this.initialTimelineState = '';
+      this.timelineState.set('');
     }
   }
 
@@ -236,11 +258,6 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       state += `/${this.selectedItemId}`;
     }
     this.updateLocation(state);
-  }
-
-  timelineStateChanged(state: string) {
-    this.zoomState = state;
-    this.saveState();
   }
 
   itemActivated(item: any) {

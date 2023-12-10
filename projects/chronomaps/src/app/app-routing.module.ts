@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MainComponent } from './main/main.component';
+import { TimelineMapHComponent } from './timeline-map-h/timeline-map-h.component';
+import { DirectoryPageComponent } from './directory-page/directory-page.component';
 
 const routes: Routes = [
-  {path: '', component: MainComponent},
+  {path: 'map', component: TimelineMapHComponent},
+  {path: '', component: DirectoryPageComponent},
 ];
 
 @NgModule({

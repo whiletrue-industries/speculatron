@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild, WritableSignal, effect } from '@angular/core';
 
 import { zoom, D3ZoomEvent, zoomIdentity } from 'd3-zoom';
 import { select, Selection } from 'd3-selection';
@@ -7,8 +7,8 @@ import { axisTop, Axis } from 'd3-axis';
 import { timeFormat } from 'd3-time-format';
 import { easeQuadInOut } from 'd3-ease';
 import 'd3-transition';
-import { debounceTime, mergeWith, Subject, timer, first, ReplaySubject } from 'rxjs';
-import { MediaIconComponent } from '../../media-icon/media-icon.component';
+import { debounceTime, mergeWith, Subject, timer, first, ReplaySubject, scheduled, animationFrameScheduler, tap } from 'rxjs';
+import { MediaIconComponent } from '../media-icon/media-icon.component';
 import { PRIMARY_COLOR } from 'CONFIGURATION';
 
 @Component({
@@ -18,11 +18,11 @@ import { PRIMARY_COLOR } from 'CONFIGURATION';
 })
 export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 
+  @Input() id = '';
   @Input() minDate: Date = new Date(1920, 0, 1);
   @Input() maxDate: Date = new Date(2020, 0, 1);
   @Input() items: any[] = [];
-  @Input() state: string;
-  @Output() changed = new EventEmitter<string>();
+  @Input() state: WritableSignal<string | null>;
   @Output() selected = new EventEmitter<any>();
 
   WIDTH = 1000;
@@ -49,9 +49,12 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   zoomBehaviour: any;
   zoomX: Date;
   zoomK = 1;
+  zooming = false;
+  controlled = false;
   
   _changed = new ReplaySubject<void>(1);
   _changeCandidates = new Subject<string>();
+  _externalChanges = new Subject<string>();
   resizeObserver: ResizeObserver;
   currentHover: number | null = null;
 
@@ -59,22 +62,54 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     this.resizeObserver = new ResizeObserver(() => {
       this._changed.next();
     });
-    this._changeCandidates.pipe(
+    scheduled(this._changeCandidates, animationFrameScheduler).pipe(
+      tap((state) => {
+        this.state.set(state);
+        if (!this.zooming) {
+          this.zooming = true;
+          // console.log(this.id, 'ZOOMING ON');
+        }
+      }),
       debounceTime(500)
-    ).subscribe((state) => {
-      this.changed.next(state);
-    })
+    ).subscribe(() => {
+      this.zooming = false;
+      // console.log(this.id, 'ZOOMING OFF');
+    });
+    scheduled(this._externalChanges, animationFrameScheduler).pipe(
+      tap((state) => {
+        if (!this.controlled) {
+          this.controlled = true;
+          // console.log(this.id, 'CONTROLLED ON');
+        }
+        this.parseState(state);
+        this.applyState();
+      }),
+      debounceTime(500)
+    ).subscribe(() => {
+      this.controlled = false;
+      // console.log(this.id, 'CONTROLLED OFF');
+    });
+    effect(() => {
+      const state = this.state();
+      if (!this.zooming) {
+        this._externalChanges.next(state || '');
+      }
+    });
+  }
+
+  parseState(state: string): void {
+    const parts = state.split('@');
+    if (parts.length === 4) {
+      this.zoomX = new Date(parseFloat(parts[0]));
+      this.zoomK = parseFloat(parts[1]);
+      this.firstTickValue = parts[2];
+      this.tickIndicator = parseInt(parts[3], 10);
+      // console.log(this.id, 'STATE', this.state(), this.zoomX, this.zoomK);
+    }
   }
 
   ngOnInit(): void {
-    const parts = this.state.split(':');
-    if (parts.length >= 2) {
-      this.zoomX = new Date(parseFloat(parts[0]));
-      this.zoomK = parseFloat(parts[1]);
-      console.log('STATE', this.state, this.zoomX, this.zoomK);
-    } else {
-      console.log('timelineState empty');
-    }
+      this.parseState(this.state() || '');
   }
 
   ngAfterViewInit(): void {
@@ -129,13 +164,19 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                     .tickSizeInner(this.TICK_HEIGHT)
                     .tickFormat((val, idx) => this.tickFormat(val, idx));
     this.updateAxis();
-    if (this.zoomX) {
+    this.applyState();
+  }
+
+  applyState() {
+    if (this.zoomX && this.svg && this.zoomK) {
       const newX = this.x(this.zoomX) * this.zoomK;
       this.svg.call(this.zoomBehaviour.transform, zoomIdentity.translate(this.WIDTH/2 - newX, 0).scale(this.zoomK))
     }
   }
 
   public zoomBy(k: number) {
+    // this.zoomK *= k;
+    // this.applyState();
     this.svg.transition()
             .duration(300)
             .ease(easeQuadInOut)
@@ -341,8 +382,10 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     this.xt = event.transform.rescaleX(this.x);
     this.zoomX = this.xt.invert(this.WIDTH/2);
     this.zoomK = event.transform.k;
-    this._changeCandidates.next(`${this.zoomX.valueOf()}:${this.zoomK}`);
     this.updateAxis();
+    if (!this.controlled) {
+      this._changeCandidates.next(`${this.zoomX.valueOf()}@${this.zoomK}@${this.firstTickValue}@${this.tickIndicator}`);
+    }
   }
 
   updateIndicator(d: string, i: number) {

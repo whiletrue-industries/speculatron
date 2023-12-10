@@ -1,4 +1,3 @@
-import { HORIZONTAL_LAYOUT } from 'CONFIGURATION';
 import * as dayjs from 'dayjs';
 import { forkJoin, ReplaySubject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
@@ -51,10 +50,6 @@ export class TimelineMapService {
     return this.api.airtableFetch(this.baseId, 'MapLayers', 'website').pipe(this.api.airtableToMapping());
   }
   
-  fetchMapViews() {
-    return this.api.airtableFetch(this.baseId, 'MapViews', 'website').pipe(this.api.airtableToMapping());
-  }
-
   fetchContent() {
     return this.api.airtableFetch(this.baseId, this.api.CONTENT_TABLE, 'website').pipe(
       this.api.airtableToArray(),
@@ -64,19 +59,10 @@ export class TimelineMapService {
   fetchMapData() {
     return forkJoin([
       this.fetchMapLayers(),
-      this.fetchMapViews(),
       this.ready,
     ]).pipe(
-      map(([layers, views, _]) => {
+      map(([layers, _]) => {
         const allLayers = new Set();
-        Object.values(views).forEach((view: any) => {
-          const onLayers: string[] = [];
-          (view.map_layers || []).forEach((v: any) => {
-            onLayers.push(...layers[v].onLayers);
-          });
-          onLayers.forEach(allLayers.add, allLayers);
-          view.onLayers = onLayers;
-        });
         this.timeline.forEach((item: any) => {
           item.onLayers = [];
           if ((!item.map_view || item.map_view.length == 0) && item.map_layer && item.map_layer.length > 0) {
@@ -85,13 +71,10 @@ export class TimelineMapService {
             item.onLayers = layer.onLayers;
           }
         });
-        Object.values(views).forEach((view: any) => {
-          view.offLayers = [...allLayers].filter((l) => view.onLayers.indexOf(l) < 0);
-        });
         this.timeline.forEach((item: any) => {
           item.offLayers = [...allLayers].filter((l) => item.onLayers.indexOf(l) < 0);
         });
-        return views;
+        return {} as any;
       })
     );
   }
@@ -121,19 +104,12 @@ export class TimelineMapService {
         this.CONTRIBUTE_MESSAGE = settings['contribute_message'];
         this.LOGO_URL = (settings['logo'] || [])[0]?.thumbnails?.large?.url || 'assets/img/st_logo.svg';
 
-        return forkJoin([
-          this.fetchAudioTimestamps(),
-          this.fetchContent(),
-        ]);
+        return this.fetchContent();
       }),
-      map(([audioTimestamps, content]) => {
+      map((content) => {
         const authors: any = {};
         content.forEach((item: any) => {
-          if (item.audio_timestamps) {
-            item.audio_timestamps = item.audio_timestamps.map((x: string) => audioTimestamps[x]);
-          } else {
-            item.audio_timestamps = []
-          }
+          item.audio_timestamps = []
           item.hasContent = true;
           item.timestamp = dayjs(item.post_timestamp).toDate();
           item.year = (item.timestamp as Date).getFullYear();
@@ -187,20 +163,11 @@ export class TimelineMapService {
   updateTimeline(update = true) {
     console.log('UPDATING TIMELINE...');
     const ret = [];
-    const content: any[] = [];
     const timeline = this.timeline.slice();
-    for (let year = this.YEAR_START; year <= this.YEAR_END; year++) {
-      let added = false;
-      while (timeline.length > 0 && timeline[0].year === year) {
-        const item = timeline.shift();
-        const author = this.authorsMap[item.author];
-        if (author?.selected) {
-          ret.push(item);
-          added = true;
-        }
-      }
-      if (!added && !HORIZONTAL_LAYOUT) {
-        ret.push({year, content, placeholder: true});
+    for (const item of timeline) {
+      const author = this.authorsMap[item.author];
+      if (author?.selected) {
+        ret.push(item);
       }
     }
     const indexes: any = {};

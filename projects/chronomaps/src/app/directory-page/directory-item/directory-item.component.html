@@ -1,0 +1,10 @@
+<div class='meta'>
+    <img [src]='chronomap.thumbnail()'>
+    <div class='titles'>
+        <div class='title' [style.color]='data.directory.secondaryColor()'>{{chronomap.title()}}</div>
+        <div class='subtitle' [style.color]='data.directory.primaryColor()'>{{chronomap.subtitle()}}</div>
+        <div class='counts'>13 perspectives todo</div>
+    </div>
+    <div class='time'>Updated 2 weeks ago</div>
+</div>
+<app-time-line [id]='chronomap.title()' [state]='timelineState'></app-time-line>
