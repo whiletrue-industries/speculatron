@@ -1,12 +1,25 @@
 <div class='title'>
     <img [src]="data.directory.titleImageUrl()">
     <div class='description'>
-        {{data.directory.titleImageUrl()}}
-        <div class='name'>{{data.directory.description()}}</div>
+        <div class='short' [style.color]='data.directory.secondaryColor()'>
+            {{data.directory.description()}}
+            <a class='toggle' (click)='fullDescription.set(true)' *ngIf='!fullDescription()' [style.color]='data.directory.primaryColor()'>more</a>
+        </div>
+        <div class='long' [style.color]='data.directory.primaryColor()' *ngIf='fullDescription()'>
+            <span [innerHTML]='marked(data.directory.fullDescription())'></span>
+            <a class='toggle' (click)='fullDescription.set(false)'>less</a>
+        </div>
+        <div class='logos' *ngIf='fullDescription()'>
+            @for (logo of data.directory.logos(); track $index) {
+                <a [href]='data.directory.logoLinks()[$index]' target="_blank"><img [src]='logo' [style.height]='"60px"'></a>
+            }
+        </div>
     </div>
 </div>
 <div class='chronomaps'>
     @for (chronomap of data.directory.chronomaps(); track chronomap.id) {
-        <app-directory-item [chronomap]="chronomap" [timelineState]='timelineState'></app-directory-item>
+        <app-directory-item [chronomap]="chronomap" [timelineState]='timelineState' 
+            [minDate]='minDate' [maxDate]='maxDate'
+            [arrowRight]='arrowRight()' (alignment)='align(chronomap.title(), $event)'></app-directory-item>
     }
 </div>

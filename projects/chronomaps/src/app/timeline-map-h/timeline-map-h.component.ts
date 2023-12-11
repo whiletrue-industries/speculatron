@@ -10,6 +10,7 @@ import { timer, tap, delay, debounceTime, Subject, filter, first, map, switchMap
 import { TimeLineComponent } from '../time-line/time-line.component';
 import { MapSelectorService } from '../map-selector.service';
 import { ApiService } from '../api.service';
+import { ChronomapDatabase } from '../data.service';
 
 @Component({
   selector: 'app-timeline-map-h',
@@ -33,6 +34,9 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   @ViewChild('baseMarkers') baseMarkersElement: ElementRef;
   @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
   @ViewChild('description') descriptionElement: ElementRef;
+
+  // Map Data
+  chronomap: ChronomapDatabase;
 
   // Maps
   baseMap: mapboxgl.Map;
@@ -343,15 +347,8 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     });
   }
 
-  markerColor(item: any) {
-    if (item) {
-      if (item.marker_style === 'Light') {
-        return '#e0e0e0'; // gray5
-      } else if (item.marker_style === 'Dark') {
-        return '#333333'; // gray1
-      }  
-    }
-    return PRIMARY_COLOR;
+  markerColor() {
+    return this.chronomap.primaryColor();
   }
 
   updateMarkers() {

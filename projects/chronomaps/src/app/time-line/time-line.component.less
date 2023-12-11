@@ -19,7 +19,7 @@
 
         ::ng-deep {
             .tick line {
-                stroke: @color-gray-3;
+                stroke: @color-gray-5;
             }
             .tick text {
                 fill: @color-gray-3;
@@ -33,9 +33,11 @@
                 text {
                     .font-manrope;
                     font-weight: 800;
-                    font-size: 16px;
+                    font-size: 15px;
                 }
-                cursor: pointer;
+                &.hoverable {
+                    cursor: pointer;
+                }
             }
 
             .hovers {
@@ -73,7 +75,7 @@
         > div {
             width: 30px;
             height: 30px;
-            border: 1px solid @gray5;
+            border: 1px solid @color-gray-5;
             &:first-child {
                 border-radius: 4px 4px 0 0;
             }
@@ -92,4 +94,16 @@
             display: none;
         }
     }
+
+    .zoom-controls, ::ng-deep svg .tick text, ::ng-deep svg .point .point-bg.single, ::ng-deep svg .point image, ::ng-deep svg .point .cluster-size {
+        opacity: 0;
+        transition: opacity 0.5s ease-in;
+        transition-property: opacity,transform;
+    }
+    &.visible {
+        .zoom-controls, ::ng-deep svg .tick text, ::ng-deep svg .point .point-bg.single, ::ng-deep svg .point image, ::ng-deep svg .point .cluster-size {
+            opacity: 1;
+        }
+    }
+    
 }

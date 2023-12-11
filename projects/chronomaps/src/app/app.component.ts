@@ -2,6 +2,18 @@ import { Component } from '@angular/core';
 import { marked } from 'marked';
 import { DataService } from './data.service';
 
+// import * as durationPlugin from 'dayjs/plugin/duration';
+import * as relativeTimePlugin from 'dayjs/plugin/relativeTime';
+import * as utcPlugin from 'dayjs/plugin/utc';
+import * as dayjs from 'dayjs';
+
+// import 'dayjs/locale/he';
+// dayjs.locale('he')
+
+// dayjs.extend(durationPlugin);
+dayjs.extend(relativeTimePlugin);
+dayjs.extend(utcPlugin);
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

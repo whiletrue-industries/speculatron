@@ -9,30 +9,38 @@ import { easeQuadInOut } from 'd3-ease';
 import 'd3-transition';
 import { debounceTime, mergeWith, Subject, timer, first, ReplaySubject, scheduled, animationFrameScheduler, tap } from 'rxjs';
 import { MediaIconComponent } from '../media-icon/media-icon.component';
-import { PRIMARY_COLOR } from 'CONFIGURATION';
+import { ChronomapDatabase, TimelineItem } from '../data.service';
 
 @Component({
   selector: 'app-time-line',
   templateUrl: './time-line.component.html',
-  styleUrls: ['./time-line.component.less']
+  styleUrls: ['./time-line.component.less'],
+  host: {
+    '[class.visible]': 'hovered? hovered() : true',
+  }
 })
 export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input() id = '';
-  @Input() minDate: Date = new Date(1920, 0, 1);
-  @Input() maxDate: Date = new Date(2020, 0, 1);
-  @Input() items: any[] = [];
+  @Input() minDate: Date = new Date(1820, 0, 1);
+  @Input() maxDate: Date = new Date(2120, 0, 1);
+  @Input() chronomap: ChronomapDatabase;
   @Input() state: WritableSignal<string | null>;
+  @Input() showHovers = true;
+  @Input() hoverable = true;
+  @Input() hovered: WritableSignal<boolean>;;
+
   @Output() selected = new EventEmitter<any>();
 
   WIDTH = 1000;
   TEXT_HEIGHT = 16;
   TICK_HEIGHT = 48;
-  CIRCLE_RADIUS = 24;
+  CIRCLE_RADIUS_CLUSTERED = 12;
+  CIRCLE_RADIUS = 16;
+  ICON_PADDING = 4;
   HOVER_HEIGHT = 34;
-  HEIGHT = this.TEXT_HEIGHT + this.TICK_HEIGHT + 2*this.CIRCLE_RADIUS + this.HOVER_HEIGHT;
+  HEIGHT = this.TEXT_HEIGHT + this.TICK_HEIGHT/2 + this.CIRCLE_RADIUS + this.HOVER_HEIGHT;
   RANDOM_CENTERS: any = {};
-  PRIMARY_COLOR = PRIMARY_COLOR;
 
   @ViewChild('timeLine') timeline: ElementRef;
 
@@ -94,14 +102,20 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       if (!this.zooming) {
         this._externalChanges.next(state || '');
       }
+      const items = this.chronomap.timelineItems();
+      if (items) {
+        this.updateAxis();
+      }
     });
   }
 
   parseState(state: string): void {
     const parts = state.split('@');
-    if (parts.length === 4) {
+    if (parts.length >= 2) {
       this.zoomX = new Date(parseFloat(parts[0]));
       this.zoomK = parseFloat(parts[1]);
+    }
+    if (parts.length === 4) {
       this.firstTickValue = parts[2];
       this.tickIndicator = parseInt(parts[3], 10);
       // console.log(this.id, 'STATE', this.state(), this.zoomX, this.zoomK);
@@ -152,7 +166,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                   .attr('transform', `translate(0, ${this.HEIGHT - this.TEXT_HEIGHT})`)
                   .attr('class', 'axis axis--x');
     this.points = this.svg.append('g')
-                   .attr('class', 'points');
+                   .attr('class', 'points' + (this.hoverable ? ' hoverable' : ''));
 
     this.svg.attr('viewBox', `0 0 ${this.WIDTH} ${this.HEIGHT}`);
     this.x = scaleTime()
@@ -192,9 +206,9 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     item.niceTimestamp = this.tickFormat(date, -1);
   }
 
-  clusterPoints(points: any[]) {
+  clusterPoints(points: TimelineItem[]) {
 
-    const dropPending = (pending: any[], clustered: any[]) => {
+    const dropPending = (pending: TimelineItem[], clustered: TimelineItem[]) => {
       if (pending.length) {
         const center = pending.reduce((acc, cur) => cur.x + acc, 0) / pending.length;
         const first = pending[0].timestamp;
@@ -234,10 +248,10 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       item.cx = 0;
       item.cy = 0;
     });
-    const clustered: any[] = [];
-    let pending: any[] = [];
+    const clustered: TimelineItem[] = [];
+    let pending: TimelineItem[] = [];
     let lastX: number | null = null;
-    for (const item of this.items) {
+    for (const item of points) {
       const itemX = item.x;
       if (lastX === null) {
         pending.push(item);
@@ -253,7 +267,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     return clustered;
   }
 
-  onPointClick(item: any) {
+  onPointClick(item: TimelineItem) {
     if (item.clustered > 1) {
       this.zoomK = item.k;
       this.scrollTo(item.centerTimestamp, item);
@@ -264,8 +278,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  iconDataUrl(item: any) {
-    let content = MediaIconComponent.getCodeForType(item.type, PRIMARY_COLOR);
+  iconDataUrl(item: TimelineItem) {
+    let content = MediaIconComponent.getCodeForType(item.type, this.chronomap.primaryColor());
     content = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${content}</svg>`;
     content = `data:image/svg+xml;base64,` + btoa(content);
     return content;
@@ -275,12 +289,13 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     if (setTo !== -1) {
       this.currentHover = setTo;
     }
-    this.hovers.selectAll('.hover')
-               .style('display', (d: any) => {
-                // console.log('CHECK', this.currentHover, d.index);
-                return d.index === this.currentHover ? 'flex' : 'none';
-               })
-               .style('transform', (d: any) => `translate(${d.x}px, 0)`);//${this.CIRCLE_RADIUS + this.HOVER_HEIGHT}px)`);
+    if (this.showHovers) {
+      this.hovers.selectAll('.hover')
+      .style('display', (d: any) => {
+       return d.index === this.currentHover ? 'flex' : 'none';
+      })
+      .style('transform', (d: any) => `translate(${d.x}px, 0)`);
+    }
     this.updatePoints();
   }
 
@@ -289,10 +304,18 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     points
         .attr('transform', (d: any) => `translate(${d.x}, ${this.CIRCLE_RADIUS + this.HOVER_HEIGHT})`);
     points
-        .select('circle')
+        .select('circle.point-bg')
         .attr('cx', (d: any) => d.cx)
         .attr('cy', (d: any) => d.cy)
-        .style('fill', (d: any) => d.indexes.indexOf(this.currentHover) >= 0 ? PRIMARY_COLOR+'40' : '#fff')
+        .attr('r', (d: any) => d.indexes.indexOf(this.currentHover) < 0 && d.clustered > 1 ? this.CIRCLE_RADIUS_CLUSTERED - 1 : this.CIRCLE_RADIUS - 1)
+        .style('stroke', (d: any) => 
+            d.indexes.indexOf(this.currentHover) >= 0 ? 
+                this.chronomap.primaryColor()+'40':
+                (d.clustered > 1 ? this.chronomap.primaryColor()+'40' : 'none'))
+        .style('fill', (d: any) => 
+            d.indexes.indexOf(this.currentHover) >= 0 ?
+              'white' :
+              (d.clustered > 1 ? 'white' : 'none'))
     points
         .select('image')
         .style('display', (d: any) => d.clustered > 1 ? 'none' : null);
@@ -304,6 +327,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   updateAxis() {
+    const items: TimelineItem[] = this.chronomap.timelineItems();
     this.g.call(this.xAxis.scale(this.xt))
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
@@ -320,30 +344,42 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .style('text-anchor', 'middle')
         .attr('dy', this.TEXT_HEIGHT + this.TICK_HEIGHT);
       
-    const clustered = this.clusterPoints(this.items);
+    const clustered = this.clusterPoints(items);
     let points = this.points.selectAll('.point')
         .data(clustered, (d: any) => d.id);
     const newPoints = points.enter()
         .append('g')
         .attr('class', 'point')
-        .on('click', (_, d: any) => this.onPointClick(d))
-        .on('mouseenter', (ev: Event, d: any) => {
-          // console.log('mouseenter', d.title);
-          if (this.currentHover === null) {
-            this.updateHovers(d.index);
-          }
-        })
-        .on('mouseleave', (ev: Event, d: any) => {
-          // console.log('mouseleave', d.title);
-          if (d.indexes.indexOf(this.currentHover) >= 0) {
-            this.updateHovers(null);
+        .call((points) => {
+          if (this.hoverable) {
+            points
+              .on('click', (_, d: TimelineItem) => this.onPointClick(d))
+              .on('mouseenter', (ev: Event, d: TimelineItem) => {
+                // console.log('mouseenter', d.title);
+                if (this.currentHover !== null) {
+                  this.updateHovers(null);
+                }
+                this.updateHovers(d.index);
+              })
+              .on('mouseleave', (ev: Event, d: TimelineItem) => {
+                // console.log('mouseleave', d.title);
+                if (this.currentHover && d.indexes.indexOf(this.currentHover) >= 0) {
+                  this.updateHovers(null);
+                }
+              });
           }
         });
     newPoints
         .append('circle')
-        .attr('r', this.CIRCLE_RADIUS-1)
-        .style('stroke', PRIMARY_COLOR)//'rgba(252, 13, 28, 0.25)')
-        .style('stroke-opacity', 0.25)
+        .attr('class', 'point-inactive')
+        .attr('r', d => d.clustered > 1 ? 0 : 3)
+        .style('fill', this.chronomap.primaryColor()); //'rgba(252, 13, 28, 0.25)');
+    newPoints
+        .append('circle')
+        .attr('class', d => 'point-bg' + (d.clustered === 0 ? ' single' : ''))
+        .attr('r', (d: any) => d.clustered > 1 ? this.CIRCLE_RADIUS_CLUSTERED - 1 : this.CIRCLE_RADIUS - 1)
+        .style('stroke', this.chronomap.primaryColor() + '40')//'rgba(252, 13, 28, 0.25)')
+        // .style('stroke-opacity', 0.25)
         .style('fill', '#fff');
     let hovers = this.hovers.selectAll('.hover')
               .data(clustered, (d: any) => d.id);
@@ -352,24 +388,24 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
           .attr('class', 'hover')
           .style('display', 'none')
           .append('span')
-          .style('border-color', PRIMARY_COLOR)
-          .style('color', PRIMARY_COLOR)
-          .style('background', `linear-gradient(90deg, ${PRIMARY_COLOR}40, ${PRIMARY_COLOR}40), #fff`)
-          .text((d: any) => d.title);
+          .style('border-color', this.chronomap.primaryColor())
+          .style('color', this.chronomap.primaryColor())
+          .style('background', `linear-gradient(90deg, ${this.chronomap.primaryColor()}40, ${this.chronomap.primaryColor()}40), #fff`)
+          .text((d: TimelineItem) => d.title);
     hovers.exit().remove();
 
     newPoints
         .append('image')
-        .attr('x', -this.CIRCLE_RADIUS/2)
-        .attr('y', -this.CIRCLE_RADIUS/2)
-        .attr('width', this.CIRCLE_RADIUS)
-        .attr('height', this.CIRCLE_RADIUS)
+        .attr('x', -(this.CIRCLE_RADIUS - this.ICON_PADDING))
+        .attr('y', -(this.CIRCLE_RADIUS - this.ICON_PADDING))
+        .attr('width', (this.CIRCLE_RADIUS - this.ICON_PADDING) * 2)
+        .attr('height', (this.CIRCLE_RADIUS - this.ICON_PADDING) * 2)
         .attr('xlink:href', (d) => this.iconDataUrl(d));
         // .attr('xlink:href', (d: any) => `assets/img/icon-time-line-${d.type}.svg`);
     newPoints
         .append('text')
         .attr('class', 'cluster-size')
-        .style('fill', PRIMARY_COLOR)
+        .style('fill', this.chronomap.primaryColor())
         .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'middle');
     points.exit().remove();

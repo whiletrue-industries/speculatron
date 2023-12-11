@@ -13,7 +13,7 @@ export type Author = {
 };
 
 
-export type ContentItem = {
+export class ContentItem {
   id: number;
   title: string;
   post_timestamp: Date;
@@ -38,8 +38,24 @@ export type ContentItem = {
   authors: Author[];
   tags: string[];
   related: ContentItem[];
+  lastModified: Date;
 };
 
+export class TimelineItem extends ContentItem {
+  index: number;
+  next: ContentItem | null;
+  prev: ContentItem | null;
+  timestamp: Date;
+
+  x: number;
+  cx: number = 0;
+  cy: number = 0;
+
+  centerTimestamp: Date;
+  k: number = 0;
+  clustered: number;
+  indexes: number[] = [];
+}
 
 export class ChronomapDatabase extends BaserowDatabase {
 
@@ -68,10 +84,12 @@ export class ChronomapDatabase extends BaserowDatabase {
   primaryColor = signal<string>('');
   secondaryColor = signal<string>('');
 
-  contentItems = signal<ContentItem[]>([]);
+  timelineItems = signal<TimelineItem[]>([]);
 
+  lastModified = signal<Date>(new Date());
   allLayers: string[] = [];
   allContentItems: ContentItem[];
+  authors = signal<{[key: string]: Author}>({});
 
   constructor(chronomap: any, private http: HttpClient) {
     super(BASEROW_ENDPOINT, chronomap.Database_Token, chronomap.Database_ID);
@@ -130,18 +148,20 @@ export class ChronomapDatabase extends BaserowDatabase {
         const authors: any = {};
         authorsTable?.rows.forEach((row: any) => {
           authors[row.Name] = {
+            name: row.Name,
             email: row.Email,
-            status: row.Status,
+            status: row.Status.value,
           };
         });
+        this.authors.set(authors);
         const contentItems: ContentItem[] = [];
         contentTable?.rows.forEach((row: any) => {
           const item: any = {
             id: row.id,
             title: row.Title,
             post_timestamp: dayjs(row.Post_Timestamp).toDate(),
-            status: row.Status,
-            type: row.Type,
+            status: row.Status.value,
+            type: row.Type.value,
             youtube_video_id: row.Youtube_Video_Id,
             content: row.Content,
             image: row.Image?.[0]?.url,
@@ -160,6 +180,7 @@ export class ChronomapDatabase extends BaserowDatabase {
             authors: row.Authors?.map((x: any) => authors[x.value]) || [],
             tags: row.Tags?.map((x: any) => x.value) || [],
             related: row.Related?.map((x: any) => ({id: x.id})) || [],
+            lastModified: dayjs(row.Last_Modified).toDate(),
           };
           item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
           row.Map_Layer.forEach((x: any) => {
@@ -177,12 +198,12 @@ export class ChronomapDatabase extends BaserowDatabase {
               item.off_map_layers.push(layer);
             }
           });
+
           const contentItem: ContentItem = item;
-          if (contentItem.status === 'Published') {
-            if (contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) {
-              contentItems.push(contentItem);
-            }
-          }
+          if (contentItem.status !== 'Published') { return; }
+          if (!contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) { return; }
+          if (!contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
+          contentItems.push(contentItem);
         });
         contentItems.forEach((item: ContentItem) => {
           item.related = item.related.map((id: ContentItem) => (contentItems.find((i: ContentItem) => i.id === id.id) || {}) as ContentItem).filter((i: ContentItem) => !!i.id);
@@ -191,7 +212,20 @@ export class ChronomapDatabase extends BaserowDatabase {
       }),
     ).subscribe((contentItems: ContentItem[]) => {
       this.allContentItems = contentItems;
-      this.contentItems.set(contentItems);
+
+      const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
+        const ti = new TimelineItem();
+        Object.assign(ti, item);
+        ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
+        return ti;
+      });
+      timelineItems.forEach((item: TimelineItem, index: number) => {
+        item.index = index;
+        item.next = timelineItems[index + 1] || null;
+        item.prev = timelineItems[index - 1] || null;
+      });
+      this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
+      this.timelineItems.set(timelineItems);
     });
   }
 }
@@ -230,7 +264,7 @@ export class DirectoryDatabase extends BaserowDatabase {
       this.description.set(keyValues.Description.value);
       this.fullDescription.set(keyValues.Full_Description.value);
       this.logos.set((keyValues.Logos?.images || []).map((i: any) => i.url));
-      this.logoLinks.set(keyValues.Logos?.images?.value?.split(',') || []);
+      this.logoLinks.set(keyValues.Logos?.value?.split(',') || []);
       this.primaryColor.set(keyValues.Primary_Color.value);
       this.secondaryColor.set(keyValues.Secondary_Color.value);
       this.zoomFrom.set(keyValues.Zoom_From.value);

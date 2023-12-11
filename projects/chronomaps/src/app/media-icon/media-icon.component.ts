@@ -61,11 +61,14 @@ export class MediaIconComponent implements OnInit, OnChanges {
       `;
       return `
       ${style}${defs}
-      <path ${content} filter="url(#blur)" stroke="${color}" class='a'/>
+      <path ${content} filter="url(#blur)" stroke="white" stroke-width="$" class='a'/>
       <path ${content} fill="${color}" />
       `
     } else {
-      return `<path ${content} fill="${color}" />`;
+      return `
+        <path ${content} fill="white" stroke="white" stroke-width="4"/>
+        <path ${content} fill="${color}" />
+      `;
     }
   }
 
