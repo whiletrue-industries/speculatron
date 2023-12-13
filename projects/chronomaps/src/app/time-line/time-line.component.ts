@@ -34,7 +34,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 
   WIDTH = 1000;
   TEXT_HEIGHT = 16;
-  TICK_HEIGHT = 48;
+  TICK_HEIGHT = 56;
   CIRCLE_RADIUS_CLUSTERED = 12;
   CIRCLE_RADIUS = 16;
   ICON_PADDING = 4;
