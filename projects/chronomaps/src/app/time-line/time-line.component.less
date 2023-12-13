@@ -100,9 +100,15 @@
         transition: opacity 0.5s ease-in;
         transition-property: opacity,transform;
     }
+    ::ng-deep svg .point .point-inactive {
+        transition: opacity 0.5s ease-in;
+    }
     &.visible {
         .zoom-controls, ::ng-deep svg .tick text, ::ng-deep svg .point .point-bg.single, ::ng-deep svg .point image, ::ng-deep svg .point .cluster-size {
             opacity: 1;
+        }
+        ::ng-deep svg .point .point-inactive {
+            opacity: 0;
         }
     }
     
