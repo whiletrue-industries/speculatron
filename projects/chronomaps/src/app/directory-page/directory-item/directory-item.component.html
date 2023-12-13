@@ -13,6 +13,7 @@
             </div>
         </div>
         <div class='subtitle' [style.color]='data.directory.primaryColor()'>{{chronomap.subtitle()}}</div>
+        <div class='timerange'>({{chronomap.timelineItems()[0].formattedPostTimestamp}} - {{chronomap.timelineItems()[chronomap.timelineItems().length - 1].formattedPostTimestamp}})</div>
         <div class='counts'>{{authorsMsg()}}</div>
     </div>
 </div>

@@ -12,6 +12,13 @@ export type Author = {
   status: 'Pending' | 'Editor' | 'Contributor';
 };
 
+type DateFormatter = (date: Date) => string;
+const FORMATTERS: {[key: string]: DateFormatter} = {
+  day: (date: Date) => dayjs(date).format('MMMM D, YYYY'),
+  month: (date: Date) => dayjs(date).format('MMMM YYYY'),
+  year: (date: Date) => dayjs(date).format('YYYY'),
+  hour: (date: Date) => dayjs(date).format('MMMM D, YYYY h:mm a'),
+};
 
 export class ContentItem {
   id: number;
@@ -55,6 +62,9 @@ export class TimelineItem extends ContentItem {
   k: number = 0;
   clustered: number;
   indexes: number[] = [];
+
+  formattedPostTimestamp: string;
+  formattedAltPostTimestamp: string;
 }
 
 export class ChronomapDatabase extends BaserowDatabase {
@@ -217,6 +227,8 @@ export class ChronomapDatabase extends BaserowDatabase {
         const ti = new TimelineItem();
         Object.assign(ti, item);
         ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
+        ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
+        ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
         return ti;
       });
       timelineItems.forEach((item: TimelineItem, index: number) => {
