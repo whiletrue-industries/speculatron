@@ -342,7 +342,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                       }));
     this.g.selectAll('text') 
         .style('text-anchor', 'middle')
-        .attr('dy', this.TEXT_HEIGHT + this.TICK_HEIGHT);
+        .attr('dy', 3 + this.TEXT_HEIGHT + this.TICK_HEIGHT);
       
     const clustered = this.clusterPoints(items);
     let points = this.points.selectAll('.point')
