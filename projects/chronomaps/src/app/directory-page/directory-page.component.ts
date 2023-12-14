@@ -56,4 +56,7 @@ export class DirectoryPageComponent {
     this.arrowRight.set(min);
   }
 
+  get titleBoxShadow() {
+    return `0px 0px 20px 1px ${this.data.directory.primaryColor()}40`;
+  }
 }
