@@ -407,7 +407,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .attr('class', 'cluster-size')
         .style('fill', this.chronomap.primaryColor())
         .attr('dominant-baseline', 'middle')
-        .attr('text-anchor', 'middle');
+        .attr('text-anchor', 'middle')
+        .attr('dy', 1);
     points.exit().remove();
 
     this.updatePoints();
