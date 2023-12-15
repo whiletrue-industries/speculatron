@@ -349,25 +349,31 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .data(clustered, (d: any) => d.id);
     const newPoints = points.enter()
         .append('g')
-        .attr('class', 'point')
+        .attr('class', d => 'point' + (d.clustered === 1 ? ' single' : ''))
         .call((points) => {
-          if (this.hoverable) {
-            points
-              .on('click', (_, d: TimelineItem) => this.onPointClick(d))
-              .on('mouseenter', (ev: Event, d: TimelineItem) => {
-                // console.log('mouseenter', d.title);
+          points
+            .on('click', (_, d: TimelineItem) => {
+              if (this.hoverable || d.clustered > 1) {
+                this.onPointClick(d)
+              }
+            })
+            .on('mouseenter', (ev: Event, d: TimelineItem) => {
+              // console.log('mouseenter', d.title);
+              if (this.hoverable || d.clustered > 1) {
                 if (this.currentHover !== null) {
                   this.updateHovers(null);
                 }
                 this.updateHovers(d.index);
-              })
-              .on('mouseleave', (ev: Event, d: TimelineItem) => {
-                // console.log('mouseleave', d.title);
+              }
+            })
+            .on('mouseleave', (ev: Event, d: TimelineItem) => {
+              // console.log('mouseleave', d.title);
+              if (this.hoverable || d.clustered > 1) {
                 if (this.currentHover && d.indexes.indexOf(this.currentHover) >= 0) {
                   this.updateHovers(null);
                 }
-              });
-          }
+              }
+            });
         });
     newPoints
         .append('circle')
@@ -376,7 +382,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .style('fill', this.chronomap.primaryColor()); //'rgba(252, 13, 28, 0.25)');
     newPoints
         .append('circle')
-        .attr('class', d => 'point-bg' + (d.clustered === 0 ? ' single' : ''))
+        .attr('class', d => 'point-bg' + (d.clustered === 1 ? ' single' : ''))
         .attr('r', (d: any) => d.clustered > 1 ? this.CIRCLE_RADIUS_CLUSTERED - 1 : this.CIRCLE_RADIUS - 1)
         .style('stroke', this.chronomap.primaryColor() + '40')//'rgba(252, 13, 28, 0.25)')
         // .style('stroke-opacity', 0.25)

@@ -35,9 +35,13 @@
                     font-weight: 800;
                     font-size: 12px;
                 }
-                &.hoverable {
+                &:not(.single) {
                     cursor: pointer;
                 }
+            }
+
+            .points.hoverable > .point {
+                cursor: pointer;
             }
 
             .hovers {
