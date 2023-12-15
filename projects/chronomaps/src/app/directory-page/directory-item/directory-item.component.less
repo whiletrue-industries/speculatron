@@ -100,7 +100,7 @@
                     .arrow {
                         position: absolute;
                         right: 800px;
-                        transition: right 0.5s ease-in;
+                        transition: right @transition-time-directory ease-in;
                         top: -1px;
                     }
 
@@ -109,7 +109,7 @@
                         position: absolute;
                         right: 4px;
                         color: @color-gray-3;
-                        transition: opacity 0.5s ease-in;
+                        transition: opacity @transition-time-directory ease-in;
                         opacity: 1;
                     }
 
@@ -129,7 +129,7 @@
             .timerange {
                 .font-manrope;
                 opacity: 0;
-                transition: opacity 0.5s ease-in;
+                transition: opacity @transition-time-directory ease-in;
                 color: @color-gray-2;
                 font-size: 13px;
                 font-weight: 300;

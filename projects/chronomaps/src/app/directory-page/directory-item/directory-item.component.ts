@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, View
 import { Author, ChronomapDatabase, DataService, DirectoryDatabase } from '../../data.service';
 import * as dayjs from 'dayjs';
 import { last } from 'rxjs';
+import { marked } from 'marked';
 
 @Component({
   selector: 'app-directory-item',
@@ -24,6 +25,8 @@ export class DirectoryItemComponent implements AfterViewInit {
 
   @ViewChild('arrowContainer') arrowContainer: ElementRef<HTMLElement>;
 
+  marked = marked;
+  
   hovered = signal<boolean>(false);
 
   authorsMsg = computed(() => {
