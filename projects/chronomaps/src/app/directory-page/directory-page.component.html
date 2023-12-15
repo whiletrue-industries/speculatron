@@ -1,18 +1,22 @@
-<div class='title' [style.box-shadow]='titleBoxShadow'>
-    <img [src]="data.directory.titleImageUrl()">
-    <div class='description'>
-        <div class='short' [style.color]='data.directory.secondaryColor()'>
-            {{data.directory.description()}}
-            <a class='toggle' (click)='fullDescription.set(true)' *ngIf='!fullDescription()' [style.color]='data.directory.primaryColor()'>more</a>
-        </div>
-        <div class='long' [style.color]='data.directory.primaryColor()' *ngIf='fullDescription()'>
-            <span [innerHTML]='marked(data.directory.fullDescription())'></span>
-            <a class='toggle' (click)='fullDescription.set(false)'>less</a>
-        </div>
-        <div class='logos' *ngIf='fullDescription()'>
-            @for (logo of data.directory.logos(); track $index) {
-                <a [href]='data.directory.logoLinks()[$index]' target="_blank"><img [src]='logo' [style.height]='"60px"'></a>
-            }
+<div class='title-container'>
+    <div class='filler'></div>
+    <div class='title' [style.box-shadow]='titleBoxShadow'>
+        <div class='handle' [style.border-color]='data.directory.primaryColor()'></div>
+        <img [src]="data.directory.titleImageUrl()">
+        <div class='description'>
+            <div class='short' [style.color]='data.directory.secondaryColor()'>
+                {{data.directory.description()}}
+                <a class='toggle' (click)='fullDescription.set(true)' *ngIf='!fullDescription()' [style.color]='data.directory.primaryColor()'>more</a>
+            </div>
+            <div class='long' [style.color]='data.directory.primaryColor()' *ngIf='fullDescription() || layout.mobile()'>
+                <span [innerHTML]='marked(data.directory.fullDescription())'></span>
+                <a class='toggle' (click)='fullDescription.set(false)'>less</a>
+            </div>
+            <div class='logos' *ngIf='fullDescription() || layout.mobile()'>
+                @for (logo of data.directory.logos(); track $index) {
+                    <a [href]='data.directory.logoLinks()[$index]' target="_blank"><img [src]='logo' [style.height]='"60px"'></a>
+                }
+            </div>
         </div>
     </div>
 </div>

@@ -1,6 +1,7 @@
 import { Component, effect, signal } from '@angular/core';
 import { DataService } from '../data.service';
 import { marked } from 'marked';
+import { LayoutService } from '../layout.service';
 
 @Component({
   selector: 'app-directory-page',
@@ -19,7 +20,7 @@ export class DirectoryPageComponent {
 
   marked = marked;
 
-  constructor(public data: DataService) {
+  constructor(public data: DataService, public layout: LayoutService) {
     effect(() => {
       let minDate: Date|null = null;
       let maxDate: Date|null = null;

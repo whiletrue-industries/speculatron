@@ -1,5 +1,6 @@
 <div class='meta'>
     <img [src]='chronomap.thumbnail()'>
+    <div class='time layout-mobile'>Updated {{lastModified}}</div>
     <div class='titles'>
         <div class='title' [style.color]='data.directory.secondaryColor()'>
             <span>{{chronomap.title()}}</span>
@@ -9,11 +10,11 @@
                         <path d="M1998.38 4.94371C1998.58 4.74845 1998.58 4.43187 1998.38 4.2366L1995.2 1.05462C1995 0.859362 1994.69 0.859362 1994.49 1.05462C1994.3 1.24989 1994.3 1.56647 1994.49 1.76173L1997.32 4.59016L1994.49 7.41858C1994.3 7.61385 1994.3 7.93043 1994.49 8.12569C1994.69 8.32095 1995 8.32095 1995.2 8.12569L1998.38 4.94371ZM0.0273438 5.09033L1998.03 5.09016L1998.03 4.09016L0.0273437 4.09033L0.0273438 5.09033Z" [attr.fill]='data.directory.primaryColor()'/>
                     </svg>
                 </div>
-                <div class='time'>Updated {{lastModified}}</div>
+                <div class='time layout-desktop'>Updated {{lastModified}}</div>
             </div>
         </div>
         <div class='subtitle' [style.color]='data.directory.primaryColor()'>{{chronomap.subtitle()}}</div>
-        <div class='timerange'>({{chronomap.timelineItems()[0].formattedPostTimestamp}} - {{chronomap.timelineItems()[chronomap.timelineItems().length - 1].formattedPostTimestamp}})</div>
+        <div class='timerange'>({{chronomap.timelineItems()[0].post_timestamp.getFullYear()}} - {{chronomap.timelineItems()[chronomap.timelineItems().length - 1].post_timestamp.getFullYear()}})</div>
         <div class='counts'>{{authorsMsg()}}</div>
     </div>
 </div>
