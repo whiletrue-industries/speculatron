@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
-import { PRIMARY_COLOR } from 'CONFIGURATION';
-import { Subscription } from 'rxjs';
-import { AudioPlayerComponent } from '../../audio-player/audio-player.component';
+import { AudioPlayerComponent } from './audio-player/audio-player.component';
+import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
   selector: 'app-content-audio',
@@ -10,12 +9,13 @@ import { AudioPlayerComponent } from '../../audio-player/audio-player.component'
 })
 export class ContentAudioComponent implements OnInit, OnChanges, AfterViewInit{
 
-  @Input() item: any;
-  @Input() activeItem: any;
+  @Input() item: TimelineItem;
+  @Input() activeItem: TimelineItem;
+
+  @Input() chronomap: ChronomapDatabase;
+
   @ViewChild(AudioPlayerComponent, {static: true}) player: AudioPlayerComponent;
   linkHover = false;
-
-  PRIMARY_COLOR = PRIMARY_COLOR;
 
   constructor() { }
 

@@ -1,13 +1,12 @@
 <div class='card'>
     <div class='header'>
-        <div class='profile-image' [style.background-image]='"url(" + item.profile_image[0].thumbnails.small.url + ")"'></div>
+        <div class='profile-image' [style.background-image]='"url(" + item.profile_image + ")"'></div>
         <div class='user'>
             <div class='name'>{{item.name}}</div>
-            <div class='followers'>{{item.follower_count}} followers</div>
         </div>
         <img class='ig-view-profile' src='assets/img/spectours-ig-view-profile.svg'>
     </div>
-    <div class='image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+    <div class='image' [style.background-image]='"url(" + item.image + ")"'></div>
     <div class='view-more'>
         View More on Instagram
     </div>

@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import * as dayjs from 'dayjs';
 import { marked  } from 'marked';
+import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
   selector: 'app-content-twitter',
@@ -9,7 +10,10 @@ import { marked  } from 'marked';
 })
 export class ContentTwitterComponent implements OnInit {
 
-  @Input() item: any;
+  @Input() item: TimelineItem;
+
+  @Input() chronomap: ChronomapDatabase;
+
   marked = marked;
 
   constructor() { }

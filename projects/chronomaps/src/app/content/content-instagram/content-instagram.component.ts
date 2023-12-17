@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
   selector: 'app-content-instagram',
@@ -7,7 +8,9 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ContentInstagramComponent implements OnInit {
 
-  @Input() item: any;
+  @Input() item: TimelineItem;
+
+  @Input() chronomap: ChronomapDatabase;
 
   constructor() { }
 

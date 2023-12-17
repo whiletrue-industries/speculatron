@@ -1,31 +1,24 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, effect, signal } from '@angular/core';
-import { DomSanitizer, SafeHtml, SafeStyle, Title } from '@angular/platform-browser';
-import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
-import { AIRTABLE_BASE, MAPBOX_BASE_STYLE, MAPBOX_STYLE, PRIMARY_COLOR } from 'CONFIGURATION';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, effect, signal } from '@angular/core';
+import { DomSanitizer, SafeStyle, Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { MAPBOX_BASE_STYLE, MAPBOX_STYLE } from 'CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
-import { TimelineMapService } from '../timeline-map.service';
-import { BaseTimelineMapComponent } from '../timeline-map-base/base-timeline';
-import { timer, tap, delay, debounceTime, Subject, filter, first, map, switchMap, Observable } from 'rxjs';
+import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime } from 'rxjs';
 import { TimeLineComponent } from '../time-line/time-line.component';
 import { MapSelectorService } from '../map-selector.service';
-import { ApiService } from '../api.service';
-import { ChronomapDatabase } from '../data.service';
+import { ChronomapDatabase, TimelineItem } from '../data.service';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
-  selector: 'app-timeline-map-h',
-  templateUrl: './timeline-map-h.component.html',
-  styleUrls: ['./timeline-map-h.component.less']
+  selector: 'app-chronomap',
+  templateUrl: './chronomap.component.html',
+  styleUrls: ['./chronomap.component.less']
 })
-export class TimelineMapHComponent extends BaseTimelineMapComponent implements OnInit, AfterViewInit {
+export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  id = 'Chronomaps';
-  title: string | null = null;
-  subtitle: string;
-  infobarTitle: string;
-  infobarSubtitle: string;
-  
-  api: TimelineMapService;
+  @Input() chronomap: ChronomapDatabase;  
 
   @ViewChild('baseMapEl', {static: true}) baseMapEl: ElementRef;
   @ViewChild('detailMapEl', {static: true}) detailMapEl: ElementRef;
@@ -34,9 +27,6 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   @ViewChild('baseMarkers') baseMarkersElement: ElementRef;
   @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
   @ViewChild('description') descriptionElement: ElementRef;
-
-  // Map Data
-  chronomap: ChronomapDatabase;
 
   // Maps
   baseMap: mapboxgl.Map;
@@ -47,18 +37,17 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   moveEnded: Observable<void>;
 
   // App State
-  minDate: Date;
-  maxDate: Date;
-  timelineState = signal<string | null>(null);
+  timelineState = signal<string | null>('');
   zoomState: string;
   detailOpen: boolean;
   contentVisible: boolean;
-  currentItem: any = {};
-  selectedItemId: string | null = null;
+  currentItem: TimelineItem | null = null;
+  selectedItemId: number | null = null;
   itemActivations = new Subject<any>();
   mapMode = 'Media';
   lastMapState: mapboxgl.FlyToOptions;
   selectItemMapState: mapboxgl.FlyToOptions;
+  fragmentChanger = new Subject<void>();
 
   // Layout
   resizeObserver: ResizeObserver;
@@ -67,23 +56,21 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   detailWidthPx: string = '50%';
   changing: number = 0;
   markers: mapboxgl.Marker[] = []
-  markersTimeline: any[] = [];
+  markersTimeline: TimelineItem[] = [];
   contentBackground: SafeStyle;
   backdropBackground: SafeStyle;
-
-  PRIMARY_COLOR = PRIMARY_COLOR;
   
   constructor(
-    activatedRoute: ActivatedRoute, private mapSvc: MapService, private apiSvc: ApiService,
+    private activatedRoute: ActivatedRoute, private mapSvc: MapService,
     private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService
   ) {
-    super(activatedRoute);  
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
         this.syncWidths();
       });
     });
     this.itemActivations.pipe(
+      untilDestroyed(this),
       filter(() => this.changing === 0),
       debounceTime(1000)
     ).subscribe((item: any) => {
@@ -93,33 +80,29 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.moveEnded = this.moveEnd.pipe(
       debounceTime(1000)
     );
-    this.api = new TimelineMapService(this.apiSvc, AIRTABLE_BASE);
-    this.api.ready.pipe(first()).subscribe(() => {
-      this.title = this.api.TITLE || '';
-      this.titleSvc.setTitle(this.title);
-      this.subtitle = this.api.SUBTITLE || '';
-      this.infobarTitle = this.api.INFOBAR_TITLE || '';
-      this.infobarSubtitle = this.api.INFOBAR_SUBTITLE || '';
-    });
-    this.api.fetchData().subscribe(() => { console.log('fetchData'); });
     effect(() => {
       const state = this.timelineState();
       if (state) {
         this.zoomState = state;
-        this.saveState();  
+        this.fragmentChanger.next();
       }
+      this.titleSvc.setTitle(this.chronomap.title());
     });
   }
 
   ngOnInit(): void {
-    this.initialize(this.api);
-    this.api.data.subscribe(() => {
-      this.saveState();
-      this.updateMarkers();
-    });
+    this.updateMarkers();
     // this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
-    this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 10.32%, ${PRIMARY_COLOR}80 35.85%)`);
+    this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${this.chronomap.primaryColor()}00 10.32%, ${this.chronomap.primaryColor()}80 35.85%)`);
     console.log('CT BG', this.contentBackground);
+    this.chronomap.ready.pipe(
+      switchMap(() => this.fragmentChanger),
+      untilDestroyed(this),
+      throttleTime(500, animationFrameScheduler),
+      debounceTime(500)
+    ).subscribe(() => {
+      this.saveState();
+    });  
   }
 
   ngAfterViewInit(): void {
@@ -143,8 +126,6 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       this.detailMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
     }
     this.detailMap.on('style.load', () => {
-      this.loadMapViews();
-      // this.detailMap.setLayoutProperty('satellite-night', 'visibility', 'visible');
       this.syncMaps();
       timer(0).subscribe(() => {
         console.log('RESIZE');
@@ -155,7 +136,12 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     timer(0).subscribe(() => {
       this.syncWidths();
       this.updateMarkers();
+      this.initialize();
     });
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver.disconnect();
   }
 
   syncMaps() {
@@ -211,57 +197,51 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     }
   }
 
-  override setTimeline(timeline: any[]): void {
-    super.setTimeline(timeline);
-    console.log('TIMELINE', timeline);
-    const minDate = this.timeline[0].timestamp.valueOf();
-    const maxDate = this.timeline[this.timeline.length - 1].timestamp.valueOf();
-    const diff = maxDate - minDate;
-    this.minDate =  new Date(minDate - diff / 10);
-    this.maxDate =  new Date(maxDate + diff / 10);
-  }
-
-  override goto(location: string) {
+  goto(location: string) {
     console.log('GOTO', location);
-    const params = location.split('/');
+    const params = location.split('@@');
     if (params.length > 0) {
       this.timelineState.set(params[0]);
       if (params.length > 1) {
-        const authors = params[1].split(',').filter(a => a.length > 0);
-        for (const author of this.api.authorsList) {
-          if (authors.includes(author.hash) || (authors.length === 0 && author.originalAuthor)) {
-            author.selected = true;
-          } else {
-            author.selected = false;
-          }
+        // const authors = params[1].split(',').filter(a => a.length > 0);
+        // for (const author of this.api.authorsList) {
+        //   if (authors.includes(author.hash) || (authors.length === 0 && author.originalAuthor)) {
+        //     author.selected = true;
+        //   } else {
+        //     author.selected = false;
+        //   }
+        // }
+        // this.api.updateTimeline();
+        // if (params.length > 2) {
+        const item = this.chronomap.timelineItems().find(t => t.id.toString() === params[1]);
+        if (item) {
+          timer(1000).subscribe(() => {
+            this.itemSelected(item);
+          });
         }
-        this.api.updateTimeline();
-        if (params.length > 2) {
-          const item = this.timeline.find(t => t.id === params[2]);
-          if (item) {
-            timer(1000).subscribe(() => {
-              this.itemSelected(item);
-            });
-          }
-        }
+        // }
+      } else {
+        this.itemSelected(null);
       }
     } else {
       console.log('NO STATE');
       this.timelineState.set('');
+      this.itemSelected(null);
     }
   }
 
-  saveState() {
+  saveState(replace=true) {
+    console.log('SAVING STATE', this.zoomState);
     if (!this.zoomState) {
       return;
     }
-    let state = `${this.zoomState}`;
-    const authors = this.api.authorsList.filter((author) => author.selected).map(a => a.hash);
-    state += `/${authors.join(',')}`;
+    let state = this.zoomState.split('@').slice(0, 2).join('@');
+    // const authors = this.api.authorsList.filter((author) => author.selected).map(a => a.hash);
+    // state += `/${authors.join(',')}`;
     if (this.selectedItemId) {
-      state += `/${this.selectedItemId}`;
+      state += `@@${this.selectedItemId}`;
     }
-    this.updateLocation(state);
+    this.updateLocation(state, replace);
   }
 
   itemActivated(item: any) {
@@ -270,11 +250,11 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     }
   }
 
-  itemSelected(item: any) {
+  itemSelected(item: TimelineItem | null) {
     console.log('SELECTING ITEM', item);
     if (!item) {
       this.selectedItemId = null;
-      this.saveState();
+      this.saveState(true);
       timer(0).pipe(
         tap(() => {
           if (this.detailOpen) {
@@ -290,7 +270,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         }),
         delay(1000)
       ).subscribe(() => {
-        this.currentItem = {};
+        this.currentItem = null;
         this.contentVisible = false;
         this.updateMarkers();
       });
@@ -298,7 +278,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     }
     this.currentItem = item;
     this.selectedItemId = item.id;
-    this.saveState();
+    this.saveState(true);
     this.changing += 1;
     timer(0).pipe(
       tap(() => {
@@ -315,11 +295,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
         const options: mapboxgl.FlyToOptions = {
           speed: 2
         };
-        if (item.map_view && item.map_view.length) {
-          this.applyMapView(item.map_view[0], this.detailMap, options);
-        } else {
-          this.applyMapView(item.title, this.detailMap, options);
-        }
+        this.applyMapView(item, this.detailMap, options);
         this.updateMarkers();
       }),
       delay(100),
@@ -336,6 +312,7 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
       switchMap(() => {
         return this.moveEnded;
       }),
+      untilDestroyed(this),
     ).subscribe(() => {
       if (window.innerWidth > 600 && this.detailOpen) {
         const wh = window.innerHeight;
@@ -355,46 +332,36 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
     this.markers.forEach((marker) => {
       marker.remove();
     });
-    this.markersTimeline = this.timeline.slice();
+    this.markersTimeline = this.chronomap.timelineItems().slice();
     timer(100).subscribe(() => {
       const conf: {el: HTMLElement, map: mapboxgl.Map}[] = [
         {el: this.baseMarkersElement.nativeElement, map: this.baseMap},
         {el: this.detailMarkersElement.nativeElement, map: this.detailMap},
       ];
-      this.mapViews.pipe(first()).subscribe((mapViews) => {
-        for (const c of conf) {
-          const markers = c.el.children;
-          for (let i=0; i<markers.length; i++) {
-            const markerEl = markers[i] as HTMLElement; 
-            const item = this.timeline[i];
-            if (item.marker === 'None') {
-              continue;
-            }
-            let mapViewName = item.title;
-            if (item.map_view && item.map_view.length) {
-              mapViewName = item.map_view[0];
-            }
-            const mapView: any = mapViews[mapViewName];
-            const options = this.parseMapView(mapView);
-            const coordinates = options.center as mapboxgl.LngLatLike;
-            const clonedElement = markerEl.cloneNode(true) as HTMLElement;
-            clonedElement.addEventListener('click', () => {
-              console.log('CLICK', item.title);
-              this.itemSelected(item);
-            });
-            clonedElement.addEventListener('mouseenter', () => {
-              this.timeLineComponent.updateHovers(item.index);
-            });
-            clonedElement.addEventListener('mouseleave', () => {
-              this.timeLineComponent.updateHovers(null);
-            });
-            this.markers.push(
-                new mapboxgl.Marker(clonedElement)
-                      .setLngLat(coordinates)
-                      .addTo(c.map));
-          }
+      for (const c of conf) {
+        const markers = c.el.children;
+        for (let i=0; i<markers.length; i++) {
+          const markerEl = markers[i] as HTMLElement; 
+          const item = this.chronomap.timelineItems()[i];
+          const options = this.parseMapView(item.geo);
+          const coordinates = options.center as mapboxgl.LngLatLike;
+          const clonedElement = markerEl.cloneNode(true) as HTMLElement;
+          clonedElement.addEventListener('click', () => {
+            console.log('CLICK', item.title);
+            this.itemSelected(item);
+          });
+          clonedElement.addEventListener('mouseenter', () => {
+            this.timeLineComponent.updateHovers(item.index);
+          });
+          clonedElement.addEventListener('mouseleave', () => {
+            this.timeLineComponent.updateHovers(null);
+          });
+          this.markers.push(
+              new mapboxgl.Marker(clonedElement)
+                    .setLngLat(coordinates)
+                    .addTo(c.map));
         }
-      });
+      }
     });
   }
 
@@ -407,10 +374,80 @@ export class TimelineMapHComponent extends BaseTimelineMapComponent implements O
   }
 
   mapModeColor(mode: string) {
-    if (mode === this.mapMode) {
-      return PRIMARY_COLOR;
+    return this.chronomap.primaryColor();
+  }
+
+  initialize() {
+    this.chronomap.ready.pipe(
+      untilDestroyed(this),
+      switchMap(() => this.activatedRoute.fragment),
+      first(),
+      delay(1000),
+    ).subscribe((fragment) => {
+      if (fragment) {
+          this.goto(fragment);
+      }
+    });
+    if (!this.activatedRoute.snapshot.fragment) {
+      this.goto('');
+    }
+  }
+
+  parseMapView(view: string): mapboxgl.FlyToOptions {
+    if (!view) {
+      return {};
+    }
+    const geoConcat = view.split('#')[1];
+    if (!geoConcat) {
+      return {};
+    }
+    const parsed = geoConcat.split('/');
+    if (parsed !== null) {
+      const options: mapboxgl.FlyToOptions = {
+        zoom: parseFloat(parsed[0]),
+        center: {
+          lon: parseFloat(parsed[1]),
+          lat: parseFloat(parsed[2]),
+        },
+      };
+      if (parsed.length > 3) {
+        options.pitch = parseFloat(parsed[3]);
+      }
+      if (parsed.length > 4) {
+        options.bearing = parseFloat(parsed[4]);
+      }
+      // if (view.curve) {
+      //   options.curve = view.curve;
+      // }
+      // if (view.speed) {
+      //   options.speed = view.speed;
+      // }
+      return options;
     } else {
-      return '#ffffffc0';
+      return {};
+    }
+  }
+
+  applyMapView(item: TimelineItem, map: mapboxgl.Map, extraOptions: any = null) {
+    const options = Object.assign({}, this.parseMapView(item.geo), extraOptions || {});
+    for (const l of item.map_layers || []) {
+      if (map.getLayer(l)) {
+        map.setLayoutProperty(l, 'visibility', 'visible');
+      }
+    }
+    for (const l of item.off_map_layers || []) {
+      if (map.getLayer(l)) {
+        map.setLayoutProperty(l, 'visibility', 'none');
+      }
+    }
+    map.flyTo(options);
+  }
+
+  updateLocation(fragment: string, replace: boolean = false) {
+    if (replace) {
+      location.replace(location.pathname + '#' + fragment);
+    } else {
+      location.hash = fragment;
     }
   }
 }

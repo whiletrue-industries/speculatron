@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, ViewChi
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { forkJoin, ReplaySubject } from 'rxjs';
 import { first } from 'rxjs/operators';
+import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
   selector: 'app-content-video',
@@ -10,8 +11,11 @@ import { first } from 'rxjs/operators';
 })
 export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
 
-  @Input() item: any;
-  @Input() activeItem: any;
+  @Input() item: TimelineItem;
+  @Input() activeItem: TimelineItem;
+
+  @Input() chronomap: ChronomapDatabase;
+
   @ViewChild('frame', {static: true}) frame: ElementRef;
   player: YT.Player;
   playerReady = new ReplaySubject<void>(1);

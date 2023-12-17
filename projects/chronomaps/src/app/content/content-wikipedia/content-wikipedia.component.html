@@ -7,7 +7,7 @@
         <div class='text'>
             <div class='excerpt' [innerHtml]='marked(item.content)'></div>
         </div>
-        <div *ngIf='item.image && item.image.length' class='image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+        <div *ngIf='item.image && item.image.length' class='image' [style.background-image]='"url(" + item.image + ")"'></div>
         <div class='bottom'>
             <a class='link' [href]='item.link_domain' target='_blank'>Learn more at the English Wikipedia</a>
         </div>

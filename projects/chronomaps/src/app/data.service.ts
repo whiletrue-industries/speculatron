@@ -3,7 +3,7 @@ import { Injectable, effect, signal } from '@angular/core';
 import { BASEROW_ENDPOINT, BASEROW_ADMIN_DB, BASEROW_ADMIN_TOKEN } from 'CONFIGURATION';
 import { BaserowDatabase } from './baserow/baserow-database';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, map, tap } from 'rxjs';
+import { ReplaySubject, forkJoin, map, tap } from 'rxjs';
 import * as dayjs from 'dayjs';
 
 export type Author = {
@@ -50,8 +50,8 @@ export class ContentItem {
 
 export class TimelineItem extends ContentItem {
   index: number;
-  next: ContentItem | null;
-  prev: ContentItem | null;
+  next: TimelineItem | null;
+  prev: TimelineItem | null;
   timestamp: Date;
 
   x: number;
@@ -77,8 +77,8 @@ export class ChronomapDatabase extends BaserowDatabase {
   title = signal<string>('');
   subtitle = signal<string>('');
   infobarTitle = signal<string>('');
-  inforbarSubtitle = signal<string>('');
-  inforbarContent = signal<string>('');
+  infobarSubtitle = signal<string>('');
+  infobarContent = signal<string>('');
   contributeMessage = signal<string>('');
   mapView = signal<string>('');
   logo = signal<string>('');
@@ -97,9 +97,13 @@ export class ChronomapDatabase extends BaserowDatabase {
   timelineItems = signal<TimelineItem[]>([]);
 
   lastModified = signal<Date>(new Date());
+  minDate = signal<Date>(new Date());
+  maxDate = signal<Date>(new Date());
   allLayers: string[] = [];
   allContentItems: ContentItem[];
   authors = signal<{[key: string]: Author}>({});
+
+  ready = new ReplaySubject<boolean>(1);
 
   constructor(chronomap: any, private http: HttpClient) {
     super(BASEROW_ENDPOINT, chronomap.Database_Token, chronomap.Database_ID);
@@ -121,8 +125,8 @@ export class ChronomapDatabase extends BaserowDatabase {
       this.title.set(keyValues.Title?.value || '');
       this.subtitle.set(keyValues.Subtitle?.value || '');
       this.infobarTitle.set(keyValues.Infobar_Title?.value || this.title());
-      this.inforbarSubtitle.set(keyValues.Infobar_Subtitle?.value || this.subtitle());
-      this.inforbarContent.set(keyValues.Infobar_Content?.value || '');
+      this.infobarSubtitle.set(keyValues.Infobar_Subtitle?.value || this.subtitle());
+      this.infobarContent.set(keyValues.Infobar_Content?.value || '');
       this.contributeMessage.set(keyValues.Contribute_Message?.value || '');
       this.mapView.set(keyValues.Default_Map_View?.value || '');
       this.logo.set(keyValues.Logo?.images?.[0]?.url || '');
@@ -138,7 +142,7 @@ export class ChronomapDatabase extends BaserowDatabase {
       this.primaryColor.set(keyValues.Primary_Color?.value || '');
       this.secondaryColor.set(keyValues.Secondary_Color?.value || '');
     });
-    forkJoin([
+    return forkJoin([
       this.getTable('MapLayers'),
       this.getTable('Authors'),
       this.getTable('Content'),
@@ -220,25 +224,43 @@ export class ChronomapDatabase extends BaserowDatabase {
         });
         return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
       }),
-    ).subscribe((contentItems: ContentItem[]) => {
-      this.allContentItems = contentItems;
+      tap((contentItems: ContentItem[]) => {
+        this.allContentItems = contentItems;
 
-      const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
-        const ti = new TimelineItem();
-        Object.assign(ti, item);
-        ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
-        ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
-        ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
-        return ti;
-      });
-      timelineItems.forEach((item: TimelineItem, index: number) => {
-        item.index = index;
-        item.next = timelineItems[index + 1] || null;
-        item.prev = timelineItems[index - 1] || null;
-      });
-      this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
-      this.timelineItems.set(timelineItems);
-    });
+        const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
+          const ti = new TimelineItem();
+          Object.assign(ti, item);
+          ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
+          ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
+          ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
+          return ti;
+        });
+        let minDate: Date|null = null;
+        let maxDate: Date|null = null;
+        timelineItems.forEach((item: TimelineItem, index: number) => {
+          item.index = index;
+          item.next = timelineItems[index + 1] || null;
+          item.prev = timelineItems[index - 1] || null;
+          if (item.post_timestamp) {
+            if (!minDate || item.post_timestamp < minDate) {
+              minDate = item.post_timestamp;
+            }
+            if (!maxDate || item.post_timestamp > maxDate) {
+              maxDate = item.post_timestamp;
+            }
+          }
+        });
+        minDate = minDate || new Date();
+        maxDate = maxDate || new Date();
+        const delta = (maxDate.getTime() - minDate.getTime()) / 10;
+        this.minDate.set(new Date(minDate.getTime() - delta));
+        this.maxDate.set(new Date(maxDate.getTime() + delta));
+        this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
+        this.timelineItems.set(timelineItems);
+        this.ready.next(true);
+        this.ready.complete();
+      })
+    );
   }
 }
 
@@ -285,10 +307,14 @@ export class DirectoryDatabase extends BaserowDatabase {
     });
     this.getTable('Chronomaps').subscribe((chronomapsTable) => {
       this.chronomaps.set(chronomapsTable?.rows.map((chronomap: any) => {
-        const map = new ChronomapDatabase(chronomap, this.http);
-        map.fetch();
+        const map = new ChronomapDatabase(chronomap, this.http);        
         return map;
       }) || []);
+      forkJoin([...this.chronomaps().map(map => map.fetch())]).subscribe((maps) => {
+        console.log('all maps loaded');
+        const byUpdateTime = this.chronomaps().sort((a, b) => b.lastModified().getTime() - a.lastModified().getTime());
+        this.chronomaps.set(byUpdateTime);
+      });
     });
   }
 }

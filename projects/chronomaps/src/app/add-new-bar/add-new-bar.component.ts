@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { AIRTABLE_BASE, AIRTABLE_DETAILS_FORM, PRIMARY_COLOR } from 'CONFIGURATION';
+import { AIRTABLE_BASE, AIRTABLE_DETAILS_FORM } from 'CONFIGURATION';
 import { marked } from 'marked';
 import { first, interval, Subscription, switchMap, tap } from 'rxjs';
 import { ApiService } from '../api.service';
 import { MapSelectorService } from '../map-selector.service';
 import { TimelineMapService } from '../timeline-map.service';
+import { ChronomapDatabase } from '../data.service';
 
 @Component({
   selector: 'app-add-new-bar',
@@ -15,9 +16,10 @@ import { TimelineMapService } from '../timeline-map.service';
 export class AddNewBarComponent implements OnInit {
   
   @Input() api: TimelineMapService;
+  @Input() chronomap: ChronomapDatabase;
+
   @Output() close = new EventEmitter();
   
-  PRIMARY_COLOR = PRIMARY_COLOR;
 
   marked = marked;
   contributeMessage: any = '';

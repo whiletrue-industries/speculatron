@@ -6,9 +6,6 @@ export const MAPBOX_STYLE = 'mapbox://styles/atlasmedliq/cl59k9bun000y14rzt3yy5l
 export const MAPBOX_BASE_STYLE = 'mapbox://styles/atlasmedliq/ckiodibg82x1k17tcof8e9pmd';
 export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiYXRsYXNtZWRsaXEiLCJhIjoiY2tpbXgzNW5qMHhhcjJ5cGtydHpkNnJqYyJ9.vfietFuvTA8S1vaGlm3CUQ';
 
-export const PRIMARY_COLOR = '#00A881'; // #CE0031
-export const SECONDARY_COLOR = '#004233';
-
 export const BASEROW_ENDPOINT = 'https://baserow.datacity.org.il';
 export const BASEROW_ADMIN_DB = 110;
 export const BASEROW_ADMIN_TOKEN = 'hgGDtvhhPavOCwtGmbv7ANaXc4UQdq6l';

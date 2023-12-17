@@ -13,8 +13,8 @@
                 <div class='time layout-desktop'>Updated {{lastModified}}</div>
             </div>
         </div>
-        <div class='subtitle' [style.color]='data.directory.primaryColor()' [innerHTML]='chronomap.subtitle()'></div>
-        <div class='timerange'>({{chronomap.timelineItems()[0].post_timestamp.getFullYear()}} - {{chronomap.timelineItems()[chronomap.timelineItems().length - 1].post_timestamp.getFullYear()}})</div>
+        <div class='subtitle' [style.color]='data.directory.primaryColor()' [innerHTML]='marked(chronomap.subtitle())'></div>
+        <div class='timerange'>({{chronomap.timelineItems()[0]?.post_timestamp?.getFullYear()}} - {{chronomap.timelineItems()[chronomap.timelineItems().length - 1]?.post_timestamp?.getFullYear()}})</div>
         <div class='counts'>{{authorsMsg()}}</div>
     </div>
 </div>

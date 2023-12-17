@@ -14,11 +14,11 @@ export class MapService {
 
   constructor(private http: HttpClient) {
     (mapboxgl as any).accessToken = this.ACCESS_TOKEN;
-    mapboxgl.setRTLTextPlugin(
-      'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js',
-      console.error,
-      true // Lazy load the plugin
-    );
+    // mapboxgl.setRTLTextPlugin(
+    //   'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js',
+    //   console.error,
+    //   true // Lazy load the plugin
+    // );
   }
 
 

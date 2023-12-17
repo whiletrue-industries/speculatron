@@ -1,7 +1,7 @@
 
 <div class='card'>
     <div class='header'>
-        <div class='profile-image' [style.background-image]='"url(" + item.profile_image[0].thumbnails.large.url + ")"'></div>
+        <div class='profile-image' [style.background-image]='"url(" + item.profile_image + ")"'></div>
         <div class='user'>
             <div class='name'>{{item.name}}</div>
             <div class='username'>&#64;{{item.username}}</div>
@@ -9,9 +9,9 @@
         <img class='twitter-logo' src='assets/img/spectours-twitter-logo.svg'>
     </div>
     <div class='caption' [innerHtml]='marked(item.content)'></div>
-    <div *ngIf='!item.link_title && item.image' class='image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+    <div *ngIf='!item.link_title && item.image' class='image' [style.background-image]='"url(" + item.image + ")"'></div>
     <div *ngIf='item.link_title' class='link'>
-        <div *ngIf='item.image' class='link-image' [style.background-image]='"url(" + item.image[0].url + ")"'></div>
+        <div *ngIf='item.image' class='link-image' [style.background-image]='"url(" + item.image + ")"'></div>
         <div class='link-container'>
             <div class='link-title'>{{item.link_title}}</div>        
             <div class='link-domain'>{{item.link_domain}}</div>        

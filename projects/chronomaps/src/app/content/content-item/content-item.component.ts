@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { VisibilityDetector } from '../visibility-detector';
+import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
   selector: 'app-content-item',
@@ -8,10 +9,13 @@ import { VisibilityDetector } from '../visibility-detector';
 })
 export class ContentItemComponent implements OnInit, AfterViewInit {
 
-  @Input() content: any;
+  @Input() content: TimelineItem;
   @Input() contentType: string;
-  @Input() activeItem: any;
+  @Input() activeItem: TimelineItem;
   @Input() parentElement: HTMLElement;
+
+  @Input() chronomap: ChronomapDatabase;
+
   @Output() mapView = new EventEmitter<any>();
   @Output() activated = new EventEmitter<any>();
 
