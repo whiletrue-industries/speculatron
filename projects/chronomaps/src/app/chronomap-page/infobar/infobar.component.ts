@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { first } from 'rxjs/operators';
-import { ChronomapDatabase } from '../data.service';
+import { ChronomapDatabase } from '../../data.service';
 
 @Component({
   selector: 'app-infobar',

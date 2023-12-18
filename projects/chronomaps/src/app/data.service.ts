@@ -3,7 +3,7 @@ import { Injectable, effect, signal } from '@angular/core';
 import { BASEROW_ENDPOINT, BASEROW_ADMIN_DB, BASEROW_ADMIN_TOKEN } from 'CONFIGURATION';
 import { BaserowDatabase } from './baserow/baserow-database';
 import { HttpClient } from '@angular/common/http';
-import { ReplaySubject, forkJoin, map, tap } from 'rxjs';
+import { ReplaySubject, forkJoin, map, switchMap, tap } from 'rxjs';
 import * as dayjs from 'dayjs';
 
 export type Author = {
@@ -93,6 +93,7 @@ export class ChronomapDatabase extends BaserowDatabase {
   altDateFormat = signal<string>('');
   primaryColor = signal<string>('');
   secondaryColor = signal<string>('');
+  newEntryForm = signal<string>('');
 
   timelineItems = signal<TimelineItem[]>([]);
 
@@ -100,6 +101,7 @@ export class ChronomapDatabase extends BaserowDatabase {
   minDate = signal<Date>(new Date());
   maxDate = signal<Date>(new Date());
   allLayers: string[] = [];
+  nonces: string[] = [];
   allContentItems: ContentItem[];
   authors = signal<{[key: string]: Author}>({});
 
@@ -116,149 +118,159 @@ export class ChronomapDatabase extends BaserowDatabase {
   }
 
   fetch() {
-    this.fetchTables(this.http).subscribe();
-    this.getTable('Settings').subscribe((settingsTable) => {
-      const keyValues: any = {};
-      settingsTable?.rows.forEach((element: any) => {
-        keyValues[element.Key] = {value: element.Value, images: element.Image};
-      });
-      this.title.set(keyValues.Title?.value || '');
-      this.subtitle.set(keyValues.Subtitle?.value || '');
-      this.infobarTitle.set(keyValues.Infobar_Title?.value || this.title());
-      this.infobarSubtitle.set(keyValues.Infobar_Subtitle?.value || this.subtitle());
-      this.infobarContent.set(keyValues.Infobar_Content?.value || '');
-      this.contributeMessage.set(keyValues.Contribute_Message?.value || '');
-      this.mapView.set(keyValues.Default_Map_View?.value || '');
-      this.logo.set(keyValues.Logo?.images?.[0]?.url || '');
-      this.thumbnail.set(keyValues.Thumbnail?.images?.[0]?.url || '');
-      this.parentLink.set(keyValues.Parent_Link?.value || '..');
-      this.mapStyle.set(keyValues.Map_Style?.value || '');
-      this.backgroundMapSytle.set(keyValues.Background_Map_Style?.value || '');
-      this.mapboxKey.set(keyValues.Mapbox_Key?.value || '');
-      this.showTooltips.set(keyValues.Show_Tooltips?.value === 'true');
-      this.altTimestampLabel.set(keyValues.Alt_Timestamp_Label?.value || '');
-      this.postDateFormat.set(keyValues.Post_Date_Format?.value || '');
-      this.altDateFormat.set(keyValues.Alt_Date_Format?.value || '');
-      this.primaryColor.set(keyValues.Primary_Color?.value || '');
-      this.secondaryColor.set(keyValues.Secondary_Color?.value || '');
-    });
-    return forkJoin([
-      this.getTable('MapLayers'),
-      this.getTable('Authors'),
-      this.getTable('Content'),
-    ]).pipe(
-      map(([mapLayersTable, authorsTable, contentTable]) => {
-        this.allLayers = [];
-        const layers: any = {};
-        mapLayersTable?.rows.forEach((row: any) => {
-          const onLayers = row.On_Layers.map((x : any) => x.value) || [];
-          onLayers.forEach((layer: string) => {
-            if (!this.allLayers.includes(layer)) {
-              this.allLayers.push(layer);
-            }
+    return this.fetchTables(this.http).pipe(
+      tap(() => {
+        this.getTable('Settings').subscribe((settingsTable) => {
+          const keyValues: any = {};
+          settingsTable?.rows.forEach((element: any) => {
+            keyValues[element.Key] = {value: element.Value, images: element.Image};
           });
-          layers[row.Name] = onLayers;
-        });
-        const authors: any = {};
-        authorsTable?.rows.forEach((row: any) => {
-          authors[row.Name] = {
-            name: row.Name,
-            email: row.Email,
-            status: row.Status.value,
-          };
-        });
-        this.authors.set(authors);
-        const contentItems: ContentItem[] = [];
-        contentTable?.rows.forEach((row: any) => {
-          const item: any = {
-            id: row.id,
-            title: row.Title,
-            post_timestamp: dayjs(row.Post_Timestamp).toDate(),
-            status: row.Status.value,
-            type: row.Type.value,
-            youtube_video_id: row.Youtube_Video_Id,
-            content: row.Content,
-            image: row.Image?.[0]?.url,
-            audio: row.Audio?.[0]?.url,
-            name: row.Name,
-            username: row.Username,
-            profile_image: row.Profile_Image?.[0]?.url,
-            like_count: row.Like_Count,
-            comment_count: row.Comment_Count,
-            link_title: row.Link_Title,
-            link_domain: row.Link_Domain,
-            geo: row.Geo,
-            map_layers: [],
-            off_map_layers: [],
-            nonce: row.Nonce,
-            authors: row.Authors?.map((x: any) => authors[x.value]) || [],
-            tags: row.Tags?.map((x: any) => x.value) || [],
-            related: row.Related?.map((x: any) => ({id: x.id})) || [],
-            lastModified: dayjs(row.Last_Modified).toDate(),
-          };
-          item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
-          row.Map_Layer.forEach((x: any) => {
-            const name = x.value;
-            if (layers[name]) {
-              layers[name].forEach((layer: string) => {
-                if (!item.map_layers.includes(layer)) {
-                  item.map_layers.push(layer);
+          this.title.set(keyValues.Title?.value || '');
+          this.subtitle.set(keyValues.Subtitle?.value || '');
+          this.infobarTitle.set(keyValues.Infobar_Title?.value || this.title());
+          this.infobarSubtitle.set(keyValues.Infobar_Subtitle?.value || this.subtitle());
+          this.infobarContent.set(keyValues.Infobar_Content?.value || '');
+          this.contributeMessage.set(keyValues.Contribute_Message?.value || '');
+          this.mapView.set(keyValues.Default_Map_View?.value || '');
+          this.logo.set(keyValues.Logo?.images?.[0]?.url || '');
+          this.thumbnail.set(keyValues.Thumbnail?.images?.[0]?.url || '');
+          this.parentLink.set(keyValues.Parent_Link?.value || '..');
+          this.mapStyle.set(keyValues.Map_Style?.value || '');
+          this.backgroundMapSytle.set(keyValues.Background_Map_Style?.value || '');
+          this.mapboxKey.set(keyValues.Mapbox_Key?.value || '');
+          this.showTooltips.set(keyValues.Show_Tooltips?.value === 'true');
+          this.altTimestampLabel.set(keyValues.Alt_Timestamp_Label?.value || '');
+          this.postDateFormat.set(keyValues.Post_Date_Format?.value || '');
+          this.altDateFormat.set(keyValues.Alt_Date_Format?.value || '');
+          this.primaryColor.set(keyValues.Primary_Color?.value || '');
+          this.secondaryColor.set(keyValues.Secondary_Color?.value || '');
+          this.newEntryForm.set(keyValues.New_Entry_Form?.value || '');
+        });    
+      }),
+      switchMap(() => {
+        return forkJoin([
+          this.getTable('MapLayers'),
+          this.getTable('Authors'),
+          this.getTable('Content'),
+        ]).pipe(
+          map(([mapLayersTable, authorsTable, contentTable]) => {
+            this.allLayers = [];
+            const layers: any = {};
+            mapLayersTable?.rows.forEach((row: any) => {
+              const onLayers = row.On_Layers.map((x : any) => x.value) || [];
+              onLayers.forEach((layer: string) => {
+                if (!this.allLayers.includes(layer)) {
+                  this.allLayers.push(layer);
                 }
               });
-            }
-          });
-          this.allLayers.forEach((layer: string) => {
-            if (!item.map_layers.includes(layer)) {
-              item.off_map_layers.push(layer);
-            }
-          });
+              layers[row.Name] = onLayers;
+            });
+            const authors: any = {};
+            authorsTable?.rows.forEach((row: any) => {
+              authors[row.Name] = {
+                name: row.Name,
+                email: row.Email,
+                status: row.Status.value,
+              };
+            });
+            this.authors.set(authors);
+            this.nonces = [];
+            const contentItems: ContentItem[] = [];
+            contentTable?.rows.forEach((row: any) => {
+              const item: any = {
+                id: row.id,
+                title: row.Title,
+                post_timestamp: dayjs(row.Post_Timestamp).toDate(),
+                status: row.Status.value,
+                type: row.Type.value,
+                youtube_video_id: row.Youtube_Video_Id,
+                content: row.Content,
+                image: row.Image?.[0]?.url,
+                audio: row.Audio?.[0]?.url,
+                name: row.Name,
+                username: row.Username,
+                profile_image: row.Profile_Image?.[0]?.url,
+                like_count: row.Like_Count,
+                comment_count: row.Comment_Count,
+                link_title: row.Link_Title,
+                link_domain: row.Link_Domain,
+                geo: row.Geo,
+                map_layers: [],
+                off_map_layers: [],
+                nonce: row.Nonce,
+                authors: row.Authors?.map((x: any) => authors[x.value]) || [],
+                tags: row.Tags?.map((x: any) => x.value) || [],
+                related: row.Related?.map((x: any) => ({id: x.id})) || [],
+                lastModified: dayjs(row.Last_Modified).toDate(),
+              };
+              item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
+              row.Map_Layer.forEach((x: any) => {
+                const name = x.value;
+                if (layers[name]) {
+                  layers[name].forEach((layer: string) => {
+                    if (!item.map_layers.includes(layer)) {
+                      item.map_layers.push(layer);
+                    }
+                  });
+                }
+              });
+              this.allLayers.forEach((layer: string) => {
+                if (!item.map_layers.includes(layer)) {
+                  item.off_map_layers.push(layer);
+                }
+              });
+              if (!!item.nonce) {
+                this.nonces.push(item.nonce);
+              }
 
-          const contentItem: ContentItem = item;
-          if (contentItem.status !== 'Published') { return; }
-          if (!contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) { return; }
-          if (!contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
-          contentItems.push(contentItem);
-        });
-        contentItems.forEach((item: ContentItem) => {
-          item.related = item.related.map((id: ContentItem) => (contentItems.find((i: ContentItem) => i.id === id.id) || {}) as ContentItem).filter((i: ContentItem) => !!i.id);
-        });
-        return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
-      }),
-      tap((contentItems: ContentItem[]) => {
-        this.allContentItems = contentItems;
-
-        const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
-          const ti = new TimelineItem();
-          Object.assign(ti, item);
-          ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
-          ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
-          ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
-          return ti;
-        });
-        let minDate: Date|null = null;
-        let maxDate: Date|null = null;
-        timelineItems.forEach((item: TimelineItem, index: number) => {
-          item.index = index;
-          item.next = timelineItems[index + 1] || null;
-          item.prev = timelineItems[index - 1] || null;
-          if (item.post_timestamp) {
-            if (!minDate || item.post_timestamp < minDate) {
-              minDate = item.post_timestamp;
-            }
-            if (!maxDate || item.post_timestamp > maxDate) {
-              maxDate = item.post_timestamp;
-            }
-          }
-        });
-        minDate = minDate || new Date();
-        maxDate = maxDate || new Date();
-        const delta = (maxDate.getTime() - minDate.getTime()) / 10;
-        this.minDate.set(new Date(minDate.getTime() - delta));
-        this.maxDate.set(new Date(maxDate.getTime() + delta));
-        this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
-        this.timelineItems.set(timelineItems);
-        this.ready.next(true);
-        this.ready.complete();
+              const contentItem: ContentItem = item;
+              if (contentItem.status !== 'Published') { return; }
+              if (!contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) { return; }
+              if (!contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
+              contentItems.push(contentItem);
+            });
+            contentItems.forEach((item: ContentItem) => {
+              item.related = item.related.map((id: ContentItem) => (contentItems.find((i: ContentItem) => i.id === id.id) || {}) as ContentItem).filter((i: ContentItem) => !!i.id);
+            });
+            return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
+          }),
+          tap((contentItems: ContentItem[]) => {
+            this.allContentItems = contentItems;
+    
+            const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
+              const ti = new TimelineItem();
+              Object.assign(ti, item);
+              ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
+              ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
+              ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
+              return ti;
+            });
+            let minDate: Date|null = null;
+            let maxDate: Date|null = null;
+            timelineItems.forEach((item: TimelineItem, index: number) => {
+              item.index = index;
+              item.next = timelineItems[index + 1] || null;
+              item.prev = timelineItems[index - 1] || null;
+              if (item.post_timestamp) {
+                if (!minDate || item.post_timestamp < minDate) {
+                  minDate = item.post_timestamp;
+                }
+                if (!maxDate || item.post_timestamp > maxDate) {
+                  maxDate = item.post_timestamp;
+                }
+              }
+            });
+            minDate = minDate || new Date();
+            maxDate = maxDate || new Date();
+            const delta = (maxDate.getTime() - minDate.getTime()) / 10;
+            this.minDate.set(new Date(minDate.getTime() - delta));
+            this.maxDate.set(new Date(maxDate.getTime() + delta));
+            this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
+            this.timelineItems.set(timelineItems);
+            this.ready.next(true);
+            this.ready.complete();
+          })
+        );
       })
     );
   }

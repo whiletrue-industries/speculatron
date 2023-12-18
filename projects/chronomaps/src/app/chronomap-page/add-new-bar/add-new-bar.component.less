@@ -1,4 +1,4 @@
-@import '../../common.less';
+@import '../../../common.less';
 
 :host {
     width: 100%;
@@ -103,19 +103,9 @@
                     letter-spacing: -0.01em;
                     color: @gray1;    
                     padding-bottom: 8px;
-                    border-bottom: 0.5px solid @gray1;
-                    margin-bottom: 32px;
-                }
-
-                ::ng-deep {
-                    p {
-                        .font-manrope;
-                        font-style: normal;
-                        font-weight: 400;
-                        font-size: 15px;
-                        line-height: 23px;
-                        letter-spacing: 0.01em;
-                        color: @gray1;
+                    &:last-child {
+                        border-bottom: 0.5px solid @gray1;
+                        margin-bottom: 32px;
                     }
                 }
             }
@@ -210,7 +200,7 @@
                 letter-spacing: 0.02em;
                 text-transform: uppercase;
 
-                background-image: url('../../assets/img/icon-calendar.svg');
+                background-image: url('../../../assets/img/icon-calendar.svg');
                 background-repeat: no-repeat;
                 background-position: 12px center;
             }

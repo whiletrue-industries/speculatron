@@ -1,11 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MAPBOX_STYLE } from '../../../../../CONFIGURATION';
-import { MapService } from '../map.service';
+import { MAPBOX_STYLE } from '../../../../../../CONFIGURATION';
+import { MapService } from '../../map.service';
 
 import * as mapboxgl from 'mapbox-gl';
 import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
-import { MapSelectorService } from '../map-selector.service';
+import { MapSelectorService } from '../../map-selector.service';
 
 @Component({
   selector: 'app-map-selector',
@@ -26,17 +26,18 @@ export class MapSelectorComponent implements OnInit {
       style: MAPBOX_STYLE,
       minZoom: 3,
     });
-    var geocoder = new MapboxGeocoder({ accessToken: mapboxgl.accessToken });
+    var geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      marker: false,
+    });
     this.theMap.addControl(geocoder);
     this.theMap.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
   }
 
   submit() {
     const center = this.theMap.getCenter();
-    const geo = `center: { lon: ${center.lng}, lat: ${center.lat} },
-    zoom: ${this.theMap.getZoom()},
-    pitch: ${this.theMap.getPitch()},
-    bearing: ${this.theMap.getBearing()}`;
+    const params = [this.theMap.getZoom(), center.lat, center.lng, this.theMap.getPitch(), this.theMap.getBearing()]
+    const geo = '#' + params.map(p => p.toString()).join('/');
     this.mapSelector.submitResult(geo);
   }
 
