@@ -3,6 +3,7 @@ import { Author, ChronomapDatabase, DataService, DirectoryDatabase } from '../..
 import * as dayjs from 'dayjs';
 import { last } from 'rxjs';
 import { marked } from 'marked';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-directory-item',
@@ -11,6 +12,7 @@ import { marked } from 'marked';
   host: {
     '(mouseenter)': 'hovered.set(true)',
     '(mouseleave)': 'hovered.set(false)',
+    '(click)': 'navigate()'
   }
 })
 export class DirectoryItemComponent implements AfterViewInit {
@@ -62,7 +64,7 @@ export class DirectoryItemComponent implements AfterViewInit {
     return ret;
   });
 
-  constructor(public data: DataService) {
+  constructor(public data: DataService, private router: Router) {
     effect(() => {
       const items = this.chronomap.timelineItems();
       console.log('items', this.chronomap.title(), items);
@@ -76,5 +78,9 @@ export class DirectoryItemComponent implements AfterViewInit {
 
   get lastModified() {
     return dayjs(this.chronomap.lastModified()).fromNow();
+  }
+
+  navigate() {
+    this.router.navigate(['/map', this.chronomap.slug()]);
   }
 }

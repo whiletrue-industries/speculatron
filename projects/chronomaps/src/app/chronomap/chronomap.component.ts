@@ -4,11 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { MAPBOX_BASE_STYLE, MAPBOX_STYLE } from 'CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
-import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime } from 'rxjs';
+import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime, Subscription } from 'rxjs';
 import { TimeLineComponent } from '../time-line/time-line.component';
 import { MapSelectorService } from '../map-selector.service';
 import { ChronomapDatabase, TimelineItem } from '../data.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { State, StateService } from '../state.service';
+import { LayoutService } from '../layout.service';
 
 @UntilDestroy()
 @Component({
@@ -48,6 +50,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   lastMapState: mapboxgl.FlyToOptions;
   selectItemMapState: mapboxgl.FlyToOptions;
   fragmentChanger = new Subject<void>();
+  actionSub: Subscription | null;
 
   // Layout
   resizeObserver: ResizeObserver;
@@ -61,8 +64,8 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   backdropBackground: SafeStyle;
   
   constructor(
-    private activatedRoute: ActivatedRoute, private mapSvc: MapService,
-    private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService
+    private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService, private state: StateService,
+    private layout: LayoutService
   ) {
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
@@ -84,10 +87,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       const state = this.timelineState();
       if (state) {
         this.zoomState = state;
-        this.fragmentChanger.next();
+        this.state.timelineState = state;
       }
       this.titleSvc.setTitle(this.chronomap.title());
-    });
+    }, {allowSignalWrites: true});
   }
 
   ngOnInit(): void {
@@ -95,14 +98,6 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
     this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${this.chronomap.primaryColor()}00 10.32%, ${this.chronomap.primaryColor()}80 35.85%)`);
     console.log('CT BG', this.contentBackground);
-    this.chronomap.ready.pipe(
-      switchMap(() => this.fragmentChanger),
-      untilDestroyed(this),
-      throttleTime(500, animationFrameScheduler),
-      debounceTime(500)
-    ).subscribe(() => {
-      this.saveState();
-    });  
   }
 
   ngAfterViewInit(): void {
@@ -119,9 +114,9 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       style: MAPBOX_STYLE,
       minZoom: 3,
       attributionControl: false,
-      logoPosition: window.innerWidth < 600 ? 'top-left' : 'bottom-right',
+      logoPosition: this.layout.mobile() ? 'top-left' : 'bottom-right',
     });
-    if (window.innerWidth > 600) {
+    if (this.layout.desktop()) {
       this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
       this.detailMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
     }
@@ -197,51 +192,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  goto(location: string) {
-    console.log('GOTO', location);
-    const params = location.split('@@');
-    if (params.length > 0) {
-      this.timelineState.set(params[0]);
-      if (params.length > 1) {
-        // const authors = params[1].split(',').filter(a => a.length > 0);
-        // for (const author of this.api.authorsList) {
-        //   if (authors.includes(author.hash) || (authors.length === 0 && author.originalAuthor)) {
-        //     author.selected = true;
-        //   } else {
-        //     author.selected = false;
-        //   }
-        // }
-        // this.api.updateTimeline();
-        // if (params.length > 2) {
-        const item = this.chronomap.timelineItems().find(t => t.id.toString() === params[1]);
-        if (item) {
-          timer(1000).subscribe(() => {
-            this.itemSelected(item);
-          });
-        }
-        // }
-      } else {
-        this.itemSelected(null);
-      }
-    } else {
-      console.log('NO STATE');
-      this.timelineState.set('');
-      this.itemSelected(null);
-    }
-  }
-
-  saveState(replace=true) {
-    console.log('SAVING STATE', this.zoomState);
-    if (!this.zoomState) {
-      return;
-    }
-    let state = this.zoomState.split('@').slice(0, 2).join('@');
-    // const authors = this.api.authorsList.filter((author) => author.selected).map(a => a.hash);
-    // state += `/${authors.join(',')}`;
-    if (this.selectedItemId) {
-      state += `@@${this.selectedItemId}`;
-    }
-    this.updateLocation(state, replace);
+  goto(state: State) {
+    this.timelineState.set(state.timelineState);
+    const item = this.chronomap.timelineItems().find(t => t.id === state.selectedItemId) || null;
+    this.itemSelected(item);
   }
 
   itemActivated(item: any) {
@@ -251,11 +205,15 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   itemSelected(item: TimelineItem | null) {
+    if (item === this.currentItem) {
+      return;
+    }
     console.log('SELECTING ITEM', item);
+    this.state.selectedItemId = item?.id || null;
     if (!item) {
       this.selectedItemId = null;
-      this.saveState(true);
-      timer(0).pipe(
+      this.actionSub?.unsubscribe();
+      this.actionSub = timer(0).pipe(
         tap(() => {
           if (this.detailOpen) {
             this.baseMap.flyTo({
@@ -273,14 +231,15 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.currentItem = null;
         this.contentVisible = false;
         this.updateMarkers();
+        this.actionSub = null;
       });
       return;
     }
     this.currentItem = item;
     this.selectedItemId = item.id;
-    this.saveState(true);
     this.changing += 1;
-    timer(0).pipe(
+    this.actionSub?.unsubscribe();
+    this.actionSub = timer(0).pipe(
       tap(() => {
         this.timeLineComponent?.scrollTo(item.timestamp, item);    
       }),
@@ -312,14 +271,17 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       switchMap(() => {
         return this.moveEnded;
       }),
-      untilDestroyed(this),
+      first(),
     ).subscribe(() => {
-      if (window.innerWidth > 600 && this.detailOpen) {
+      console.log('MOVE ENDED');
+      if (this.layout.desktop() && this.detailOpen) {
         const wh = window.innerHeight;
-        const padding = 2*this.descriptionElement.nativeElement.getBoundingClientRect().top + 24 - wh;
+        const padding = 2*this.descriptionElement.nativeElement.getBoundingClientRect().top + (30 + 12) * 2 - wh;
+        console.log('MOVE ENDED - padding', padding);
         for (const map of this.maps) {
           map.flyTo(Object.assign({}, this.lastMapState, {padding: {top: padding}}));
         }
+        this.actionSub = null;
       }
     });
   }
@@ -380,17 +342,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   initialize() {
     this.chronomap.ready.pipe(
       untilDestroyed(this),
-      switchMap(() => this.activatedRoute.fragment),
-      first(),
-      delay(1000),
-    ).subscribe((fragment) => {
-      if (fragment) {
-          this.goto(fragment);
-      }
+      switchMap(() => this.state.state),
+    ).subscribe((state) => {
+      this.goto(state);
     });
-    if (!this.activatedRoute.snapshot.fragment) {
-      this.goto('');
-    }
   }
 
   parseMapView(view: string): mapboxgl.FlyToOptions {
@@ -406,8 +361,8 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       const options: mapboxgl.FlyToOptions = {
         zoom: parseFloat(parsed[0]),
         center: {
-          lon: parseFloat(parsed[1]),
-          lat: parseFloat(parsed[2]),
+          lat: parseFloat(parsed[1]),
+          lon: parseFloat(parsed[2]),
         },
       };
       if (parsed.length > 3) {

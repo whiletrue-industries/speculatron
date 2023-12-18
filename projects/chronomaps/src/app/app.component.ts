@@ -6,6 +6,10 @@ import { DataService } from './data.service';
 import * as relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import * as utcPlugin from 'dayjs/plugin/utc';
 import * as dayjs from 'dayjs';
+import { NavigationEnd, Router } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { filter, map } from 'rxjs';
+import { StateService } from './state.service';
 
 // import 'dayjs/locale/he';
 // dayjs.locale('he')
@@ -14,6 +18,7 @@ import * as dayjs from 'dayjs';
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
 
+@UntilDestroy()
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -31,4 +36,5 @@ export class AppComponent {
     };
     marked.use({renderer});    
   }
+
 }

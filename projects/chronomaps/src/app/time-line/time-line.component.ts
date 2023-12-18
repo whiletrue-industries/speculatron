@@ -50,7 +50,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   points: Selection<SVGGElement, unknown, HTMLElement, any>;
   xAxis: Axis<Date>;
   tickIndicator = 0;
-  firstTickValue: any;
+  firstTickValue: number;
   firstInit = false;
   svg: Selection<SVGSVGElement, unknown, HTMLElement, any>;
   hovers: Selection<HTMLDivElement, unknown, HTMLElement, any>;
@@ -116,7 +116,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       this.zoomK = parseFloat(parts[1]);
     }
     if (parts.length === 4) {
-      this.firstTickValue = parts[2];
+      this.firstTickValue = parseFloat(parts[2]);
       this.tickIndicator = parseInt(parts[3], 10);
       // console.log(this.id, 'STATE', this.state(), this.zoomX, this.zoomK);
     }
@@ -332,7 +332,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
                        .attr('y2', (d: any, i) => {
-                        d = `${d}`;
+                        d = d.getTime();
                         this.updateIndicator(d, i);
                         if (i % 2 === this.tickIndicator) {
                           return -this.TICK_HEIGHT;
@@ -352,9 +352,10 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
         .attr('class', d => 'point' + (d.clustered === 1 ? ' single' : ''))
         .call((points) => {
           points
-            .on('click', (_, d: TimelineItem) => {
+            .on('click', (event: Event, d: TimelineItem) => {
               if (this.hoverable || d.clustered > 1) {
                 this.onPointClick(d)
+                event.stopPropagation();
               }
             })
             .on('mouseenter', (ev: Event, d: TimelineItem) => {
@@ -431,7 +432,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  updateIndicator(d: string, i: number) {
+  updateIndicator(d: number, i: number) {
     if (i === 0) {
       if (d !== this.firstTickValue) {
         this.firstTickValue = d;
@@ -442,7 +443,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 
   tickFormat(val: Date, i: number) {
     if (i !== -1) {      
-      this.updateIndicator(`${val}`, i);
+      this.updateIndicator(val.getTime(), i);
       if (i % 2 !== this.tickIndicator) {
         return '';
       }

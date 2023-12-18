@@ -1,18 +1,22 @@
 import { Component, OnInit, effect, signal } from '@angular/core';
 import { ChronomapDatabase, DataService } from '../data.service';
-import { ActivatedRoute } from '@angular/router';
-import { first, timer } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter, first, map, timer } from 'rxjs';
+import { MapService } from '../map.service';
+import { StateService } from '../state.service';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'app-chronomap-page',
   templateUrl: './chronomap-page.component.html',
   styleUrls: ['./chronomap-page.component.less']
 })
-export class ChronomapPageComponent implements OnInit {
+export class ChronomapPageComponent {
 
   // @Input() hideHeader = false;
+  LOCAL_STORAGE_KEY = 'chronomap-info-';
 
-  LOCAL_STORAGE_KEY = 'chronomap-info';
   slug: string | null = null;
   chronomap = signal<ChronomapDatabase | null>(null);
 
@@ -23,22 +27,34 @@ export class ChronomapPageComponent implements OnInit {
   layersOpen = false;
 
 
-  constructor(private data: DataService, private route: ActivatedRoute) {
+  constructor(private data: DataService, private route: ActivatedRoute, private mapSvc: MapService, private router: Router, private state: StateService) {
     this.route.params.pipe(
       first()
     ).subscribe(params => {
       this.slug = params['slug'];
       this.loadChronomap(this.data.directory.chronomaps(), this.slug);
+      this._info = localStorage.getItem(this.storageKey) !== 'opened';
     });
     effect(() => {
       const chronomaps = this.data.directory.chronomaps();
       this.loadChronomap(chronomaps, this.slug);
     }, {allowSignalWrites: true});
-
-  }
-
-  ngOnInit(): void {
-    this._info = localStorage.getItem(this.LOCAL_STORAGE_KEY) !== 'opened';
+    this.router.events.pipe(
+      untilDestroyed(this),
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => {
+        const ne = event as NavigationEnd;
+        const url = new URL('http://example.com' + ne.url);
+        const params = Object.fromEntries(url.searchParams);
+        const fragment = url.hash.slice(1);
+        return {
+          fragment,
+          params,
+        };
+      })
+    ).subscribe(({fragment, params}) => {
+      this.state.initFromUrl(fragment, params);
+    });
   }
 
   loadChronomap(chronomaps: ChronomapDatabase[], slug: string | null) {
@@ -56,7 +72,7 @@ export class ChronomapPageComponent implements OnInit {
     this._addNew = false;
     this._layers = false;
     this._info = value;
-    localStorage.setItem(this.LOCAL_STORAGE_KEY, 'opened');
+    localStorage.setItem(this.storageKey, 'opened');
   }
 
   get addNew() { return this._addNew; }
@@ -81,5 +97,9 @@ export class ChronomapPageComponent implements OnInit {
       return chronomap;
     }
     return {} as ChronomapDatabase;
+  }
+
+  get storageKey() {
+    return this.LOCAL_STORAGE_KEY + this.slug;
   }
 }
