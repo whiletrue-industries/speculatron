@@ -10,6 +10,7 @@ import 'd3-transition';
 import { debounceTime, mergeWith, Subject, timer, first, ReplaySubject, scheduled, animationFrameScheduler, tap } from 'rxjs';
 import { MediaIconComponent } from '../media-icon/media-icon.component';
 import { ChronomapDatabase, TimelineItem } from '../data.service';
+import { LayoutService } from '../layout.service';
 
 @Component({
   selector: 'app-time-line',
@@ -35,6 +36,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   WIDTH = 1000;
   TEXT_HEIGHT = 16;
   TICK_HEIGHT = 56;
+  TICK_HEIGHT_INNER = 16;
   CIRCLE_RADIUS_CLUSTERED = 12;
   CIRCLE_RADIUS = 16;
   ICON_PADDING = 4;
@@ -66,7 +68,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   resizeObserver: ResizeObserver;
   currentHover: number | null = null;
 
-  constructor(private el: ElementRef) {
+  constructor(private el: ElementRef, private layout: LayoutService) {
     this.resizeObserver = new ResizeObserver(() => {
       this._changed.next();
     });
@@ -174,7 +176,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                   .range([0, this.WIDTH]);
     this.xt = this.x;
     this.xAxis = axisTop<Date>(this.x)
-                    .ticks(40)
+                    .ticks(this.layout.mobile() ? 12 : 40)
                     .tickSizeInner(this.TICK_HEIGHT)
                     .tickFormat((val, idx) => this.tickFormat(val, idx));
     this.updateAxis();
@@ -337,7 +339,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                         if (i % 2 === this.tickIndicator) {
                           return -this.TICK_HEIGHT;
                         } else {
-                          return -this.TICK_HEIGHT / 3;
+                          return -this.TICK_HEIGHT_INNER;
                         }
                       }));
     this.g.selectAll('text') 
