@@ -1,14 +1,17 @@
-import { Component, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, effect, signal } from '@angular/core';
 import { DataService } from '../data.service';
 import { marked } from 'marked';
 import { LayoutService } from '../layout.service';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { animationFrameScheduler, debounceTime, fromEvent, throttleTime } from 'rxjs';
 
+@UntilDestroy()
 @Component({
   selector: 'app-directory-page',
   templateUrl: './directory-page.component.html',
   styleUrl: './directory-page.component.less'
 })
-export class DirectoryPageComponent {
+export class DirectoryPageComponent implements AfterViewInit {
 
   timelineState = signal<string>('');
   minDate = signal<Date>(new Date());
@@ -17,8 +20,11 @@ export class DirectoryPageComponent {
   arrowRight = signal<number>(0);
   alignment: {[key: string]: number} = {};
   fullDescription = signal<boolean>(false);
+  titleOpen = signal<boolean>(false);
 
   marked = marked;
+
+  @ViewChild('title') title: ElementRef<HTMLDivElement>;
 
   constructor(public data: DataService, public layout: LayoutService) {
     effect(() => {
@@ -49,6 +55,16 @@ export class DirectoryPageComponent {
       this.minDate.set(minDate);
       this.maxDate.set(maxDate);
     }, {allowSignalWrites: true});
+  }
+
+  ngAfterViewInit(): void {
+      fromEvent(this.title.nativeElement, 'scroll').pipe(
+        untilDestroyed(this),
+        debounceTime(0, animationFrameScheduler),
+      ).subscribe(() => {
+        console.log('SCROLL', this.title.nativeElement.scrollTop);
+        this.titleOpen.set(this.title.nativeElement.scrollTop > 0);
+      });
   }
 
   align(id: string, width: number) {
