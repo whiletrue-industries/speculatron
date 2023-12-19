@@ -52,6 +52,10 @@
             opacity: 0.3;
         }
 
+        &:has(.title:hover) {
+            pointer-events: all;
+        }
+
         .title {
             pointer-events: all;
             .desktop({
@@ -147,6 +151,9 @@
                         justify-content: center
                     });
                     gap: 32px;
+                    img {
+                        width: auto;
+                    }
                 }
             }
         }
