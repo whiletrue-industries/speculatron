@@ -8,27 +8,47 @@
         <!-- <app-layers-bar *ngIf='layers' [class.open]='layersOpen' [api]='api' (close)='layers=false' (addNew)='addNew=true'
         ></app-layers-bar> -->
     </div>
-    <div class='header'>
-        <a href='/'>
-            <img class='logo layout-mobile' [src]='chronomap()?.logo()'>
-            <img class='logo layout-desktop' [src]='chronomap()?.logo()'>
-        </a>
-        <div class='text'>
-            <div class='header-title'>
-                <h1 [style.color]='chronomap()?.primaryColor()'>{{chronomap()?.title()}}</h1>
-                <h2 [style.color]='chronomap()?.primaryColor()'>{{chronomap()?.subtitle()}}</h2>
+    <div class='headers' [class.mobile-visible]='mobileMenu'>
+        <div class='mobile-menu layout-mobile' [style.color]='chronomap()?.secondaryColor()'>
+            <div class='mobile-menu-item' (click)='sortFilter = true; mobileMenu=false' [style.border-color]='chronomap()?.secondaryColor() + "40"'>
+                <span>Sort & Filter</span>
+            </div>
+            <div class='mobile-menu-item' (click)='addNew = true; mobileMenu=false' [style.border-color]='chronomap()?.secondaryColor() + "40"'>
+                <span>Add your perspective</span>
+            </div>
+            <div class='mobile-menu-item' (click)='info = true; mobileMenu=false' [style.border-color]='chronomap()?.secondaryColor() + "40"'>
+                <span>About</span>
             </div>
         </div>
-        <div class='controls'>
-            <img src='assets/img/icon-add-new.svg' (click)='addNew = true'/>
+        <div class='header' [style.border-color]='chronomap()?.secondaryColor()'>
+            <a href='/'>
+                <img class='logo layout-mobile' [src]='chronomap()?.logo()'>
+                <img class='logo layout-desktop' [src]='chronomap()?.logo()'>
+            </a>
+            <div class='text'>
+                <div class='header-title'>
+                    <h1 [style.color]='chronomap()?.primaryColor()'>{{chronomap()?.title()}}</h1>
+                    <h2 [style.color]='chronomap()?.primaryColor()' [innerHTML]='marked(chronomap()?.subtitle() || "")'></h2>
+                </div>
+            </div>
+            <div class='controls layout-desktop'>
+                <img class='add-new' src='assets/img/icon-add-new.svg' (click)='addNew = true'/>
+                <svg class='info' (click)='info = true' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.86098 4.30891C8.38213 3.2925 10.1705 2.75 12 2.75C13.2147 2.75 14.4176 2.98926 15.5398 3.45411C16.6621 3.91897 17.6818 4.60032 18.5407 5.45926C19.3997 6.3182 20.081 7.33792 20.5459 8.46018C21.0107 9.58244 21.25 10.7853 21.25 12C21.25 13.8295 20.7075 15.6179 19.6911 17.139C18.6747 18.6602 17.23 19.8458 15.5398 20.5459C13.8496 21.246 11.9897 21.4292 10.1954 21.0723C8.4011 20.7154 6.7529 19.8344 5.45927 18.5407C4.16563 17.2471 3.28465 15.5989 2.92774 13.8046C2.57083 12.0103 2.75401 10.1504 3.45412 8.46018C4.15423 6.76996 5.33982 5.32531 6.86098 4.30891Z" 
+                        [attr.stroke]="chronomap()?.primaryColor()" stroke-width="1.5"/>
+                    <path d="M12 9C12.5523 9 13 8.55228 13 8C13 7.44772 12.5523 7 12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9Z" [attr.fill]="chronomap()?.primaryColor()"/>
+                    <path d="M12 10C11.7348 10 11.4804 10.1054 11.2929 10.2929C11.1054 10.4804 11 10.7348 11 11V16C11 16.2652 11.1054 16.5196 11.2929 16.7071C11.4804 16.8946 11.7348 17 12 17C12.2652 17 12.5196 16.8946 12.7071 16.7071C12.8946 16.5196 13 16.2652 13 16V11C13 10.7348 12.8946 10.4804 12.7071 10.2929C12.5196 10.1054 12.2652 10 12 10Z"
+                        [attr.fill]="chronomap()?.primaryColor()"/>
+                </svg>
+            </div>
+            <div class='controls layout-mobile' [style.transform]='mobileMenu ? null : "rotate(180deg)"'>
+                <svg class='mobileMenu' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" (click)='mobileMenu=!mobileMenu'>
+                    <g id="media-type">
+                    <path id="Vector" d="M11.9998 8.49981C12.1314 8.49905 12.2619 8.52428 12.3837 8.57404C12.5056 8.62381 12.6164 8.69713 12.7098 8.78981L16.7098 12.7898C16.8031 12.8831 16.877 12.9937 16.9275 13.1156C16.9779 13.2374 17.0039 13.368 17.0039 13.4998C17.0039 13.6317 16.9779 13.7622 16.9275 13.8841C16.877 14.0059 16.8031 14.1166 16.7098 14.2098C16.6166 14.3031 16.5059 14.377 16.3841 14.4275C16.2622 14.4779 16.1317 14.5039 15.9998 14.5039C15.868 14.5039 15.7374 14.4779 15.6156 14.4275C15.4937 14.377 15.3831 14.3031 15.2898 14.2098L11.9998 10.8998L8.69981 14.0798C8.60782 14.1821 8.49572 14.2643 8.3705 14.3213C8.24529 14.3783 8.10967 14.4088 7.97211 14.411C7.83456 14.4132 7.69803 14.387 7.57108 14.334C7.44412 14.281 7.32947 14.2024 7.23428 14.103C7.1391 14.0037 7.06543 13.8858 7.01789 13.7567C6.97034 13.6276 6.94995 13.4901 6.95798 13.3528C6.966 13.2154 7.00228 13.0812 7.06454 12.9586C7.1268 12.8359 7.21371 12.7274 7.31981 12.6398L11.3198 8.77981C11.5027 8.6035 11.7458 8.50339 11.9998 8.49981Z" [attr.fill]='chronomap()?.primaryColor()'/>
+                    </g>
+                </svg>                    
+            </div>
         </div>
-        <svg class='info' (click)='info = true' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6.86098 4.30891C8.38213 3.2925 10.1705 2.75 12 2.75C13.2147 2.75 14.4176 2.98926 15.5398 3.45411C16.6621 3.91897 17.6818 4.60032 18.5407 5.45926C19.3997 6.3182 20.081 7.33792 20.5459 8.46018C21.0107 9.58244 21.25 10.7853 21.25 12C21.25 13.8295 20.7075 15.6179 19.6911 17.139C18.6747 18.6602 17.23 19.8458 15.5398 20.5459C13.8496 21.246 11.9897 21.4292 10.1954 21.0723C8.4011 20.7154 6.7529 19.8344 5.45927 18.5407C4.16563 17.2471 3.28465 15.5989 2.92774 13.8046C2.57083 12.0103 2.75401 10.1504 3.45412 8.46018C4.15423 6.76996 5.33982 5.32531 6.86098 4.30891Z" 
-                  [attr.stroke]="chronomap()?.primaryColor()" stroke-width="1.5"/>
-            <path d="M12 9C12.5523 9 13 8.55228 13 8C13 7.44772 12.5523 7 12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9Z" [attr.fill]="chronomap()?.primaryColor()"/>
-            <path d="M12 10C11.7348 10 11.4804 10.1054 11.2929 10.2929C11.1054 10.4804 11 10.7348 11 11V16C11 16.2652 11.1054 16.5196 11.2929 16.7071C11.4804 16.8946 11.7348 17 12 17C12.2652 17 12.5196 16.8946 12.7071 16.7071C12.8946 16.5196 13 16.2652 13 16V11C13 10.7348 12.8946 10.4804 12.7071 10.2929C12.5196 10.1054 12.2652 10 12 10Z"
-                  [attr.fill]="chronomap()?.primaryColor()"/>
-        </svg>
     </div>
 </div>
 

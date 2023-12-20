@@ -68,6 +68,9 @@ export class DirectoryPageComponent implements AfterViewInit {
         debounceTime(0, animationFrameScheduler),
       ).subscribe(() => {
         this.titleOpen.set(this.title.nativeElement.scrollTop > 0);
+        if (this.title.nativeElement.scrollTop < 0) {
+          this.title.nativeElement.scrollTop = 0;
+        }
       });
       fromEvent<TouchEvent>(this.title.nativeElement, 'touchstart').pipe(
         untilDestroyed(this),
@@ -85,7 +88,7 @@ export class DirectoryPageComponent implements AfterViewInit {
             tap((event: TouchEvent) => {
               if (event.type === 'touchmove') {
                 const delta = this.startY - event.touches[0].clientY;
-                this.title.nativeElement.scrollTop = delta;
+                this.title.nativeElement.scrollTop = delta < 0 ? 0 : delta;
               }
             }),
             filter((event: TouchEvent) => event.type === 'touchend'),

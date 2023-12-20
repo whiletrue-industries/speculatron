@@ -66,157 +66,181 @@
             }
         }
 
-        .header {
-            flex: 0 0 auto;
-            background: white;
-            display: flex;
-            align-items: center;
-
-            .desktop({
-                width: @header-size;
-                min-width: @header-size;
-                flex-flow: column;
-                padding: 16px;
-            });
+        .headers {
+            z-index: 2;
             .mobile({
                 height: @header-size-mobile;
-                min-height: @header-size-mobile;
-                flex-flow: row;
-                padding: 8px 8px 8px 0;
-                margin-top: 0;
-                transition-property: margin-top;
-                transition-duration: 500ms;
-                border-bottom: solid 1px #6e0023;
-
-                &.hidden {
-                    margin-top: -@header-size-mobile;
+                overflow-y: visible;
+                .header, .mobile-menu {
+                    transform: translateY(-3 * @header-size-mobile);
+                    transition: transform 300ms ease-in-out;
                 }
-            });
 
-            .logo {
-                flex: 0 0 auto;
-                margin: 0;
-                .desktop({
-                    width: 80px;
-                    height: 64px;
-                    margin-bottom: 0;    
-                });
-                .mobile({
-                    width: 60px;
-                    height: 48px;    
-                    margin-top: 12px;
-                });
-
-                object-fit: contain;
-                cursor: pointer;
-            }
-            .text {
-                display: flex;
-
-                .desktop({
-                    transform: rotate(90deg);
-                    transform-origin: @header-size/2 @header-size/2;
-                    flex-flow: row;
-                    align-items: center;
-                    width: @header-size;
-                    height: @header-size;            
-                });
-                .mobile({
-                    flex-flow: column;
-                    align-items: flex-start;
-                    margin-right: 12px;
-                });
-
-                &::ng-deep {
-                    h1, h2 {
-                        .font-sourcecode;
-                        color: @accent;
-                        margin: 0;
-                        white-space: nowrap;
-                    }
-                    h1 {
-                        font-weight: bold;
-                        text-transform: uppercase;
-                        .desktop({
-                            font-size: 30px;
-                        });
-                        .mobile({
-                            font-size: 14px;
-                            line-height: 18px;
-                        });
-                    }
-                    h2 {
-                        font-weight: 500;
-                      
-                        .mobile({
-                            font-size: 14px;
-                            line-height: 18px;
-                        });
+                &.mobile-visible {
+                    .header, .mobile-menu {
+                        transform: translateY(0);
                     }
                 }
-            }
-            .controls {
-                flex: 0 0 auto;
-                .desktop({
-                    margin-top: auto;
-                });
-                .mobile({
-                  margin-left: auto;
-                });
-                position: relative;
-                img {
-                    width: 100%;
-                    height: 100%;
-                }
-                .contrib {
-                    width: 24px;
-                    height: 24px;
-                    position: absolute;
-                    bottom: -4px;
-                    right: -4px;
-                    border-radius: 12px;
-                    border: 1px solid @color-gray-5;
-                    background-color: white;
-                    color: @bright-multiply;
-                    .font-manrope;
-                    font-weight: 700;
-                    font-size: 10px;
-                    line-height: 14px;
+                .mobile-menu {
+                    padding: 0 8px;
                     display: flex;
-                    flex-flow: row;
-                    align-items: center;
-                    justify-content: center;
+                    flex-flow: column;
+                    align-items: stretch;
+                    background-color: @color-white;
+
+                    .mobile-menu-item {
+                        width: 100%;
+                        height: @header-size-mobile;
+                        border-bottom: 1px solid black;
+                        .font-sourcecode;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 21px;
+                        text-transform: uppercase;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                    }                   
                 }
-            }
-            .addNew, .layers {
-                .desktop({
-                    width: 48px;
-                    height: 48px;
-                });
-            }
-            .info, .addNew, .layers {
-                cursor: pointer;
+            });
+            background-color: @color-white;
+
+            .header {
+                flex: 0 0 auto;
+                display: flex;
+                align-items: center;
+                background-color: @color-white;
 
                 .desktop({
-                    margin-bottom: 12px;
+                    width: @header-size;
+                    min-width: @header-size;
+                    height: 100%;
+                    flex-flow: column;
+                    padding: 16px;
                 });
                 .mobile({
-                    width: 20px;
-                    height: 20px;    
-                    margin-right: 12px;
+                    width: 100%;
+                    overflow: hidden;
+                    height: @header-size-mobile;
+                    min-height: @header-size-mobile;
+                    flex-flow: row;
+                    padding: 8px 8px 8px 0;
+                    border-bottom: solid 1px black;
                 });
-            }
-          .addNew {
-                .mobile({
-                    display: none;
-                });
-          }
-          .layers {
-            .mobile({
-              width: 40px;
-              height: 40px;
-            });
-          }
+
+                &.layout-mobile {
+                    border-bottom: 1px solid var(--primary-025-trans, rgba(252, 13, 28, 0.25));
+                }
+    
+                .logo {
+                    flex: 0 0 auto;
+                    margin: 0;
+                    .desktop({
+                        width: 80px;
+                        height: 64px;
+                        margin-bottom: 0;    
+                    });
+                    .mobile({
+                        width: 60px;
+                        height: 48px;    
+                        margin-top: 12px;
+                        overflow: hidden;
+                    });
+    
+                    object-fit: contain;
+                    cursor: pointer;
+                }
+                .text {
+                    display: flex;
+                    flex: 1 1 auto;
+    
+                    .desktop({
+                        transform: rotate(90deg);
+                        transform-origin: @header-size/2 @header-size/2;
+                        flex-flow: row;
+                        align-items: center;
+                        width: @header-size;
+                        height: @header-size;            
+                    });
+                    .mobile({
+                        flex-flow: column;
+                        align-items: flex-start;
+                        margin-right: 12px;
+                        overflow: hidden;
+
+                        .header-title {
+                            overflow: hidden;
+                            width: 100%;
+                        }
+                    });
+    
+                    &::ng-deep {
+                        h1, h2 {
+                            .font-sourcecode;
+                            color: @accent;
+                            margin: 0;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                        }
+                        h1 {
+                            font-weight: bold;
+                            text-transform: uppercase;
+                            .desktop({
+                                font-size: 30px;
+                            });
+                            .mobile({
+                                font-size: 14px;
+                                line-height: 18px;
+                            });
+                        }
+                        h2 {
+                            font-weight: 500;
+                          
+                            .mobile({
+                                font-size: 14px;
+                                line-height: 18px;
+                            });
+
+                            ::ng-deep {
+                                * {
+                                    margin: 0;
+                                    text-overflow: ellipsis;
+                                    overflow: hidden;
+                                }
+                            }
+                        }
+                    }
+                }
+                .controls {
+                    flex: 0 0 auto;
+                    display: flex;
+                    .desktop({
+                        flex-flow: column;
+                        margin-top: auto;
+                    });
+                    .mobile({
+                        flex-flow: row;
+                        margin-left: auto;
+                    });
+                    align-items: center;    
+                    gap: 8px;
+                    img, svg {
+                        width: 48px;
+                        height: 48px;
+                        cursor: pointer;
+                    }
+                    .info {
+                        width: 20px;
+                        height: 20px;
+                    }
+                    .mobileMenu {
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
+            }                
         }
     }
 }

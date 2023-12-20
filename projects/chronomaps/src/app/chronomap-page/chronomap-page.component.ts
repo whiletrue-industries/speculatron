@@ -5,6 +5,7 @@ import { filter, first, map, timer } from 'rxjs';
 import { MapService } from '../map.service';
 import { StateService } from '../state.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { marked } from 'marked';
 
 @UntilDestroy()
 @Component({
@@ -22,10 +23,12 @@ export class ChronomapPageComponent {
 
   _info = false;
   _addNew = false;
-  _layers = false;
+  _sortFilter = false;
   addNewOpen = false;
-  layersOpen = false;
+  sortFilterOpen = false;
+  mobileMenu = false;
 
+  marked = marked;
 
   constructor(private data: DataService, private route: ActivatedRoute, private mapSvc: MapService, private router: Router, private state: StateService) {
     this.route.params.pipe(
@@ -70,7 +73,7 @@ export class ChronomapPageComponent {
   set info(value) {
     console.log('INFO=', value);
     this._addNew = false;
-    this._layers = false;
+    this._sortFilter = false;
     this._info = value;
     localStorage.setItem(this.storageKey, 'opened');
   }
@@ -78,17 +81,17 @@ export class ChronomapPageComponent {
   get addNew() { return this._addNew; }
   set addNew(value) {
     this._info = false;
-    this._layers = false;
+    this._sortFilter = false;
     this._addNew = value;
     timer(0).subscribe(() => {this.addNewOpen = value;});
   }
 
-  get layers() { return this._layers; }
-  set layers(value) {
+  get sortFilter() { return this._sortFilter; }
+  set sortFilter(value) {
     this._info = false;
     this._addNew = false;
-    this._layers = value;
-    timer(0).subscribe(() => {this.layersOpen = value;});
+    this._sortFilter = value;
+    timer(0).subscribe(() => {this._sortFilter = value;});
   }
 
   get chronomap_(): ChronomapDatabase {
