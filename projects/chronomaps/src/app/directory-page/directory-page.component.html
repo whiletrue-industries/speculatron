@@ -1,5 +1,5 @@
 <div class='title-container' #title [class.open]='titleOpen()'>
-    <div class='filler' [style.background-color]='titleOpen() ? data.directory.secondaryColor() : null'></div>
+    <div class='filler' [style.background-color]='titleOpen() ? data.directory.secondaryColor() : null' (click)='titleOpen.set(false)'></div>
     <div class='title' [style.box-shadow]='titleBoxShadow'>
         <div class='handle' [style.border-color]='data.directory.primaryColor()'></div>
         <img [src]="data.directory.titleImageUrl()">

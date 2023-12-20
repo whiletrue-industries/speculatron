@@ -14,12 +14,12 @@
 
     .desktop({
         max-width: 360px;
-        padding: 24px;
+        padding: 16px;
     });
     .mobile({
         max-height: 100%;
         overflow-y: scroll;
-        padding: 10px 24px;
+        padding: 16px;
         .no-scrollbars;
     });
     
@@ -48,9 +48,15 @@
         .control {
             cursor: pointer;
         }
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        z-index: 1;
     }
     .slides {
         height: 100%;    
+        width: 100%;
         overflow: hidden;
         flex: 1 1 auto;
         position: relative;
@@ -81,7 +87,7 @@
                 align-items: stretch;
                 justify-content: flex-start;
                 gap: 4px;
-                padding-top: 16px;
+                // padding-top: 16px;
 
                 h1 {
                     .font-sourcecode;
@@ -93,6 +99,9 @@
                     text-transform: uppercase;
                     color: @gray1;
                     margin: 0;
+                    &.indented {
+                        margin-left: 40px;
+                    }
                 }
                 h2 {
                     .font-sourcecode;

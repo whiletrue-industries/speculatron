@@ -3,7 +3,7 @@ import { DataService } from '../data.service';
 import { marked } from 'marked';
 import { LayoutService } from '../layout.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { animationFrameScheduler, debounceTime, fromEvent, throttleTime } from 'rxjs';
+import { animationFrameScheduler, debounceTime, filter, first, fromEvent, merge, tap, throttleTime, timer } from 'rxjs';
 
 @UntilDestroy()
 @Component({
@@ -25,6 +25,7 @@ export class DirectoryPageComponent implements AfterViewInit {
   marked = marked;
 
   @ViewChild('title') title: ElementRef<HTMLDivElement>;
+  startY: number;
 
   constructor(public data: DataService, public layout: LayoutService) {
     effect(() => {
@@ -54,6 +55,10 @@ export class DirectoryPageComponent implements AfterViewInit {
       this.timelineState.set(`${midView}@${zoom}`);
       this.minDate.set(minDate);
       this.maxDate.set(maxDate);
+
+      if (!this.titleOpen()) {
+        this.title.nativeElement.scrollTo({top: 0, behavior: 'smooth'});
+      }
     }, {allowSignalWrites: true});
   }
 
@@ -62,8 +67,33 @@ export class DirectoryPageComponent implements AfterViewInit {
         untilDestroyed(this),
         debounceTime(0, animationFrameScheduler),
       ).subscribe(() => {
-        console.log('SCROLL', this.title.nativeElement.scrollTop);
         this.titleOpen.set(this.title.nativeElement.scrollTop > 0);
+      });
+      fromEvent<TouchEvent>(this.title.nativeElement, 'touchstart').pipe(
+        untilDestroyed(this),
+      ).subscribe((event) => {
+        if (!this.titleOpen()) {
+          this.titleOpen.set(true);
+          event.stopPropagation();
+          this.startY = event.touches[0].clientY;
+          merge(
+            fromEvent<TouchEvent>(this.title.nativeElement, 'touchend'),
+            fromEvent<TouchEvent>(this.title.nativeElement, 'touchmove').pipe(
+              throttleTime(16, animationFrameScheduler),
+            )
+          ).pipe(
+            tap((event: TouchEvent) => {
+              if (event.type === 'touchmove') {
+                const delta = this.startY - event.touches[0].clientY;
+                this.title.nativeElement.scrollTop = delta;
+              }
+            }),
+            filter((event: TouchEvent) => event.type === 'touchend'),
+            first(),
+          ).subscribe(() => {
+            this.titleOpen.set(this.title.nativeElement.scrollTop > 0);
+          });
+        }
       });
   }
 

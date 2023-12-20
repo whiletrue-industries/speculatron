@@ -1,15 +1,17 @@
-<div class='controls'>
-    <div class='control'>
-        <img *ngIf='slide > 0 && slide < 5' src='assets/img/button-back.svg' (click)='slide=slide-1' />
-    </div>
-    <div class='control'>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" (click)='closeMe()'>
-            <path d="M1.39453 1.39355L22.6077 22.6068" [attr.stroke]="chronomap.primaryColor()"/>
-            <path d="M22.6074 1.39355L1.39422 22.6068" [attr.stroke]="chronomap.primaryColor()"/>
-        </svg>
-    </div>
-</div>
 <div class='slides'>
+    <div class='controls'>
+        <div class='control'>
+            <svg *ngIf='slide > 0 && slide < 4' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" (click)='slide=slide-1'>
+                <path d="M18 1L7 12.1467L18 23" [attr.stroke]="chronomap.primaryColor()"/>
+            </svg>
+        </div>
+        <div class='control'>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" (click)='closeMe()'>
+                <path d="M1.39453 1.39355L22.6077 22.6068" [attr.stroke]="chronomap.primaryColor()"/>
+                <path d="M22.6074 1.39355L1.39422 22.6068" [attr.stroke]="chronomap.primaryColor()"/>
+            </svg>
+        </div>
+    </div>
     <div class='slide' [class.pre]='slide < 0' [class.post]='slide > 0'>
         <div class='header'>
             <h1>Add your perspective</h1>
@@ -45,7 +47,7 @@
     </div>
     <div class='slide' [class.pre]='slide < 1' [class.post]='slide > 1'>
         <div class='header'>
-            <h1>Where?</h1>
+            <h1 class='indented'>Where?</h1>
             <h2>Position the camera on your location of choice</h2>
         </div>
         <div class='center'>
@@ -57,7 +59,7 @@
     </div>
     <div class='slide' [class.pre]='slide < 2' [class.post]='slide > 2'>
         <div class='header'>
-            <h1>When?</h1>
+            <h1 class='indented'>When?</h1>
             <h2>The exact year is less important than the order of events</h2>
         </div>
         <input class='date-selector' type='date' placeholder='pick the date' [(ngModel)]='selectedDate'/>
@@ -67,7 +69,7 @@
     </div>
     <div class='slide' [class.pre]='slide < 3' [class.post]='slide > 3'>
         <div class='header'>
-            <h1>Add The Details</h1>
+            <h1 class='indented'>Add The Details</h1>
             <h2>Now that we know time and space, let’s add the details of your {{contentType}}</h2>
         </div>
         <iframe [src]='iframeSrc' frameborder='0' onmousewheel='' width='100%' height='100%' *ngIf='iframeSrc'></iframe>

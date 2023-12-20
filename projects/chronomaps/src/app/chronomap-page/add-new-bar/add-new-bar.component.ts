@@ -49,7 +49,7 @@ export class AddNewBarComponent implements OnInit {
     if (!this.chronomap.newEntryForm()) return null;
     const url = new URL(this.chronomap.newEntryForm());
     url.searchParams.append('prefill_Media Type', this.contentType);
-    url.searchParams.append('hide_Media_Type', 'true');
+    url.searchParams.append('hide_Media Type', 'true');
     url.searchParams.append('prefill_Post_Timestamp', this.selectedDate + 'T00:00:00.000');
     url.searchParams.append('hide_Post_Timestamp', 'true');
     url.searchParams.append('prefill_Geo', this.selectedGeo);

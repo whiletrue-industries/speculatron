@@ -70,6 +70,9 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
         this.syncWidths();
+        this.maps.forEach((map) => {
+          map.resize();
+        });
       });
     });
     this.itemActivations.pipe(
