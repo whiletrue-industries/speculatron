@@ -81,6 +81,6 @@ export class DirectoryItemComponent implements AfterViewInit {
   }
 
   navigate() {
-    this.router.navigate(['/map', this.chronomap.slug()]);
+    this.router.navigate(['/', this.chronomap.slug()]);
   }
 }

@@ -31,7 +31,7 @@ export class StateService {
           fragment += state.timelineState;
         }
         if (state.selectedItemId) {
-          fragment += `@@${state.selectedItemId}`;
+          fragment += `//${state.selectedItemId}`;
         }
         if (state.replaceUrl === false) {
           this.router.navigate([], {
@@ -57,7 +57,7 @@ export class StateService {
   }
 
   initFromUrl(fragment: string, params: {[k: string]: string}) {
-    const parts = fragment.split('@@');
+    const parts = fragment.split('//');
     let timelineState = '';
     let selectedItemId = null;
     if (parts.length > 0) {

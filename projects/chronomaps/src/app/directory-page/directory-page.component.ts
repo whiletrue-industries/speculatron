@@ -52,7 +52,7 @@ export class DirectoryPageComponent implements AfterViewInit {
       const maxView = new Date(this.data.directory.zoomUntil(), 11, 31);
       const midView = new Date((minView.getTime() + maxView.getTime()) / 2).getTime();
       const zoom = Math.max(0, (maxDate.getTime() - minDate.getTime()) / (maxView.getTime() - minView.getTime()));
-      this.timelineState.set(`${midView}@${zoom}`);
+      this.timelineState.set(`${midView}/${zoom}`);
       this.minDate.set(minDate);
       this.maxDate.set(maxDate);
 

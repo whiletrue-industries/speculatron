@@ -112,7 +112,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   parseState(state: string): void {
-    const parts = state.split('@');
+    const parts = state.split('/');
     if (parts.length >= 2) {
       this.zoomX = new Date(parseFloat(parts[0]));
       this.zoomK = parseFloat(parts[1]);
@@ -430,7 +430,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     this.zoomK = event.transform.k;
     this.updateAxis();
     if (!this.controlled) {
-      this._changeCandidates.next(`${this.zoomX.valueOf()}@${this.zoomK}@${this.firstTickValue}@${this.tickIndicator}`);
+      this._changeCandidates.next(`${this.zoomX.valueOf()}/${this.zoomK}/${this.firstTickValue}/${this.tickIndicator}`);
     }
   }
 

@@ -6,6 +6,7 @@ import { MapService } from '../map.service';
 import { StateService } from '../state.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { marked } from 'marked';
+import { LayoutService } from '../layout.service';
 
 @UntilDestroy()
 @Component({
@@ -30,7 +31,8 @@ export class ChronomapPageComponent {
 
   marked = marked;
 
-  constructor(private data: DataService, private route: ActivatedRoute, private mapSvc: MapService, private router: Router, private state: StateService) {
+  constructor(private data: DataService, private route: ActivatedRoute, private mapSvc: MapService,
+      private router: Router, private state: StateService, public layout: LayoutService) {
     this.route.params.pipe(
       first()
     ).subscribe(params => {

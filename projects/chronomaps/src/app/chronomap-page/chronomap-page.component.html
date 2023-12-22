@@ -1,10 +1,12 @@
 <div class='layout' *ngIf='chronomap()'>
     <div class='content'>
         <app-chronomap [chronomap]='chronomap_'></app-chronomap>
-        <app-infobar [class.open]='info' [chronomap]='chronomap_' (close)='info=false'
-        ></app-infobar>
-        <app-add-new-bar *ngIf='addNew' [chronomap]='chronomap_' [class.open]='addNewOpen' (close)='addNew=false'
-        ></app-add-new-bar>
+        @if (layout.desktop()) {
+            <app-infobar [class.open]='info' [chronomap]='chronomap_' (close)='info=false'
+            ></app-infobar>
+            <app-add-new-bar *ngIf='addNew' [chronomap]='chronomap_' [class.open]='addNewOpen' (close)='addNew=false'
+            ></app-add-new-bar>        
+        }
         <!-- <app-layers-bar *ngIf='layers' [class.open]='layersOpen' [api]='api' (close)='layers=false' (addNew)='addNew=true'
         ></app-layers-bar> -->
     </div>
@@ -50,6 +52,13 @@
             </div>
         </div>
     </div>
+
+    @if (layout.mobile()) {
+        <app-infobar [class.open]='info' [chronomap]='chronomap_' (close)='info=false'
+        ></app-infobar>
+        <app-add-new-bar *ngIf='addNew' [chronomap]='chronomap_' [class.open]='addNewOpen' (close)='addNew=false'
+        ></app-add-new-bar>    
+    }
 </div>
 
 

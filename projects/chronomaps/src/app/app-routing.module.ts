@@ -4,7 +4,7 @@ import { DirectoryPageComponent } from './directory-page/directory-page.componen
 import { ChronomapPageComponent } from './chronomap-page/chronomap-page.component';
 
 const routes: Routes = [
-  {path: 'map/:slug', component: ChronomapPageComponent},
+  {path: ':slug', component: ChronomapPageComponent},
   {path: '', component: DirectoryPageComponent},
 ];
 

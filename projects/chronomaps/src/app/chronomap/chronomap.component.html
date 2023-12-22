@@ -11,33 +11,78 @@
                             [style.border-color]='chronomap.primaryColor()'>
             <div class='detail-map' #detailMapEl [style.width]='baseWidthPx'>
             </div>
-            <div class='content' [style.background-color]='this.mapMode === "Map" ? "#00000000" : chronomap.primaryColor() + "66"'>
-                <div class='scroller' #scroller [style.width]='detailWidthPx'>
-                    <div class='scroll-card' *ngFor='let item of chronomap.timelineItems()' [style.width]='detailWidthPx'>
-                        <app-content-item 
-                            *ngIf='contentVisible && currentItem'
-                            [attr.data-id]='item.id' 
-                            [content]='item' [contentType]='item.type'
-                            [activeItem]='currentItem'
-                            [parentElement]='scroller'
-                            [chronomap]='chronomap'
-                            (activated)='itemActivated($event)'
-                        ></app-content-item>
-                    </div>
-                </div>
+            <div class='content' [style.background-color]='this.mapMode === "Map" ? "#00000000" : chronomap.primaryColor() + "66"'
+                [class.map-mode]='this.mapMode === "Map"'
+                [class.small-map-mode]='this.mapMode === "SmallMap"'
+                [class.media-mode]='this.mapMode === "Media"'
+                [class.description-mode]='this.mapMode === "More"'
+            >
                 <div class='button-close' (click)='itemSelected(null)'></div>
-                <div class='description' #description>
-                    <div class='backdrop'></div>
-                    <div class='inner' *ngIf='currentItem'>
-                        <app-media-icon [type]='currentItem.type' [color]='chronomap.primaryColor()'></app-media-icon>
-                        <span class='title' [style.color]='"#fff"'>{{currentItem.title}}</span>
-                        <span class='date' [style.color]='"#fff"'>{{currentItem.formattedPostTimestamp}}</span>
-                        <!-- <app-media-icon [type]='currentItem.type' [color]='markerColor(currentItem)'></app-media-icon>
-                        <span class='title' [style.color]='markerColor(currentItem)'>{{currentItem.title}}</span>
-                        <span class='date' [style.color]='markerColor(currentItem)'>{{currentItem.niceTimestamp}}</span> -->    
-                    </div>
+                <div class='filler' #contentFiller>
                 </div>
-                <ng-container *ngIf='currentItem'>
+                <div class='map-toggle'>
+                    <div (click)='toggleMapMode()' [class.map]='this.mapMode === "Map"'></div>
+                </div>
+                <div class='scroller' #scroller [style.width]='detailWidthPx' #contentItem>
+                    @for (item of chronomap.timelineItems(); track item.id) {
+                        <div class='scroll-card' [style.width]='detailWidthPx' [class.current]='item === currentItem'>
+                            <app-content-item 
+                                *ngIf='contentVisible && currentItem'
+                                [attr.data-id]='item.id' 
+                                [content]='item' [contentType]='item.type'
+                                [activeItem]='currentItem'
+                                [parentElement]='scroller'
+                                [chronomap]='chronomap'
+                                (activated)='itemActivated($event)'
+                            ></app-content-item>
+                        </div>
+                    }
+                </div>
+
+
+                @if (currentItem) {
+                    <div class='target-icon' #targetIcon>
+                        <app-media-icon [type]='currentItem.type' [color]='chronomap.primaryColor()'></app-media-icon>
+                    </div>
+                    <div class='description-toggle'>
+                        <div class='description-toggle-button' (click)='toggleDescriptionMode()' [class.more]='this.mapMode === "More"'></div>
+                        <div class='date'>{{currentItem.formattedPostTimestamp}}</div>
+                        <div class='backdrop'></div>
+                    </div>
+                    <div class='description' #contentDescription>
+                        <div class='description-content'  [style.border-color]='chronomap.primaryColor()'>
+                            <div class='inner'>
+                                <div class='title'>{{currentItem.title}}</div>
+                                <div class='authors' [style.color]='chronomap.primaryColor()'>Created by <strong>{{currentItem.formattedAuthors}}</strong></div>
+                                <div class='tags'>
+                                    @for (tag of currentItem.tags; track tag) {
+                                        <div class='tag' [style.background-color]='chronomap.primaryColor() + "40"'>{{tag}}</div>
+                                    }
+                                </div>
+                                @if (currentItem.notes) {
+                                    <div class='notes' [innerHTML]='marked(currentItem.notes)'></div>
+                                }
+                                <div class='last-updated'>Last Edited: {{currentItem.lastModified.toLocaleDateString()}}</div>
+                            </div>
+                            <div class='separator' [style.border-color]='chronomap.primaryColor()'></div>
+                            @if (currentItem.relatedItems?.length) {
+                                <div class='title related'>RELATED POSTS</div>
+                                @for (related of currentItem.relatedItems; track related.id) {
+                                    <div class='related' (click)='itemSelected(related)'>
+                                        <div class='related-header'>
+                                            <div class='related-icon'>
+                                                <app-media-icon [type]='related.type' [color]='chronomap.primaryColor()'></app-media-icon>
+                                            </div>
+                                            <div class='related-date' [style.color]='chronomap.primaryColor()'>{{related.formattedPostTimestamp}}</div>                                            
+                                        </div>
+                                        <div class='related-title'>{{related.title}}</div>
+                                    </div>
+                                }
+                            }
+                            <!-- <div class='add-new'>Respond with a new post</div>                                 -->
+                        </div>
+                    </div>    
+
                     <div class='arrow' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'></div>
                     <div class='arrow rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'></div>
                     <div class='arrow-icon' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'>
@@ -46,14 +91,7 @@
                     <div class='arrow-icon rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'>
                         <app-media-icon [type]='currentItem.next.type' [color]='chronomap.primaryColor()'></app-media-icon>
                     </div>
-                </ng-container>
-            </div>
-            <div class='map-toggle' (click)='toggleMapMode()' [style.background]='markerColor()'>
-                <div class='circle' [class.map]='mapMode === "Map"'></div>
-                <div class='icons'>
-                    <app-media-icon [type]='currentItem?.type || ""' marker='Media' [color]='mapModeColor("Media")'></app-media-icon>
-                    <app-media-icon type='' marker='Map' [color]='mapModeColor("Map")'></app-media-icon>
-                </div>
+                }
             </div>
         </div>
     </div>

@@ -11,6 +11,7 @@ import { ChronomapDatabase, TimelineItem } from '../data.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { State, StateService } from '../state.service';
 import { LayoutService } from '../layout.service';
+import { marked } from 'marked';
 
 @UntilDestroy()
 @Component({
@@ -30,6 +31,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
   @ViewChild('description') descriptionElement: ElementRef;
 
+  @ViewChild('contentFiller') contentFiller: ElementRef<HTMLDivElement>;
+  @ViewChild('contentItem') contentItem: ElementRef<HTMLDivElement>;
+  @ViewChild('contentDescription') contentDescription: ElementRef<HTMLDivElement>;
+
   // Maps
   baseMap: mapboxgl.Map;
   detailMap: mapboxgl.Map;
@@ -46,11 +51,12 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   currentItem: TimelineItem | null = null;
   selectedItemId: number | null = null;
   itemActivations = new Subject<any>();
-  mapMode = 'Media';
+  mapMode: 'Map' | 'SmallMap' | 'Media' | 'More' = 'Media';
   lastMapState: mapboxgl.FlyToOptions;
   selectItemMapState: mapboxgl.FlyToOptions;
   fragmentChanger = new Subject<void>();
   actionSub: Subscription | null;
+  observer: IntersectionObserver;
 
   // Layout
   resizeObserver: ResizeObserver;
@@ -63,6 +69,8 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   contentBackground: SafeStyle;
   backdropBackground: SafeStyle;
   
+  marked = marked;
+
   constructor(
     private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService, private state: StateService,
     private layout: LayoutService
@@ -235,6 +243,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.contentVisible = false;
         this.updateMarkers();
         this.actionSub = null;
+        this.observer?.disconnect();
       });
       return;
     }
@@ -246,11 +255,14 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       tap(() => {
         this.timeLineComponent?.scrollTo(item.timestamp, item);    
       }),
-      delay(0),
+      delay(this.detailOpen ? 0 : 1000),
       tap(() => {
         if (!this.detailOpen) {
-          this.mapMode = 'Media';
+          this.mapMode = 'SmallMap';
+          this.contentFiller.nativeElement?.scrollIntoView({behavior: 'auto'});
           this.selectItemMapState = this.lastMapState;
+        } else {
+          this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
         }
         this.detailOpen = true;
         this.contentVisible = true;
@@ -275,17 +287,38 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.moveEnded;
       }),
       first(),
+      delay(100),
+      tap(() => {
+        this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
+      })
     ).subscribe(() => {
       console.log('MOVE ENDED');
-      if (this.layout.desktop() && this.detailOpen) {
-        const wh = window.innerHeight;
-        const padding = 2*this.descriptionElement.nativeElement.getBoundingClientRect().top + (30 + 12) * 2 - wh;
-        console.log('MOVE ENDED - padding', padding);
-        for (const map of this.maps) {
-          map.flyTo(Object.assign({}, this.lastMapState, {padding: {top: padding}}));
-        }
-        this.actionSub = null;
-      }
+      this.observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (entry.target === this.contentItem.nativeElement) {
+              this.mapMode = 'Media';
+            } else if (entry.target === this.contentDescription.nativeElement) {
+              this.mapMode = 'More';
+            } else if (entry.target === this.contentFiller.nativeElement) {
+              this.mapMode = 'Map';
+            }
+          }
+        });
+      }, {threshold: 0.75});
+      this.observer.observe(this.contentItem.nativeElement);
+      this.observer.observe(this.contentDescription.nativeElement);
+      this.observer.observe(this.contentFiller.nativeElement);
+      // TODO:
+      // if (this.layout.desktop() && this.detailOpen) {
+      //   const wh = window.innerHeight;
+      //   const padding = 2*this.descriptionElement.nativeElement.getBoundingClientRect().top + (30 + 12) * 2 - wh;
+      //   console.log('MOVE ENDED - padding', padding);
+      //   for (const map of this.maps) {
+      //     map.flyTo(Object.assign({}, this.lastMapState, {padding: {top: padding}}));
+      //   }
+      // }
+      this.actionSub = null;
     });
   }
 
@@ -331,15 +364,19 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleMapMode() {
-    if (this.mapMode === 'Map') {
-      this.mapMode = 'Media';
+    if (this.mapMode === 'Map' || this.mapMode === 'SmallMap') {
+      this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
     } else {
-      this.mapMode = 'Map';
+      this.contentFiller.nativeElement?.scrollIntoView({behavior: 'smooth'});
     }
   }
 
-  mapModeColor(mode: string) {
-    return this.chronomap.primaryColor();
+  toggleDescriptionMode() {
+    if (this.mapMode === 'More') {
+      this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
+    } else {
+      this.contentDescription.nativeElement?.scrollIntoView({behavior: 'smooth'});
+    }
   }
 
   initialize() {

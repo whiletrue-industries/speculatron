@@ -23,6 +23,7 @@ const FORMATTERS: {[key: string]: DateFormatter} = {
 export class ContentItem {
   id: number;
   title: string;
+  notes: string;
   post_timestamp: Date;
   alt_post_timestamp: Date;
   status: 'Draft' | 'Review' | 'Published'; 
@@ -53,6 +54,7 @@ export class TimelineItem extends ContentItem {
   next: TimelineItem | null;
   prev: TimelineItem | null;
   timestamp: Date;
+  relatedItems: TimelineItem[] = [];
 
   x: number;
   cx: number = 0;
@@ -65,6 +67,7 @@ export class TimelineItem extends ContentItem {
 
   formattedPostTimestamp: string;
   formattedAltPostTimestamp: string;
+  formattedAuthors: string;
 }
 
 export class ChronomapDatabase extends BaserowDatabase {
@@ -180,6 +183,7 @@ export class ChronomapDatabase extends BaserowDatabase {
               const item: any = {
                 id: row.id,
                 title: row.Title,
+                notes: row.Notes,
                 post_timestamp: dayjs(row.Post_Timestamp).toDate(),
                 status: row.Status.value,
                 type: row.Type.value,
@@ -200,7 +204,7 @@ export class ChronomapDatabase extends BaserowDatabase {
                 nonce: row.Nonce,
                 authors: row.Authors?.map((x: any) => authors[x.value]) || [],
                 tags: row.Tags?.map((x: any) => x.value) || [],
-                related: row.Related?.map((x: any) => ({id: x.id})) || [],
+                related: row.Related,
                 lastModified: dayjs(row.Last_Modified).toDate(),
               };
               item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
@@ -243,6 +247,12 @@ export class ChronomapDatabase extends BaserowDatabase {
               ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
               ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
               ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
+              const authorNames = ti.authors.map((author: Author) => author.name);
+              if (authorNames.length > 1) {
+                const last = authorNames.pop();
+                authorNames[authorNames.length - 1] += ` and ${last}`;
+              }
+              ti.formattedAuthors = authorNames.join(', ');
               return ti;
             });
             let minDate: Date|null = null;
@@ -259,6 +269,9 @@ export class ChronomapDatabase extends BaserowDatabase {
                   maxDate = item.post_timestamp;
                 }
               }
+              item.relatedItems = item.related
+                  .map((ci: ContentItem) => (timelineItems.find((i: TimelineItem) => i.id === ci.id) || {}) as TimelineItem)
+                  .filter((i: TimelineItem) => !!i);
             });
             minDate = minDate || new Date();
             maxDate = maxDate || new Date();
