@@ -233,6 +233,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
               bearing: this.selectItemMapState.bearing,
               pitch: this.selectItemMapState.pitch,
               padding: 0,
+              duration: 1000,
             });
           }  
           this.detailOpen = false;
@@ -287,12 +288,12 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.moveEnded;
       }),
       first(),
-      delay(100),
+      delay(500),
       tap(() => {
+        console.log('MOVE ENDED');
         this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
       })
     ).subscribe(() => {
-      console.log('MOVE ENDED');
       this.observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
