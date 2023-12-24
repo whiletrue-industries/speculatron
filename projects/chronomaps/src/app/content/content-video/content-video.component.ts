@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { forkJoin, ReplaySubject } from 'rxjs';
 import { first } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './content-video.component.html',
   styleUrls: ['./content-video.component.less']
 })
-export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
+export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @Input() item: TimelineItem;
   @Input() activeItem: TimelineItem;
@@ -20,8 +20,9 @@ export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('frame', {static: true}) frame: ElementRef;
   player: YT.Player;
   playerReady = new ReplaySubject<void>(1);
+  resizeObserver: ResizeObserver;
 
-  constructor(private sanitizer: DomSanitizer, private http: HttpClient) {}
+  constructor(private sanitizer: DomSanitizer, private http: HttpClient, private el: ElementRef) {}
 
   ngOnInit(): void {
   }
@@ -31,14 +32,14 @@ export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
     if (active) {
       this.playerReady.pipe(first())
       .subscribe(() => {
-        if (active && this.player.getPlayerState() !== YT.PlayerState.PLAYING) {
+        if (active && this.player?.getPlayerState && this.player.getPlayerState() !== YT.PlayerState.PLAYING) {
           this.player.playVideo();
         }
       });  
     } else {
       this.playerReady.pipe(first())
       .subscribe(() => {
-        if (!active && this.player.getPlayerState() !== YT.PlayerState.PAUSED && this.player.getPlayerState() !== YT.PlayerState.ENDED) {
+        if (!active && this.player?.getPlayerState && this.player.getPlayerState() !== YT.PlayerState.PAUSED && this.player.getPlayerState() !== YT.PlayerState.ENDED) {
           this.player.pauseVideo();
         }
       });  
@@ -46,10 +47,24 @@ export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit() {
-    // console.log('INIT YOUTUBE', this.frame.nativeElement, this.item.youtube_video_id);
-    const el = this.frame.nativeElement as HTMLElement;
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = new ResizeObserver((entries) => {
+      console.log('RESIZE', this.item.youtube_video_id, entries);
+      this.initialize();
+    });
+    this.resizeObserver.observe(this.el.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+  }
+
+  initialize() {
+    const el = this.el.nativeElement as HTMLElement;
     const width = Math.min(el.offsetWidth, 640);
     const height = (width * 3) / 4;
+    console.log('INIT YOUTUBE', this.frame.nativeElement, this.item.youtube_video_id, width, this.el.nativeElement.offsetWidth);
+    this.frame.nativeElement.innerHTML = '';
     this.http.get('https://www.youtube.com/oembed', {params: {url: this.item.youtube_video_id, format: 'json'}}).subscribe((data: any) => {
       const embedCode = data.html || '';
       const srcPos = embedCode.indexOf('src="');
@@ -57,7 +72,8 @@ export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges {
         const embedUrl = new URL(embedCode.slice(srcPos).split('"')[1]);
         const videoId = embedUrl.pathname.split('/').pop();
         const start = parseInt(embedUrl.searchParams.get('start') || '0', 10);
-        this.player = new YT.Player(el, {
+        const frame = this.frame.nativeElement as HTMLElement;
+        this.player = new YT.Player(frame.appendChild(document.createElement('div')), {
           videoId,
           height: height + 'px',
           width: width + 'px',

@@ -83,12 +83,12 @@
                         </div>
                     </div>    
 
-                    <div class='arrow' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'></div>
-                    <div class='arrow rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'></div>
-                    <div class='arrow-icon' *ngIf='currentItem.prev' (click)='itemSelected(currentItem.prev)'>
+                    <div class='arrow' *ngIf='currentItem.prev' (click)='state.selectedItemId = currentItem.prev.id'></div>
+                    <div class='arrow rev' *ngIf='currentItem.next' (click)='state.selectedItemId = currentItem.next.id'></div>
+                    <div class='arrow-icon' *ngIf='currentItem.prev' (click)='state.selectedItemId = currentItem.prev.id'>
                         <app-media-icon [type]='currentItem.prev.type' [color]='chronomap.primaryColor()'></app-media-icon>
                     </div>
-                    <div class='arrow-icon rev' *ngIf='currentItem.next' (click)='itemSelected(currentItem.next)'>
+                    <div class='arrow-icon rev' *ngIf='currentItem.next' (click)='state.selectedItemId = currentItem.next.id'>
                         <app-media-icon [type]='currentItem.next.type' [color]='chronomap.primaryColor()'></app-media-icon>
                     </div>
                 }

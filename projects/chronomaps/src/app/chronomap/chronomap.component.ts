@@ -72,8 +72,8 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   marked = marked;
 
   constructor(
-    private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService, private state: StateService,
-    private layout: LayoutService
+    private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService, public state: StateService,
+    private layout: LayoutService, private el: ElementRef
   ) {
     this.resizeObserver = new ResizeObserver(() => {
       timer(0).subscribe(() => {
@@ -138,7 +138,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         window.dispatchEvent(new Event('resize'));
       });
     });
-    this.resizeObserver.observe(this.baseMapEl.nativeElement);
+    this.resizeObserver.observe(this.el.nativeElement);
     timer(0).subscribe(() => {
       this.syncWidths();
       this.updateMarkers();
@@ -273,12 +273,13 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.applyMapView(item, this.detailMap, options);
         this.updateMarkers();
       }),
-      delay(100),
+      delay(1000),
       tap(() => {
         const scrollLeft = (item.index + 0.5) * (this.detailWidth);
         const el = this.scrollerComponent.nativeElement as HTMLElement;
-        // console.log('SCROLL', scrollLeft, el.scrollLeft, this.detailWidth, item.index);
-        el.scrollLeft = scrollLeft;
+        el.querySelector('.current')?.scrollIntoView({behavior: 'smooth', inline: 'center'});
+        console.log('SCROLL', el.querySelector('.current'));
+        // el.scrollLeft = scrollLeft;
         // children[item.index].scrollIntoView({behavior: 'smooth'});
         timer(1000).subscribe(() => {
           this.changing -= 1;
