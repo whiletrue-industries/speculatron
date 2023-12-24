@@ -5,9 +5,11 @@
 @desktop-map-toggle-height: 48px + 20px + 20px;
 @desktop-description-toggle-height: 48px + 72px + 72px;
 @desktop-content-peek-height: 40px;
-@mobile-map-toggle-height: 48px + 20px + 20px;
-@mobile-description-toggle-height: 48px + 72px + 72px;
+@desktop-date-offset: 40px;
+@mobile-map-toggle-height: 48px + 8px + 8px;
+@mobile-description-toggle-height: 48px + 8px + 20px;
 @mobile-content-peek-height: 40px;
+@mobile-date-offset: 64px;
 
 :host {
     width: 100%;
@@ -141,7 +143,12 @@
                         overflow-x: scroll;
                         .no-scrollbars;
                         width: 50%;
-                        height: calc(100% ~'-' @desktop-map-toggle-height - @desktop-description-toggle-height);
+                        .desktop({
+                            height: calc(100% ~'-' @desktop-map-toggle-height - @desktop-description-toggle-height);
+                        });
+                        .mobile({
+                            height: calc(100% ~'-' @mobile-map-toggle-height - @mobile-description-toggle-height);
+                        });
                         overflow-y: hidden;
                         overscroll-behavior-x: contain;
                         overscroll-behavior-y: auto;
@@ -250,7 +257,12 @@
 
                         .date {
                             position: absolute;
-                            bottom: 40px;
+                            .desktop({
+                                bottom: @desktop-date-offset;
+                            });
+                            .mobile({
+                                bottom: @mobile-date-offset;
+                            });
                             color: @color-gray-5;
                             text-align: center;
                             .font-manrope;

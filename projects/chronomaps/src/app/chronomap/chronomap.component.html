@@ -16,6 +16,7 @@
                 [class.small-map-mode]='this.mapMode === "SmallMap"'
                 [class.media-mode]='this.mapMode === "Media"'
                 [class.description-mode]='this.mapMode === "More"'
+                #contentRoot
             >
                 <div class='button-close' (click)='itemSelected(null)'></div>
                 <div class='filler' #contentFiller>

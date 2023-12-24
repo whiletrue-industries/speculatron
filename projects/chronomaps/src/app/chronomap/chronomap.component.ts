@@ -31,9 +31,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
   @ViewChild('description') descriptionElement: ElementRef;
 
-  @ViewChild('contentFiller') contentFiller: ElementRef<HTMLDivElement>;
-  @ViewChild('contentItem') contentItem: ElementRef<HTMLDivElement>;
-  @ViewChild('contentDescription') contentDescription: ElementRef<HTMLDivElement>;
+  @ViewChild('contentFiller', {static: false}) contentFiller: ElementRef<HTMLDivElement>;
+  @ViewChild('contentItem', {static: false}) contentItem: ElementRef<HTMLDivElement>;
+  @ViewChild('contentDescription', {static: false}) contentDescription: ElementRef<HTMLDivElement>;
+  @ViewChild('contentRoot') contentRoot: ElementRef<HTMLDivElement>;
 
   // Maps
   baseMap: mapboxgl.Map;
@@ -52,6 +53,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedItemId: number | null = null;
   itemActivations = new Subject<any>();
   mapMode: 'Map' | 'SmallMap' | 'Media' | 'More' = 'Media';
+  mapModeSetter = new Subject<'Map' | 'SmallMap' | 'Media' | 'More'>();
   lastMapState: mapboxgl.FlyToOptions;
   selectItemMapState: mapboxgl.FlyToOptions;
   fragmentChanger = new Subject<void>();
@@ -102,6 +104,12 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.titleSvc.setTitle(this.chronomap.title());
     }, {allowSignalWrites: true});
+    this.mapModeSetter.pipe(
+      untilDestroyed(this),
+      debounceTime(1000)
+    ).subscribe((mode) => {
+      this.mapMode = mode;
+    });
   }
 
   ngOnInit(): void {
@@ -295,19 +303,26 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
       })
     ).subscribe(() => {
+      this.observer?.disconnect();
       this.observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (entry.target === this.contentItem.nativeElement) {
-              this.mapMode = 'Media';
-            } else if (entry.target === this.contentDescription.nativeElement) {
-              this.mapMode = 'More';
-            } else if (entry.target === this.contentFiller.nativeElement) {
-              this.mapMode = 'Map';
-            }
+        entries = entries.filter((entry) => entry.isIntersecting).sort((a, b) => { return b.intersectionRatio - a.intersectionRatio; })
+        const entry = entries[0];
+        let mode: 'Map' | 'SmallMap' | 'Media' | 'More' | null = null;
+        if (entry.isIntersecting) {
+          if (entry.target === this.contentItem.nativeElement) {
+            mode = 'Media';
+          } else if (entry.target === this.contentDescription.nativeElement) {
+            mode = 'More';
+          } else if (entry.target === this.contentFiller.nativeElement) {
+            mode = 'Map';
           }
-        });
-      }, {threshold: 0.75});
+          console.log('INTERSECTING', entries.length, entry.isIntersecting, entry.intersectionRatio, mode);
+          if (mode) {
+            this.mapModeSetter.next(mode);
+          }
+        }
+      }, {threshold: 0.75, root: this.contentRoot.nativeElement });
+      console.log('INTERSECTING start');
       this.observer.observe(this.contentItem.nativeElement);
       this.observer.observe(this.contentDescription.nativeElement);
       this.observer.observe(this.contentFiller.nativeElement);
