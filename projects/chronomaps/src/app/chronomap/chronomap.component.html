@@ -21,7 +21,7 @@
                 <div class='button-close' (click)='itemSelected(null)'></div>
                 <div class='filler' #contentFiller>
                 </div>
-                <div class='map-toggle'>
+                <div class='map-toggle' [style.border-color]='chronomap.primaryColor()'>
                     <div (click)='toggleMapMode()' [class.map]='this.mapMode === "Map"'></div>
                 </div>
                 <div class='scroller' #scroller [style.width]='detailWidthPx' #contentItem>
@@ -45,7 +45,7 @@
                     <div class='target-icon' #targetIcon>
                         <app-media-icon [type]='currentItem.type' [color]='chronomap.primaryColor()'></app-media-icon>
                     </div>
-                    <div class='description-toggle'>
+                    <div class='description-toggle' [style.border-color]='chronomap.primaryColor()'>
                         <div class='description-toggle-button' (click)='toggleDescriptionMode()' [class.more]='this.mapMode === "More"'></div>
                         <div class='date'>{{currentItem.formattedPostTimestamp}}</div>
                         <div class='backdrop'></div>

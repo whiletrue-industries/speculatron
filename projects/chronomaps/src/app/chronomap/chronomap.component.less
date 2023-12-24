@@ -3,13 +3,17 @@
 @transition-time: 350ms;
 
 @desktop-map-toggle-height: 48px + 20px + 20px;
-@desktop-description-toggle-height: 48px + 72px + 72px;
+@desktop-description-toggle-padding-top: 72px;
+@desktop-description-toggle-padding-bottom: 72px;
+@desktop-description-toggle-height: 48px + @desktop-description-toggle-padding-top + @desktop-description-toggle-padding-bottom;
 @desktop-content-peek-height: 40px;
 @desktop-date-offset: 40px;
 @mobile-map-toggle-height: 48px + 8px + 8px;
-@mobile-description-toggle-height: 48px + 8px + 20px;
+@mobile-description-toggle-padding-top: 20px;
+@mobile-description-toggle-padding-bottom: 8px;
+@mobile-description-toggle-height: 48px + @mobile-description-toggle-padding-top + @mobile-description-toggle-padding-bottom;
 @mobile-content-peek-height: 40px;
-@mobile-date-offset: 64px;
+@mobile-date-offset: 56px;
 
 :host {
     width: 100%;
@@ -108,6 +112,8 @@
                         align-items: center;
                         justify-content: center;
                         scroll-snap-align: start;
+                        border-bottom: 1px solid black;
+                        width: 100%;
 
                         > div {
                             pointer-events: all;
@@ -129,6 +135,7 @@
                     }
                     &.small-map-mode {
                         .map-toggle {
+                            border: none;
                             > div {
                                 opacity: 0;
                             }
@@ -234,9 +241,13 @@
                         flex: 0 0 auto;
                         .desktop({
                             height: @desktop-description-toggle-height;
+                            padding-top: @desktop-description-toggle-padding-top;
+                            padding-bottom: @desktop-description-toggle-padding-bottom;
                         });
                         .mobile({
                             height: @mobile-description-toggle-height;
+                            padding-top: @mobile-description-toggle-padding-top;
+                            padding-bottom: @mobile-description-toggle-padding-bottom;
                         });
                         width: 100%;
                         display: flex;
@@ -244,6 +255,7 @@
                         align-items: center;
                         justify-content: center;
                         position: relative;
+                        border-top: 1px solid black;
 
                         .description-toggle-button {
                             pointer-events: all;
@@ -259,14 +271,15 @@
                             position: absolute;
                             .desktop({
                                 bottom: @desktop-date-offset;
+                                font-size: 16px;
                             });
                             .mobile({
                                 bottom: @mobile-date-offset;
+                                font-size: 13px;
                             });
                             color: @color-gray-5;
                             text-align: center;
                             .font-manrope;
-                            font-size: 16px;
                             font-weight: 400;
                             line-height: normal;
                             text-transform: uppercase;
