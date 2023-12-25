@@ -331,7 +331,7 @@ export class DirectoryDatabase extends BaserowDatabase {
       this.url.set(keyValues.URL.value);
     });
     this.getTable('Chronomaps').subscribe((chronomapsTable) => {
-      this.chronomaps.set(chronomapsTable?.rows.map((chronomap: any) => {
+      this.chronomaps.set(chronomapsTable?.rows.filter(row => row.Status?.value === 'Published').map((chronomap: any) => {
         const map = new ChronomapDatabase(chronomap, this.http);        
         return map;
       }) || []);
