@@ -109,4 +109,10 @@ export class DirectoryPageComponent implements AfterViewInit {
   get titleBoxShadow() {
     return `0px 0px 20px 1px ${this.data.directory.primaryColor()}40`;
   }
+
+  openTitle() {
+    if (this.layout.mobile()) {
+      this.title.nativeElement.scrollTo({top: 10000, behavior: 'smooth'});
+    }
+  }
 }
