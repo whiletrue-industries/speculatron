@@ -9,7 +9,10 @@ import { ChronomapDatabase, DataService, TimelineItem } from '../../data.service
 @Component({
   selector: 'app-add-new-bar',
   templateUrl: './add-new-bar.component.html',
-  styleUrls: ['./add-new-bar.component.less']
+  styleUrls: ['./add-new-bar.component.less'],
+  host: {
+    '[style.border-color]': 'chronomap.primaryColor() + "40"',
+  }
 })
 export class AddNewBarComponent implements OnInit {
   

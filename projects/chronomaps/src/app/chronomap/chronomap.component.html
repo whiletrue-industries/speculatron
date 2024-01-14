@@ -72,7 +72,7 @@
                                     <div class='related' (click)='itemSelected(related)'>
                                         <div class='related-header'>
                                             <div class='related-icon'>
-                                                <app-media-icon [type]='related.type' [color]='chronomap.primaryColor()'></app-media-icon>
+                                                <app-media-icon [type]='related.type' [color]='chronomap.primaryColor()' [outline]='false'></app-media-icon>
                                             </div>
                                             <div class='related-date' [style.color]='chronomap.primaryColor()'>{{related.formattedPostTimestamp}}</div>                                            
                                         </div>

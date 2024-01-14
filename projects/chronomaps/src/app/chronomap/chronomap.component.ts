@@ -125,7 +125,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       style: MAPBOX_BASE_STYLE,
       minZoom: 3,
       attributionControl: false,
-      logoPosition: 'top-right',
+      logoPosition: 'bottom-right',
     });
     this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
     this.detailMap = new mapboxgl.Map({
