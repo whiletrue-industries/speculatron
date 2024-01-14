@@ -8,6 +8,7 @@ import { InfobarComponent } from './chronomap-page/infobar/infobar.component';
 import { ContentAudioComponent } from './content/content-audio/content-audio.component';
 import { ContentVideoComponent } from './content/content-video/content-video.component';
 import { ContentImageComponent } from './content/content-image/content-image.component';
+import { ContentNewsComponent } from './content/content-news/content-news.component';
 import { ContentTwitterComponent } from './content/content-twitter/content-twitter.component';
 import { ContentInstagramComponent } from './content/content-instagram/content-instagram.component';
 import { ContentWikipediaComponent } from './content/content-wikipedia/content-wikipedia.component';
@@ -33,6 +34,7 @@ import { ChronomapComponent } from './chronomap/chronomap.component';
     ContentAudioComponent,
     ContentVideoComponent,
     ContentImageComponent,
+    ContentNewsComponent,
     ContentTwitterComponent,
     ContentInstagramComponent,
     ContentWikipediaComponent,

@@ -27,7 +27,7 @@ export class ContentItem {
   post_timestamp: Date;
   alt_post_timestamp: Date;
   status: 'Draft' | 'Review' | 'Published'; 
-  type: 'audio' | 'wikipedia' | 'instagram' | 'twitter' | 'image' | 'video';
+  type: 'audio' | 'wikipedia' | 'instagram' | 'twitter' | 'image' | 'video' | 'news';
   youtube_video_id: string;
   content: string;
   image: string;
