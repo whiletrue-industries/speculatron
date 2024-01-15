@@ -35,6 +35,14 @@ export class MapSelectorComponent implements OnInit {
     });
     this.theMap.addControl(geocoder);
     this.theMap.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
+    this.theMap.on('load', () => {
+      this.chronomap.ready.subscribe(() => {
+        if (this.chronomap.mapView()) {
+          const options = MapService.parseMapView(this.chronomap.mapView());
+          this.theMap.jumpTo(options);
+        }
+      });
+    });
   }
 
   submit() {

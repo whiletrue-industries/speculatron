@@ -128,6 +128,14 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       logoPosition: 'bottom-right',
     });
     this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
+    this.baseMap.on('style.load', () => {
+      this.chronomap.ready.subscribe(() => {
+        if (this.chronomap.mapView()) {
+          this.baseMap.jumpTo(MapService.parseMapView(this.chronomap.mapView()));
+        }
+        this.updateMarkers(!this.chronomap.mapView());
+      });
+    });
     this.detailMap = new mapboxgl.Map({
       container: this.detailMapEl.nativeElement,
       style: MAPBOX_STYLE,
@@ -149,7 +157,6 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.resizeObserver.observe(this.el.nativeElement);
     timer(0).subscribe(() => {
       this.syncWidths();
-      this.updateMarkers();
       this.initialize();
     });
   }
@@ -347,7 +354,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.chronomap.primaryColor();
   }
 
-  updateMarkers() {
+  updateMarkers(updateMap = false) {
     this.markers.forEach((marker) => {
       marker.remove();
     });
@@ -357,13 +364,21 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         {el: this.baseMarkersElement.nativeElement, map: this.baseMap},
         {el: this.detailMarkersElement.nativeElement, map: this.detailMap},
       ];
+      let maxLat = -90;
+      let minLat = 90;
+      let maxLon = -180;
+      let minLon = 180;
       for (const c of conf) {
         const markers = c.el.children;
         for (let i=0; i<markers.length; i++) {
           const markerEl = markers[i] as HTMLElement; 
           const item = this.chronomap.timelineItems()[i];
-          const options = this.parseMapView(item.geo);
-          const coordinates = options.center as mapboxgl.LngLatLike;
+          const options = MapService.parseMapView(item.geo);
+          const coordinates = options.center as { lon: number; lat: number };
+          maxLat = Math.max(maxLat, coordinates.lat);
+          minLat = Math.min(minLat, coordinates.lat);
+          maxLon = Math.max(maxLon, coordinates.lon);
+          minLon = Math.min(minLon, coordinates.lon);
           const clonedElement = markerEl.cloneNode(true) as HTMLElement;
           clonedElement.addEventListener('click', () => {
             console.log('CLICK', item.title);
@@ -380,6 +395,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
                     .setLngLat(coordinates)
                     .addTo(c.map));
         }
+      }
+      if (updateMap) {
+        const bounds = new mapboxgl.LngLatBounds([minLon, minLat], [maxLon, maxLat]);
+        this.baseMap.fitBounds(bounds, {animate: false, padding: 100});
       }
     });
   }
@@ -409,43 +428,8 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  parseMapView(view: string): mapboxgl.FlyToOptions {
-    if (!view) {
-      return {};
-    }
-    const geoConcat = view.split('#')[1];
-    if (!geoConcat) {
-      return {};
-    }
-    const parsed = geoConcat.split('/');
-    if (parsed !== null) {
-      const options: mapboxgl.FlyToOptions = {
-        zoom: parseFloat(parsed[0]),
-        center: {
-          lat: parseFloat(parsed[1]),
-          lon: parseFloat(parsed[2]),
-        },
-      };
-      if (parsed.length > 3) {
-        options.pitch = parseFloat(parsed[3]);
-      }
-      if (parsed.length > 4) {
-        options.bearing = parseFloat(parsed[4]);
-      }
-      // if (view.curve) {
-      //   options.curve = view.curve;
-      // }
-      // if (view.speed) {
-      //   options.speed = view.speed;
-      // }
-      return options;
-    } else {
-      return {};
-    }
-  }
-
   applyMapView(item: TimelineItem, map: mapboxgl.Map, extraOptions: any = null) {
-    const options = Object.assign({}, this.parseMapView(item.geo), extraOptions || {});
+    const options = Object.assign({}, MapService.parseMapView(item.geo), extraOptions || {});
     for (const l of item.map_layers || []) {
       if (map.getLayer(l)) {
         map.setLayoutProperty(l, 'visibility', 'visible');
