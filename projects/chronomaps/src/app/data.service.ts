@@ -173,7 +173,7 @@ export class ChronomapDatabase extends BaserowDatabase {
               authors[row.Name] = {
                 name: row.Name,
                 email: row.Email,
-                status: row.Status.value,
+                status: row.Status?.value,
               };
             });
             this.authors.set(authors);
@@ -185,8 +185,8 @@ export class ChronomapDatabase extends BaserowDatabase {
                 title: row.Title,
                 notes: row.Notes,
                 post_timestamp: dayjs(row.Post_Timestamp).toDate(),
-                status: row.Status.value,
-                type: row.Type.value,
+                status: row.Status?.value,
+                type: row.Type?.value,
                 youtube_video_id: row.Youtube_Video_Id,
                 content: row.Content,
                 image: row.Image?.[0]?.url,

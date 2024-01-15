@@ -115,7 +115,9 @@
             <h2>We will review your contribution and email you if it is added to the timeline</h2>
         </div>
         <div class='bottom'>
-            <button (click)='closeMe()'>close</button>
+            <button (click)='closeMe()' [style.color]='chronomap.primaryColor()' [style.border-color]='chronomap.secondaryColor() + "40"'>
+                close
+            </button>
         </div>
     </div>
 </div>
