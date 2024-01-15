@@ -53,7 +53,7 @@
                     <div class='description' #contentDescription>
                         <div class='description-content'  [style.border-color]='chronomap.primaryColor()'>
                             <div class='inner'>
-                                <div class='title'>{{currentItem.title}}</div>
+                                <div class='title' [rtlDetect]='currentItem.title'>{{currentItem.title}}</div>
                                 <div class='authors' [style.color]='chronomap.primaryColor()'>Created by <strong>{{currentItem.formattedAuthors}}</strong></div>
                                 <div class='tags'>
                                     @for (tag of currentItem.tags; track tag) {
@@ -61,7 +61,7 @@
                                     }
                                 </div>
                                 @if (currentItem.notes) {
-                                    <div class='notes' [innerHTML]='marked(currentItem.notes)'></div>
+                                    <div class='notes' [innerHTML]='marked(currentItem.notes)' [rtlDetect]='currentItem.notes'></div>
                                 }
                                 <div class='last-updated'>Last Edited: {{currentItem.lastModified.toLocaleDateString()}}</div>
                             </div>

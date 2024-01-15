@@ -25,6 +25,7 @@ import { MediaIconComponent } from './media-icon/media-icon.component';
 import { DirectoryPageComponent } from './directory-page/directory-page.component';
 import { DirectoryItemComponent } from './directory-page/directory-item/directory-item.component';
 import { ChronomapComponent } from './chronomap/chronomap.component';
+import { RtlDetectDirective } from './rtl-detect.directive';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,7 @@ import { ChronomapComponent } from './chronomap/chronomap.component';
     MediaIconComponent,
     DirectoryPageComponent,
     DirectoryItemComponent,
-    
+    RtlDetectDirective
   ],
   imports: [
     BrowserModule,

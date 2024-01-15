@@ -11,6 +11,7 @@ import { debounceTime, mergeWith, Subject, timer, first, ReplaySubject, schedule
 import { MediaIconComponent } from '../media-icon/media-icon.component';
 import { ChronomapDatabase, TimelineItem } from '../data.service';
 import { LayoutService } from '../layout.service';
+import { RtlDetectDirective } from '../rtl-detect.directive';
 
 @Component({
   selector: 'app-time-line',
@@ -400,6 +401,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
           .style('border-color', this.chronomap.primaryColor())
           .style('color', this.chronomap.primaryColor())
           .style('background', `linear-gradient(90deg, ${this.chronomap.primaryColor()}40, ${this.chronomap.primaryColor()}40), #fff`)
+          .style('direction', (d: TimelineItem) => RtlDetectDirective.getDirection(d.title))
           .text((d: TimelineItem) => d.title);
     hovers.exit().remove();
 
