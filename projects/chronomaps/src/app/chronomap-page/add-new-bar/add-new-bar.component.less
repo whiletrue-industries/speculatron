@@ -26,7 +26,6 @@
     
     ::ng-deep {
         a, a:visited, a:hover {
-            color: @accent;
             font-weight: 500;
         }    
     }
@@ -75,7 +74,7 @@
             top: 0;
             left: 0;
             overflow: auto;
-            
+
             &.pre {
                 transform: translateX(100%);
             }
@@ -140,7 +139,7 @@
                 height: 40px;
                 background: @pale;
 
-                border: 1px solid rgba(252, 13, 28, 0.25);
+                border: 1px solid black;
                 border-radius: 24px;
 
                 .font-sourcecode;
@@ -172,9 +171,9 @@
                     .icon {
                         width: 48px;
                         height: 48px;
-                        overflow: auto;
+                        overflow: hidden;
                         border-radius: 24px;
-                        border: 1px solid rgba(252, 13, 28, 0.25);
+                        border: 1px solid black;
                         display: flex;
                         flex-flow: column;
                         align-items: center;
@@ -192,28 +191,40 @@
                         font-weight: 400;
                         font-size: 18px;
                         line-height: 23px;
-                        color: @bright-multiply;    
                     }
                 }
             }
             .date-selector {
-                border: 1px solid rgba(252, 13, 28, 0.25);
-                border-radius: 4px;
                 height: 48px;
-                padding-left: 44px;
-                padding-right: 16px;
-                border-radius: 4px;
-                color: @bright-multiply;
-                .font-sourcecode;
-                font-style: normal;
-                font-weight: 400;
-                font-size: 18px;
-                letter-spacing: 0.02em;
-                text-transform: uppercase;
+                width: 100%;
+                position: relative;
+                input {
+                    border: 1px solid black;
+                    border-radius: 4px;
+                    width: 100%;
+                    height: 100%;
+                    padding-left: 44px;
+                    padding-right: 16px;
+                    color: black;
+                    .font-sourcecode;
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 18px;
+                    letter-spacing: 0.02em;
+                    text-transform: uppercase;
+                    z-index: 1;
+                    position: relative;
+                    background-color: transparent;
+                }
 
-                background-image: url('../../../assets/img/icon-calendar.svg');
-                background-repeat: no-repeat;
-                background-position: 12px center;
+                svg {
+                    position: absolute;
+                    left: 12px;
+                    top: 12px;
+                    width: 24px;
+                    height: 24px;
+                    z-index: 0;
+                }
             }
             iframe {
                 margin: 0 -32px;
@@ -224,22 +235,20 @@
     .progress {
         flex: 0 0 auto;
         margin-top: 16px;
-        height: 7px;
+        padding-top: 16px;
+        height: 25px;
         display: flex;
         flex-flow: row;
         align-items: stretch;
         justify-content: stretch;
         gap: 8px;
+        border-top: 1px solid black;
 
         .progress-item {
             flex: 1 1 auto;
             height: 100%;
             border-radius: 2px;
             background: @color-gray-5;
-
-            &.active {
-                background: @bright-multiply;
-            }
 
             transition: background 0.25s linear;
         }

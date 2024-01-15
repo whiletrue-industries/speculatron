@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MAPBOX_STYLE } from '../../../../../../CONFIGURATION';
 import { MapService } from '../../map.service';
 
@@ -6,6 +6,7 @@ import * as mapboxgl from 'mapbox-gl';
 import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 import { MapSelectorService } from '../../map-selector.service';
+import { ChronomapDatabase } from '../../data.service';
 
 @Component({
   selector: 'app-map-selector',
@@ -13,6 +14,8 @@ import { MapSelectorService } from '../../map-selector.service';
   styleUrls: ['./map-selector.component.less']
 })
 export class MapSelectorComponent implements OnInit {
+
+  @Input() chronomap: ChronomapDatabase;
 
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
   

@@ -597,13 +597,25 @@
                         }
                         .arrow-icon {
                             transition-delay: 2s;
-                            &:not(.rev) {
-                                left: 81px;
-                            }
-        
-                            &.rev {
-                                right: 81px;
-                            }    
+                            .mobile({
+                                &:not(.rev) {
+                                    left: 56px;
+                                }
+            
+                                &.rev {
+                                    right: 56px;
+                                }  
+                            });
+                            .desktop({
+                                &:not(.rev) {
+                                    left: 80px;
+                                }
+            
+                                &.rev {
+                                    right: 80px;
+                                }  
+                            });
+  
                         }
                     }
                 }

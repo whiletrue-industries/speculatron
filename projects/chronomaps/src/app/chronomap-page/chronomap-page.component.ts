@@ -84,16 +84,26 @@ export class ChronomapPageComponent {
   set addNew(value) {
     this._info = false;
     this._sortFilter = false;
-    this._addNew = value;
-    timer(0).subscribe(() => {this.addNewOpen = value;});
+    if (value) {
+      this._addNew = value;
+      timer(0).subscribe(() => {this.addNewOpen = value;});  
+    } else {
+      this.addNewOpen = value;
+      timer(300).subscribe(() => {this._addNew = value;});
+    }
   }
 
   get sortFilter() { return this._sortFilter; }
   set sortFilter(value) {
     this._info = false;
     this._addNew = false;
-    this._sortFilter = value;
-    timer(0).subscribe(() => {this._sortFilter = value;});
+    if (value) {    
+      this._sortFilter = value;
+      timer(0).subscribe(() => {this._sortFilter = value;});
+    } else {
+      this._sortFilter = value;
+      timer(300).subscribe(() => {this._sortFilter = value;});
+    }
   }
 
   get chronomap_(): ChronomapDatabase {

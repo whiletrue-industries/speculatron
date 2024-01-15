@@ -1,12 +1,12 @@
 <div class='timeline' #timeLine></div>
 <div class='zoom-controls'>
-    <div (click)='zoomBy(2)'>
+    <div (click)='zoomBy(2); $event.stopPropagation()'>
         <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="6.31055" y="11" width="12.4138" height="2" rx="1" [attr.fill]="chronomap.primaryColor()"/>
             <rect x="11.4824" y="18" width="12" height="2.06897" rx="1" transform="rotate(-90 11.4824 18)" [attr.fill]="chronomap.primaryColor()"/>
         </svg>            
     </div>
-    <div (click)='zoomBy(0.5)'>
+    <div (click)='zoomBy(0.5); $event.stopPropagation()'>
         <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6.31055 12C6.31055 11.4477 6.75826 11 7.31055 11H17.7243C18.2766 11 18.7243 11.4477 18.7243 12C18.7243 12.5523 18.2766 13 17.7243 13H7.31055C6.75826 13 6.31055 12.5523 6.31055 12Z" 
                   [attr.fill]="chronomap.primaryColor()"/>

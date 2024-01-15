@@ -197,6 +197,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.baseWidthPx = this.baseWidth + 'px';
     this.detailWidth = Math.min(this.baseWidth, Math.max(450, this.baseWidth/2));
     this.detailWidthPx = this.detailWidth + 'px';
+    timer(100).subscribe(() => {
+      const el = this.scrollerComponent.nativeElement as HTMLElement;
+      el.querySelector('.current')?.scrollIntoView({behavior: 'smooth', inline: 'center'});
+    });
   }
 
   getDetailWidth() {

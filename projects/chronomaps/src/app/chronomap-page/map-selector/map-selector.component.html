@@ -3,5 +3,5 @@
 </div>
 <div class='controls'>
     <button (click)='cancel()'>cancel</button>
-    <button (click)='submit()'>select</button>
+    <button (click)='submit()' [style.color]='chronomap.primaryColor()' [style.border-color]='chronomap.secondaryColor() + "40"'>select</button>
 </div>
