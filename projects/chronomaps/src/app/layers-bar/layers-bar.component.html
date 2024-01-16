@@ -11,15 +11,15 @@
     <h2>This timeline features additional media fragments contributed by speculative tourists like you. Each adds another perspective to the original storyline.</h2>
 </div>
 <p>Original Author(s):</p>
-<div class='items' *ngFor='let author of api.authorsList'>
+<!-- <div class='items' *ngFor='let author of api.authorsList'>
     <app-layers-bar-item [author]='author' *ngIf='author.originalAuthor' (changed)='api.updateTimeline()'></app-layers-bar-item>
-</div>    
+</div>     -->
 <div class='contributors'>
     <p>Contributors:</p>
     <div class='items'>
-        <ng-container *ngFor='let author of api.authorsList'>
+        <!-- <ng-container *ngFor='let author of api.authorsList'>
             <app-layers-bar-item [author]='author' *ngIf='!author.originalAuthor' (changed)='api.updateTimeline()'></app-layers-bar-item>
-        </ng-container>
+        </ng-container> -->
     </div>    
 </div>
 <div class='bottom'>

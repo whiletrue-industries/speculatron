@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { AIRTABLE_BASE, AIRTABLE_DETAILS_FORM } from 'CONFIGURATION';
 import { marked } from 'marked';
-import { first, interval, Subscription, switchMap, tap } from 'rxjs';
+import { first, interval, Subscription, switchMap } from 'rxjs';
 import { MapSelectorService } from '../../map-selector.service';
-import { ChronomapDatabase, DataService, TimelineItem } from '../../data.service';
+import { ChronomapDatabase, DataService } from '../../data.service';
 
 @Component({
   selector: 'app-add-new-bar',

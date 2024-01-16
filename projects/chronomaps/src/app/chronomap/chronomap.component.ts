@@ -120,6 +120,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.chronomap.ready.subscribe(() => {
+      (mapboxgl as any).accessToken = this.chronomap.mapboxKey();
       this.baseMap = new mapboxgl.Map({
         container: this.baseMapEl.nativeElement,
         style: this.chronomap.backgroundMapSytle(),
@@ -150,7 +151,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         timer(0).subscribe(() => {
           console.log('RESIZE');
           window.dispatchEvent(new Event('resize'));
-        });
+      });
       });
       this.resizeObserver.observe(this.el.nativeElement);
       timer(0).subscribe(() => {
@@ -291,9 +292,8 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.applyMapView(item, this.detailMap, options);
         this.updateMarkers();
       }),
-      delay(1000),
+      delay(3000),
       tap(() => {
-        const scrollLeft = (item.index + 0.5) * (this.detailWidth);
         const el = this.scrollerComponent.nativeElement as HTMLElement;
         el.querySelector('.current')?.scrollIntoView({behavior: 'smooth', inline: 'center'});
         console.log('SCROLL', el.querySelector('.current'));
