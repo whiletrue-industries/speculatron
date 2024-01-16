@@ -8,7 +8,7 @@
         </div>
         <img class='twitter-logo' src='assets/img/spectours-twitter-logo.svg'>
     </div>
-    <div class='caption' [innerHtml]='marked(item.content)'></div>
+    <div class='caption' [innerHtml]='marked(item.content)' [rtlDetect]='item.content'></div>
     <div *ngIf='!item.link_title && item.image' class='image' [style.background-image]='"url(" + item.image + ")"'></div>
     <div *ngIf='item.link_title' class='link'>
         <div *ngIf='item.image' class='link-image' [style.background-image]='"url(" + item.image + ")"'></div>

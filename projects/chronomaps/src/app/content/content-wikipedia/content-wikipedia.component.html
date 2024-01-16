@@ -5,7 +5,7 @@
     </div>
     <div class='content'>
         <div class='text'>
-            <div class='excerpt' [innerHtml]='marked(item.content)'></div>
+            <div class='excerpt' [innerHtml]='marked(item.content)' [rtlDetect]='item.content'></div>
         </div>
         <div *ngIf='item.image && item.image.length' class='image' [style.background-image]='"url(" + item.image + ")"'></div>
         <div class='bottom'>

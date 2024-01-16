@@ -17,7 +17,7 @@
     </div>
     <div class='comments'>
         <div class='username'>{{item.username}}</div>
-        <div class='comment'>{{item.content}}</div>
+        <div class='comment' [rtlDetect]='item.content'>{{item.content}}</div>
     </div>
     <div class='footer'>
         <img class='logo' src='assets/img/spectours-ig-logo.svg'>
