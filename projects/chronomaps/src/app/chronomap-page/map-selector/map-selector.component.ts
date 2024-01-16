@@ -1,5 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { MAPBOX_STYLE } from '../../../../../../CONFIGURATION';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MapService } from '../../map.service';
 
 import * as mapboxgl from 'mapbox-gl';
@@ -13,7 +12,7 @@ import { ChronomapDatabase } from '../../data.service';
   templateUrl: './map-selector.component.html',
   styleUrls: ['./map-selector.component.less']
 })
-export class MapSelectorComponent implements OnInit {
+export class MapSelectorComponent implements AfterViewInit {
 
   @Input() chronomap: ChronomapDatabase;
 
@@ -23,20 +22,20 @@ export class MapSelectorComponent implements OnInit {
 
   constructor(private mapSvc: MapService, private mapSelector: MapSelectorService) { }
 
-  ngOnInit(): void {
-    this.theMap = new mapboxgl.Map({
-      container: this.mapEl.nativeElement,
-      style: MAPBOX_STYLE,
-      minZoom: 3,
-    });
-    var geocoder = new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken,
-      marker: false,
-    });
-    this.theMap.addControl(geocoder);
-    this.theMap.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
-    this.theMap.on('load', () => {
-      this.chronomap.ready.subscribe(() => {
+  ngAfterViewInit(): void {
+    this.chronomap.ready.subscribe(() => {
+      this.theMap = new mapboxgl.Map({
+        container: this.mapEl.nativeElement,
+        style: this.chronomap.mapStyle(),
+        minZoom: 3,
+      });
+      var geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        marker: false,
+      });
+      this.theMap.addControl(geocoder);
+      this.theMap.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
+      this.theMap.on('load', () => {
         if (this.chronomap.mapView()) {
           const options = MapService.parseMapView(this.chronomap.mapView());
           this.theMap.jumpTo(options);

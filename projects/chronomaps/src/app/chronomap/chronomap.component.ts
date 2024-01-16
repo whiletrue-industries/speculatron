@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, effect, signal } from '@angular/core';
 import { DomSanitizer, SafeStyle, Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { MAPBOX_BASE_STYLE, MAPBOX_STYLE } from 'CONFIGURATION';
 import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
 import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime, Subscription } from 'rxjs';
@@ -120,44 +119,44 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.baseMap = new mapboxgl.Map({
-      container: this.baseMapEl.nativeElement,
-      style: MAPBOX_BASE_STYLE,
-      minZoom: 3,
-      attributionControl: false,
-      logoPosition: 'bottom-right',
-    });
-    this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
-    this.baseMap.on('style.load', () => {
-      this.chronomap.ready.subscribe(() => {
+    this.chronomap.ready.subscribe(() => {
+      this.baseMap = new mapboxgl.Map({
+        container: this.baseMapEl.nativeElement,
+        style: this.chronomap.backgroundMapSytle(),
+        minZoom: 3,
+        attributionControl: false,
+        logoPosition: 'bottom-right',
+      });
+      this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
+      this.baseMap.on('style.load', () => {
         if (this.chronomap.mapView()) {
           this.baseMap.jumpTo(MapService.parseMapView(this.chronomap.mapView()));
         }
         this.updateMarkers(!this.chronomap.mapView());
       });
-    });
-    this.detailMap = new mapboxgl.Map({
-      container: this.detailMapEl.nativeElement,
-      style: MAPBOX_STYLE,
-      minZoom: 3,
-      attributionControl: false,
-      logoPosition: 'bottom-right',
-    });
-    if (this.layout.desktop()) {
-      this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
-      this.detailMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
-    }
-    this.detailMap.on('style.load', () => {
-      this.syncMaps();
-      timer(0).subscribe(() => {
-        console.log('RESIZE');
-        window.dispatchEvent(new Event('resize'));
+      this.detailMap = new mapboxgl.Map({
+        container: this.detailMapEl.nativeElement,
+        style: this.chronomap.mapStyle(),
+        minZoom: 3,
+        attributionControl: false,
+        logoPosition: 'bottom-right',
       });
-    });
-    this.resizeObserver.observe(this.el.nativeElement);
-    timer(0).subscribe(() => {
-      this.syncWidths();
-      this.initialize();
+      if (this.layout.desktop()) {
+        this.baseMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        this.detailMap.addControl(new mapboxgl.NavigationControl(), 'top-left');
+      }
+      this.detailMap.on('style.load', () => {
+        this.syncMaps();
+        timer(0).subscribe(() => {
+          console.log('RESIZE');
+          window.dispatchEvent(new Event('resize'));
+        });
+      });
+      this.resizeObserver.observe(this.el.nativeElement);
+      timer(0).subscribe(() => {
+        this.syncWidths();
+        this.initialize();
+      });
     });
   }
 
