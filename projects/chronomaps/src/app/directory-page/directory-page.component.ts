@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import { LayoutService } from '../layout.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { animationFrameScheduler, debounceTime, filter, first, fromEvent, merge, tap, throttleTime, timer } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @UntilDestroy()
 @Component({
@@ -27,7 +28,11 @@ export class DirectoryPageComponent implements AfterViewInit {
   @ViewChild('title') title: ElementRef<HTMLDivElement>;
   startY: number;
 
-  constructor(public data: DataService, public layout: LayoutService) {
+  constructor(public data: DataService, public layout: LayoutService, private route: ActivatedRoute) {
+    route.params.subscribe((params) => {
+      const dbId = parseInt(params['dbid']);
+      this.data.fetchData(dbId);
+    });
     effect(() => {
       let minDate: Date|null = null;
       let maxDate: Date|null = null;

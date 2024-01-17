@@ -36,6 +36,8 @@ export class ChronomapPageComponent {
     this.route.params.pipe(
       first()
     ).subscribe(params => {
+      const dbId = parseInt(params['dbid']);
+      this.data.fetchData(dbId);
       this.slug = params['slug'];
       this.loadChronomap(this.data.directory.chronomaps(), this.slug);
       this._info = localStorage.getItem(this.storageKey) !== 'opened';

@@ -1,6 +1,6 @@
 import { Injectable, effect, signal } from '@angular/core';
 
-import { BASEROW_ENDPOINT, BASEROW_ADMIN_DB, BASEROW_ADMIN_TOKEN } from 'CONFIGURATION';
+import { BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN } from 'CONFIGURATION';
 import { BaserowDatabase } from './baserow/baserow-database';
 import { HttpClient } from '@angular/common/http';
 import { ReplaySubject, forkJoin, map, switchMap, tap } from 'rxjs';
@@ -73,6 +73,7 @@ export class TimelineItem extends ContentItem {
 export class ChronomapDatabase extends BaserowDatabase {
 
   id: string;
+  directoryId: number;
   slug = signal<string>('');
   editor_name = signal<string>('');
   editor_email = signal<string>('');
@@ -110,9 +111,10 @@ export class ChronomapDatabase extends BaserowDatabase {
 
   ready = new ReplaySubject<boolean>(1);
 
-  constructor(chronomap: any, private http: HttpClient) {
+  constructor(directoryId: number, chronomap: any, private http: HttpClient) {
     super(BASEROW_ENDPOINT, chronomap.Database_Token, chronomap.Database_ID);
     this.id = chronomap.id;
+    this.directoryId = directoryId;
     this.title.set(chronomap.Title);
     this.slug.set(chronomap.URL_Slug);
     this.editor_name.set(chronomap.Editor_Name);
@@ -306,8 +308,8 @@ export class DirectoryDatabase extends BaserowDatabase {
   zoomUntil = signal<number>(2100);
   url = signal<string>('');
 
-  constructor(private http: HttpClient) {
-    super(BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN, BASEROW_ADMIN_DB);
+  constructor(dbId: number, private http: HttpClient) {
+    super(BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN, dbId);
   }
 
   fetchMaps() {
@@ -332,7 +334,7 @@ export class DirectoryDatabase extends BaserowDatabase {
     });
     this.getTable('Chronomaps').subscribe((chronomapsTable) => {
       this.chronomaps.set(chronomapsTable?.rows.filter(row => row.Status?.value === 'Published').map((chronomap: any) => {
-        const map = new ChronomapDatabase(chronomap, this.http);        
+        const map = new ChronomapDatabase(this.database, chronomap, this.http);        
         return map;
       }) || []);
       forkJoin([...this.chronomaps().map(map => map.fetch())]).subscribe((maps) => {
@@ -351,16 +353,18 @@ export class DirectoryDatabase extends BaserowDatabase {
 export class DataService {
 
   directory: DirectoryDatabase;
+  currentDbId: number = 0;
 
   constructor(private http: HttpClient) {
-    this.fetchData();
-    effect(() => {
-      console.log('data!', this.directory.title());
-    });
   }
 
-  fetchData() {
-    this.directory = new DirectoryDatabase(this.http);
+  fetchData(dbId: number) {
+    if (this.currentDbId === dbId) {
+      return;
+    }
+    console.log('fetching data for', dbId);
+    this.currentDbId = dbId;
+    this.directory = new DirectoryDatabase(dbId, this.http);
     this.directory.fetchMaps();
   }
 }

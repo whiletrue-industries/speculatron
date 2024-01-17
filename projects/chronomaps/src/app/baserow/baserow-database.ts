@@ -6,7 +6,7 @@ export class BaserowDatabase {
 
     tables = new ReplaySubject<BaserowTable[]>(1);
 
-    constructor(private endpoint: string, private token: string, private database: number) {
+    constructor(private endpoint: string, private token: string, protected database: number) {
     }
 
     fetchTables(http: HttpClient) {

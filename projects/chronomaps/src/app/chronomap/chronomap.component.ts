@@ -131,7 +131,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.baseMap.addControl(new mapboxgl.AttributionControl({compact: true}), 'top-right');
       this.baseMap.on('style.load', () => {
         if (this.chronomap.mapView()) {
-          this.baseMap.jumpTo(MapService.parseMapView(this.chronomap.mapView()));
+          this.baseMap.flyTo(MapService.parseMapView(this.chronomap.mapView()));
         }
         this.updateMarkers(!this.chronomap.mapView());
       });
@@ -397,7 +397,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       if (updateMap) {
         const bounds = new mapboxgl.LngLatBounds([minLon, minLat], [maxLon, maxLat]);
-        this.baseMap.fitBounds(bounds, {animate: false, padding: 100});
+        this.baseMap.fitBounds(bounds, {animate: false, padding: 50});
       }
     });
   }

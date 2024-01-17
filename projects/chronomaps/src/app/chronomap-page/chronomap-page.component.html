@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class='header' [style.border-color]='chronomap()?.secondaryColor()'>
-            <a [routerLink]='["/"]'>
+            <a [routerLink]='["/", chronomap()?.directoryId]'>
                 <img class='logo layout-mobile' [src]='chronomap()?.logo()'>
                 <img class='logo layout-desktop' [src]='chronomap()?.logo()'>
             </a>
