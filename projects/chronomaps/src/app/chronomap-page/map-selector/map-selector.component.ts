@@ -26,7 +26,7 @@ export class MapSelectorComponent implements AfterViewInit {
     this.chronomap.ready.subscribe(() => {
       this.theMap = new mapboxgl.Map({
         container: this.mapEl.nativeElement,
-        style: this.chronomap.mapStyle(),
+        style: this.chronomap.backgroundMapStyle(),
         minZoom: 3,
       });
       var geocoder = new MapboxGeocoder({

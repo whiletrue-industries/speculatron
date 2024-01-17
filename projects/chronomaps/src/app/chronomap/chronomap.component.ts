@@ -123,7 +123,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       (mapboxgl as any).accessToken = this.chronomap.mapboxKey();
       this.baseMap = new mapboxgl.Map({
         container: this.baseMapEl.nativeElement,
-        style: this.chronomap.backgroundMapSytle(),
+        style: this.chronomap.backgroundMapStyle(),
         minZoom: 3,
         attributionControl: false,
         logoPosition: 'bottom-right',

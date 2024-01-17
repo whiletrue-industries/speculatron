@@ -89,7 +89,7 @@ export class ChronomapDatabase extends BaserowDatabase {
   thumbnail = signal<string>('');
   parentLink = signal<string>('..');
   mapStyle = signal<string>('');
-  backgroundMapSytle = signal<string>('');
+  backgroundMapStyle = signal<string>('');
   mapboxKey = signal<string>('');
   showTooltips = signal<boolean>(true);
   altTimestampLabel = signal<string>('');
@@ -143,7 +143,7 @@ export class ChronomapDatabase extends BaserowDatabase {
           this.thumbnail.set(keyValues.Thumbnail?.images?.[0]?.url || '');
           this.parentLink.set(keyValues.Parent_Link?.value || '..');
           this.mapStyle.set(keyValues.Map_Style?.value || '');
-          this.backgroundMapSytle.set(keyValues.Background_Map_Style?.value || '');
+          this.backgroundMapStyle.set(keyValues.Background_Map_Style?.value || '');
           this.mapboxKey.set(keyValues.Mapbox_Key?.value || '');
           this.showTooltips.set(keyValues.Show_Tooltips?.value === 'true');
           this.altTimestampLabel.set(keyValues.Alt_Timestamp_Label?.value || '');
