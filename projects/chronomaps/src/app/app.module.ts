@@ -26,6 +26,7 @@ import { DirectoryPageComponent } from './directory-page/directory-page.componen
 import { DirectoryItemComponent } from './directory-page/directory-item/directory-item.component';
 import { ChronomapComponent } from './chronomap/chronomap.component';
 import { RtlDetectDirective } from './rtl-detect.directive';
+import { ContentNoteComponent } from './content/content-note/content-note.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { RtlDetectDirective } from './rtl-detect.directive';
     ContentTwitterComponent,
     ContentInstagramComponent,
     ContentWikipediaComponent,
+    ContentNoteComponent,
     AudioPlayerComponent,
     AddNewBarComponent,
     LayersBarComponent,

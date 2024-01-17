@@ -19,6 +19,12 @@
             <h2>Let’s indeed start by choosing the format for this perspective:</h2>
         </div>
         <div class='content-types' [style.color]='chronomap.primaryColor()'>
+            <div class='content-type' (click)='selectCT("note")'>
+                <div class='icon' [style.border-color]='chronomap.primaryColor()'>
+                    <app-media-icon [type]='"note"' [color]="chronomap.primaryColor()"></app-media-icon>
+                </div>
+                <div class='name'>Sticky Note</div>
+            </div>
             <div class='content-type' (click)='selectCT("audio")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"audio"' [color]="chronomap.primaryColor()"></app-media-icon>
