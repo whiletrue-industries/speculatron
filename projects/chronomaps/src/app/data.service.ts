@@ -130,7 +130,9 @@ export class ChronomapDatabase extends BaserowDatabase {
           settingsTable?.rows.forEach((element: any) => {
             keyValues[element.Key] = {value: element.Value, images: element.Image};
           });
-          this.title.set(keyValues.Title?.value || '');
+          if (keyValues.Title?.value && keyValues.Title?.value !== 'New Chronomap') {
+            this.title.set(keyValues.Title?.value || '');
+          }
           this.subtitle.set(keyValues.Subtitle?.value || '');
           this.infobarTitle.set(keyValues.Infobar_Title?.value || this.title());
           this.infobarSubtitle.set(keyValues.Infobar_Subtitle?.value || this.subtitle());
