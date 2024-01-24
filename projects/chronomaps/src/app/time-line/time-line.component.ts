@@ -154,7 +154,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
                     .append('svg')
                     .attr('width', '100%')
                     .attr('height', '100%')
-                    .call(this.zoomBehaviour);
+                    .call(this.zoomBehaviour)
+                    .call((selection) => this.hoverable ? selection : selection.on('wheel.zoom', null));
     this.svg.append('rect')
             .attr('transform', `translate(0, ${this.HEIGHT - this.TEXT_HEIGHT})`)
             .attr('width', this.WIDTH)
