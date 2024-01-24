@@ -43,10 +43,10 @@ export class MapService {
         },
       };
       if (parsed.length > 3) {
-        options.pitch = parseFloat(parsed[3]);
+        options.bearing = parseFloat(parsed[3]);
       }
       if (parsed.length > 4) {
-        options.bearing = parseFloat(parsed[4]);
+        options.pitch = parseFloat(parsed[4]);
       }
       return options;
     } else {

@@ -28,6 +28,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() maxDate: Date = new Date(2120, 0, 1);
   @Input() chronomap: ChronomapDatabase;
   @Input() state: WritableSignal<string | null>;
+  @Input() date: WritableSignal<Date | null>;
+  @Input() includeTime: WritableSignal<boolean>;
   @Input() showHovers = true;
   @Input() hoverable = true;
   @Input() hovered: WritableSignal<boolean>;;
@@ -64,7 +66,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   controlled = false;
   
   _changed = new ReplaySubject<void>(1);
-  _changeCandidates = new Subject<string>();
+  _changeCandidates = new Subject<{state: string, timestamp: Date, includeTime: boolean}>();
   _externalChanges = new Subject<string>();
   resizeObserver: ResizeObserver;
   currentHover: number | null = null;
@@ -74,8 +76,10 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       this._changed.next();
     });
     scheduled(this._changeCandidates, animationFrameScheduler).pipe(
-      tap((state) => {
-        this.state.set(state);
+      tap((change) => {
+        this.state?.set(change.state);
+        this.date?.set(change.timestamp);
+        this.includeTime?.set(change.includeTime);
         if (!this.zooming) {
           this.zooming = true;
           // console.log(this.id, 'ZOOMING ON');
@@ -101,7 +105,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       // console.log(this.id, 'CONTROLLED OFF');
     });
     effect(() => {
-      const state = this.state();
+      const state = this.state ? this.state() : '';
       if (!this.zooming) {
         this._externalChanges.next(state || '');
       }
@@ -433,7 +437,12 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     this.zoomK = event.transform.k;
     this.updateAxis();
     if (!this.controlled) {
-      this._changeCandidates.next(`${this.zoomX.valueOf()}/${this.zoomK}/${this.firstTickValue}/${this.tickIndicator}`);
+      const includeTime = (this.xt.invert(this.WIDTH).getTime() - this.xt.invert(0).getTime()) < 1000 * 60 * 60 * 24 * 3;
+      this._changeCandidates.next({
+        state: `${this.zoomX.valueOf()}/${this.zoomK}/${this.firstTickValue}/${this.tickIndicator}`,
+        timestamp: this.xt.invert(this.WIDTH/2),
+        includeTime
+      });
     }
   }
 

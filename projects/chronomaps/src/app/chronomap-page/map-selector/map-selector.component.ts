@@ -15,6 +15,7 @@ import { ChronomapDatabase } from '../../data.service';
 export class MapSelectorComponent implements AfterViewInit {
 
   @Input() chronomap: ChronomapDatabase;
+  @Input() flyToOptions: mapboxgl.FlyToOptions;
 
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
   
@@ -28,31 +29,27 @@ export class MapSelectorComponent implements AfterViewInit {
         container: this.mapEl.nativeElement,
         style: this.chronomap.backgroundMapStyle(),
         minZoom: 3,
+        center: this.flyToOptions.center,
+        zoom: this.flyToOptions.zoom,
+        bearing: this.flyToOptions.bearing,
+        pitch: this.flyToOptions.pitch,
       });
       var geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         marker: false,
       });
       this.theMap.addControl(geocoder);
-      this.theMap.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
+      this.theMap.addControl(new mapboxgl.NavigationControl({visualizePitch: true}), 'top-left');
       this.theMap.on('load', () => {
-        if (this.chronomap.mapView()) {
-          const options = MapService.parseMapView(this.chronomap.mapView());
-          this.theMap.jumpTo(options);
-        }
+        // const options = MapService.parseMapView(this.chronomap.mapView());
+        this.theMap.jumpTo(this.flyToOptions);
+      });
+      this.theMap.on('moveend', () => {
+        const center = this.theMap.getCenter();
+        const params = [this.theMap.getZoom(), center.lat, center.lng, this.theMap.getBearing(), this.theMap.getPitch()]
+        const geo = 'https://labs.mapbox.com/location-helper/#' + params.map(p => p.toString()).join('/');
+        this.mapSelector.submitMapResult(geo);
       });
     });
   }
-
-  submit() {
-    const center = this.theMap.getCenter();
-    const params = [this.theMap.getZoom(), center.lat, center.lng, this.theMap.getPitch(), this.theMap.getBearing()]
-    const geo = '#' + params.map(p => p.toString()).join('/');
-    this.mapSelector.submitResult(geo);
-  }
-
-  cancel() {
-    this.mapSelector.submitResult(null);
-  }
-
 }

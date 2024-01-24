@@ -4,7 +4,9 @@ import { marked } from 'marked';
 import { first, interval, Subscription, switchMap } from 'rxjs';
 import { MapSelectorService } from '../../map-selector.service';
 import { ChronomapDatabase, DataService } from '../../data.service';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'app-add-new-bar',
   templateUrl: './add-new-bar.component.html',
@@ -21,12 +23,15 @@ export class AddNewBarComponent implements OnInit {
   
   marked = marked;
   contributeMessage: any = '';
-  slide = 0;
+  slide_ = 0;
   contentType = '';
   selectedDate: string;
   selectedGeo: string;
+  mapSubscription: Subscription | null = null;
+
   iframeURL: string | null = null;
   iframeSafeURL: SafeResourceUrl | null;
+
   nonce: string;
   subscription: Subscription | null = null;
 
@@ -73,7 +78,10 @@ export class AddNewBarComponent implements OnInit {
 
   openMap() {
     this.mapSelector.showMapSelector = true;
-    this.mapSelector.results.pipe(first()).subscribe((value) => {
+    this.mapSubscription?.unsubscribe();
+    this.mapSubscription = this.mapSelector.mapResults.pipe(
+      untilDestroyed(this)
+    ).subscribe((value) => {
       console.log('GOT GEO', value);
       if (value) {
         this.selectedGeo = value;
@@ -81,6 +89,31 @@ export class AddNewBarComponent implements OnInit {
     });
   }
 
+  closeMap() {
+    this.mapSelector.showMapSelector = false;
+    this.mapSubscription?.unsubscribe();
+    this.mapSubscription = null;
+  }
+
+  openTimeline() {
+    this.mapSelector.showTimelineSelector = true;
+    this.mapSubscription?.unsubscribe();
+    this.mapSubscription = this.mapSelector.timelineResults.pipe(
+      untilDestroyed(this)
+    ).subscribe((value) => {
+      console.log('GOT DATE', value);
+      if (value) {
+        this.selectedDate = value;
+      }
+    });
+  }
+
+  closeTimeline() {
+    this.mapSelector.showTimelineSelector = false;
+    this.mapSubscription?.unsubscribe();
+    this.mapSubscription = null;
+  }
+  
   closeMe() {
     this.subscription?.unsubscribe();
     this.subscription = null;
@@ -99,6 +132,24 @@ export class AddNewBarComponent implements OnInit {
         }
       });
     });
+  }
+
+  set slide(value: number) {
+    this.slide_ = value;
+    if (this.slide_ === 1) {
+      this.openMap();
+    }
+    if (this.slide_ === 2) {
+      this.closeMap();
+      this.openTimeline();
+    }
+    if (this.slide_ === 3) {
+      this.closeTimeline();
+    }
+  }
+
+  get slide() {
+    return this.slide_;
   }
 }
 

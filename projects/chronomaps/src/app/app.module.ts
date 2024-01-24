@@ -27,6 +27,7 @@ import { DirectoryItemComponent } from './directory-page/directory-item/director
 import { ChronomapComponent } from './chronomap/chronomap.component';
 import { RtlDetectDirective } from './rtl-detect.directive';
 import { ContentNoteComponent } from './content/content-note/content-note.component';
+import { TimelineSelectorComponent } from './chronomap-page/timeline-selector/timeline-selector.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { ContentNoteComponent } from './content/content-note/content-note.compon
     AddNewBarComponent,
     LayersBarComponent,
     MapSelectorComponent,
+    TimelineSelectorComponent,
     LayersBarItemComponent,
     ChronomapComponent,
     TimeLineComponent,

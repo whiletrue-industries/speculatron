@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
+import { FlyToOptions } from 'mapbox-gl';
 import { Subject } from 'rxjs';
+import { DataService } from './data.service';
+import { MapService } from './map.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,13 +10,23 @@ import { Subject } from 'rxjs';
 export class MapSelectorService {
 
   public showMapSelector = false;
-  public results = new Subject<string | null>();
+  public showTimelineSelector = false;
+  public selectedGeo: FlyToOptions = {};
+  public selectedDate = '';
+  public mapResults = new Subject<string | null>();
+  public timelineResults = new Subject<string | null>();
 
   constructor() {}
 
-  submitResult(value: string | null) {
-    this.showMapSelector = false;
-    console.log('SUBMITTING RESULT', value);
-    this.results.next(value);
+  submitMapResult(value: string | null) {
+    if (value) {
+      this.selectedGeo = MapService.parseMapView(value);
+    }
+    this.mapResults.next(value);
+  }
+
+  submitTimelineResult(value: string, nice: string) {
+    this.timelineResults.next(value);
+    this.selectedDate = nice;
   }
 }
