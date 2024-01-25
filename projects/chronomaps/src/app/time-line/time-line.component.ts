@@ -131,7 +131,8 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit(): void {
-      this.parseState(this.state ? (this.state() || '') : '');
+    this.chronomap.fetchContent().subscribe();
+    this.parseState(this.state ? (this.state() || '') : '');
   }
 
   ngAfterViewInit(): void {

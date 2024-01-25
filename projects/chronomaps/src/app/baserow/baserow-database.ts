@@ -1,16 +1,16 @@
 import { HttpClient } from "@angular/common/http";
 import { BaserowTable } from "./baserow-table";
-import { ReplaySubject, filter, first, forkJoin, map, switchMap, tap } from "rxjs";
+import { ReplaySubject, filter, first, forkJoin, from, map, switchMap, tap } from "rxjs";
 
 export class BaserowDatabase {
 
     tables = new ReplaySubject<BaserowTable[]>(1);
 
-    constructor(private endpoint: string, private token: string, protected database: number) {
+    constructor(private endpoint: string, private token: string, protected database: number, protected http: HttpClient) {
     }
 
-    fetchTables(http: HttpClient) {
-        return http.get(`${this.endpoint}/api/database/tables/database/${this.database}/`, {
+    fetchTables() {
+        return this.http.get(`${this.endpoint}/api/database/tables/database/${this.database}/`, {
             headers: {
                 Authorization: `Token ${this.token}`
             }
@@ -18,11 +18,11 @@ export class BaserowDatabase {
             map((data: any) => {
                 return data.map((table: any) => new BaserowTable(this.endpoint, this.token, table.id, table.name));
             }),
-            switchMap((tables: BaserowTable[]) => {
-                return forkJoin(tables.map((table: BaserowTable) => table.fetchRows(http))).pipe(
-                    map(() => tables)
-                );
-            }),
+            // switchMap((tables: BaserowTable[]) => {
+            //     return forkJoin(tables.map((table: BaserowTable) => table.fetchRows(http))).pipe(
+            //         map(() => tables)
+            //     );
+            // }),
             tap((tables) => {
                 this.tables.next(tables)
             })
@@ -32,7 +32,8 @@ export class BaserowDatabase {
     getTable(name: string) {
         return this.tables.pipe(
             first(),
-            map((tables) => tables.find((table: BaserowTable) => table.name === name))
+            map((tables) => tables.find((table: BaserowTable) => table.name === name)),
+            switchMap((table: BaserowTable | undefined) => table ? table.fetchRows(this.http) : from([]))
         );
     }
 }

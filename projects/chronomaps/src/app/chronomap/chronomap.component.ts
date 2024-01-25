@@ -113,6 +113,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateMarkers();
+    this.chronomap.fetchContent().subscribe();
     // this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
     this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${this.chronomap.primaryColor()}00 10.32%, ${this.chronomap.primaryColor()}80 35.85%)`);
     console.log('CT BG', this.contentBackground);
@@ -318,7 +319,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         entries = entries.filter((entry) => entry.isIntersecting).sort((a, b) => { return b.intersectionRatio - a.intersectionRatio; })
         const entry = entries[0];
         let mode: 'Map' | 'SmallMap' | 'Media' | 'More' | null = null;
-        if (entry.isIntersecting) {
+        if (entry && entry.isIntersecting) {
           if (entry.target === this.contentItem.nativeElement) {
             mode = 'Media';
           } else if (entry.target === this.contentDescription.nativeElement) {
@@ -397,6 +398,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       if (updateMap) {
         const bounds = new mapboxgl.LngLatBounds([minLon, minLat], [maxLon, maxLat]);
+        console.log('FIT BOUNDS', bounds);
         this.baseMap.fitBounds(bounds, {animate: false, padding: 50});
       }
     });

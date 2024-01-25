@@ -3,7 +3,7 @@ import { Injectable, effect, signal } from '@angular/core';
 import { BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN } from 'CONFIGURATION';
 import { BaserowDatabase } from './baserow/baserow-database';
 import { HttpClient } from '@angular/common/http';
-import { ReplaySubject, forkJoin, map, switchMap, tap } from 'rxjs';
+import { Observable, ReplaySubject, Subject, forkJoin, from, map, switchMap, tap } from 'rxjs';
 import * as dayjs from 'dayjs';
 
 export type Author = {
@@ -110,9 +110,10 @@ export class ChronomapDatabase extends BaserowDatabase {
   authors = signal<{[key: string]: Author}>({});
 
   ready = new ReplaySubject<boolean>(1);
+  ready_ = false;
 
-  constructor(directoryId: number, chronomap: any, private http: HttpClient) {
-    super(BASEROW_ENDPOINT, chronomap.Database_Token, chronomap.Database_ID);
+  constructor(directoryId: number, chronomap: any, http: HttpClient) {
+    super(BASEROW_ENDPOINT, chronomap.Database_Token, chronomap.Database_ID, http);
     this.id = chronomap.id;
     this.directoryId = directoryId;
     this.title.set(chronomap.Title);
@@ -122,8 +123,8 @@ export class ChronomapDatabase extends BaserowDatabase {
     this.pitch.set(chronomap.Pitch);
   }
 
-  fetch() {
-    return this.fetchTables(this.http).pipe(
+  fetchMeta() {
+    return this.fetchTables().pipe(
       tap(() => {
         this.getTable('Settings').subscribe((settingsTable) => {
           const keyValues: any = {};
@@ -154,140 +155,147 @@ export class ChronomapDatabase extends BaserowDatabase {
           this.newEntryForm.set(keyValues.New_Entry_Form?.value || '');
         });    
       }),
-      switchMap(() => {
-        return forkJoin([
-          this.getTable('MapLayers'),
-          this.getTable('Authors'),
-          this.getTable('Content'),
-        ]).pipe(
-          map(([mapLayersTable, authorsTable, contentTable]) => {
-            this.allLayers = [];
-            const layers: any = {};
-            mapLayersTable?.rows.forEach((row: any) => {
-              const onLayers = row.On_Layers.map((x : any) => x.value) || [];
-              onLayers.forEach((layer: string) => {
-                if (!this.allLayers.includes(layer)) {
-                  this.allLayers.push(layer);
-                }
-              });
-              layers[row.Name] = onLayers;
-            });
-            const authors: any = {};
-            authorsTable?.rows.forEach((row: any) => {
-              authors[row.Name] = {
-                name: row.Name,
-                email: row.Email,
-                status: row.Status?.value,
-              };
-            });
-            this.authors.set(authors);
-            this.nonces = [];
-            const contentItems: ContentItem[] = [];
-            contentTable?.rows.forEach((row: any) => {
-              const item: any = {
-                id: row.id,
-                title: row.Title,
-                notes: row.Notes,
-                post_timestamp: dayjs(row.Post_Timestamp).toDate(),
-                status: row.Status?.value,
-                type: row.Type?.value,
-                youtube_video_id: row.Youtube_Video_Id,
-                content: row.Content,
-                image: row.Image?.[0]?.url,
-                audio: row.Audio?.[0]?.url,
-                name: row.Name || 'Full Name',
-                username: row.Username || 'username',
-                profile_image: row.Profile_Image?.[0]?.url || '/assets/img/default-profile-img.svg',
-                like_count: row.Like_Count || 0,
-                comment_count: row.Comment_Count || 0,
-                link_title: row.Link_Title,
-                link_domain: row.Link_Domain,
-                geo: row.Geo,
-                map_layers: [],
-                off_map_layers: [],
-                nonce: row.Nonce,
-                authors: row.Authors?.map((x: any) => authors[x.value]) || [],
-                tags: row.Tags?.map((x: any) => x.value) || [],
-                related: row.Related,
-                lastModified: dayjs(row.Last_Modified).toDate(),
-              };
-              item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
-              row.Map_Layer.forEach((x: any) => {
-                const name = x.value;
-                if (layers[name]) {
-                  layers[name].forEach((layer: string) => {
-                    if (!item.map_layers.includes(layer)) {
-                      item.map_layers.push(layer);
-                    }
-                  });
-                }
-              });
-              this.allLayers.forEach((layer: string) => {
-                if (!item.map_layers.includes(layer)) {
-                  item.off_map_layers.push(layer);
-                }
-              });
-              if (!!item.nonce) {
-                this.nonces.push(item.nonce);
-              }
+    );
+  }
 
-              const contentItem: ContentItem = item;
-              if (contentItem.status !== 'Published') { return; }
-              if (!contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) { return; }
-              if (!contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
-              contentItems.push(contentItem);
-            });
-            contentItems.forEach((item: ContentItem) => {
-              item.related = item.related.map((id: ContentItem) => (contentItems.find((i: ContentItem) => i.id === id.id) || {}) as ContentItem).filter((i: ContentItem) => !!i.id);
-            });
-            return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
-          }),
-          tap((contentItems: ContentItem[]) => {
-            this.allContentItems = contentItems;
-    
-            const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
-              const ti = new TimelineItem();
-              Object.assign(ti, item);
-              ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
-              ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
-              ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
-              const authorNames = ti.authors.map((author: Author) => author.name);
-              if (authorNames.length > 1) {
-                const last = authorNames.pop();
-                authorNames[authorNames.length - 1] += ` and ${last}`;
-              }
-              ti.formattedAuthors = authorNames.join(', ');
-              return ti;
-            });
-            let minDate: Date|null = null;
-            let maxDate: Date|null = null;
-            timelineItems.forEach((item: TimelineItem, index: number) => {
-              item.index = index;
-              item.next = timelineItems[index + 1] || null;
-              item.prev = timelineItems[index - 1] || null;
-              if (item.post_timestamp) {
-                if (!minDate || item.post_timestamp < minDate) {
-                  minDate = item.post_timestamp;
+  fetchContent(force = false): Observable<any> {
+    if (this.ready_ && !force) {
+      return this.ready;
+    }
+    console.log('FETCH CONTENT', this.title(), this.ready_, force);
+    this.ready_ = true;
+    return forkJoin([
+      this.getTable('MapLayers'),
+      this.getTable('Authors'),
+      this.getTable('Content'),
+    ]).pipe(
+      map(([mapLayersTable, authorsTable, contentTable]) => {
+        this.allLayers = [];
+        const layers: any = {};
+        mapLayersTable?.rows.forEach((row: any) => {
+          const onLayers = row.On_Layers.map((x : any) => x.value) || [];
+          onLayers.forEach((layer: string) => {
+            if (!this.allLayers.includes(layer)) {
+              this.allLayers.push(layer);
+            }
+          });
+          layers[row.Name] = onLayers;
+        });
+        const authors: any = {};
+        authorsTable?.rows.forEach((row: any) => {
+          authors[row.Name] = {
+            name: row.Name,
+            email: row.Email,
+            status: row.Status?.value,
+          };
+        });
+        this.authors.set(authors);
+        this.nonces = [];
+        const contentItems: ContentItem[] = [];
+        contentTable?.rows.forEach((row: any) => {
+          const item: any = {
+            id: row.id,
+            title: row.Title,
+            notes: row.Notes,
+            post_timestamp: dayjs(row.Post_Timestamp).toDate(),
+            status: row.Status?.value,
+            type: row.Type?.value,
+            youtube_video_id: row.Youtube_Video_Id,
+            content: row.Content,
+            image: row.Image?.[0]?.url,
+            audio: row.Audio?.[0]?.url,
+            name: row.Name || 'Full Name',
+            username: row.Username || 'username',
+            profile_image: row.Profile_Image?.[0]?.url || '/assets/img/default-profile-img.svg',
+            like_count: row.Like_Count || 0,
+            comment_count: row.Comment_Count || 0,
+            link_title: row.Link_Title,
+            link_domain: row.Link_Domain,
+            geo: row.Geo,
+            map_layers: [],
+            off_map_layers: [],
+            nonce: row.Nonce,
+            authors: row.Authors?.map((x: any) => authors[x.value]) || [],
+            tags: row.Tags?.map((x: any) => x.value) || [],
+            related: row.Related,
+            lastModified: dayjs(row.Last_Modified).toDate(),
+          };
+          item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
+          row.Map_Layer.forEach((x: any) => {
+            const name = x.value;
+            if (layers[name]) {
+              layers[name].forEach((layer: string) => {
+                if (!item.map_layers.includes(layer)) {
+                  item.map_layers.push(layer);
                 }
-                if (!maxDate || item.post_timestamp > maxDate) {
-                  maxDate = item.post_timestamp;
-                }
-              }
-              item.relatedItems = item.related
-                  .map((ci: ContentItem) => (timelineItems.find((i: TimelineItem) => i.id === ci.id) || {}) as TimelineItem)
-                  .filter((i: TimelineItem) => !!i);
-            });
-            minDate = minDate || new Date();
-            maxDate = maxDate || new Date();
-            const delta = (maxDate.getTime() - minDate.getTime()) / 10;
-            this.minDate.set(new Date(minDate.getTime() - delta));
-            this.maxDate.set(new Date(maxDate.getTime() + delta));
-            this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
-            this.timelineItems.set(timelineItems);
-            this.ready.next(true);
-            this.ready.complete();
-          })
-        );
+              });
+            }
+          });
+          this.allLayers.forEach((layer: string) => {
+            if (!item.map_layers.includes(layer)) {
+              item.off_map_layers.push(layer);
+            }
+          });
+          if (!!item.nonce) {
+            this.nonces.push(item.nonce);
+          }
+
+          const contentItem: ContentItem = item;
+          if (contentItem.status !== 'Published') { return; }
+          if (!contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) { return; }
+          if (!contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
+          contentItems.push(contentItem);
+        });
+        contentItems.forEach((item: ContentItem) => {
+          item.related = item.related.map((id: ContentItem) => (contentItems.find((i: ContentItem) => i.id === id.id) || {}) as ContentItem).filter((i: ContentItem) => !!i.id);
+        });
+        return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
+      }),
+      tap((contentItems: ContentItem[]) => {
+        this.allContentItems = contentItems;
+
+        const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
+          const ti = new TimelineItem();
+          Object.assign(ti, item);
+          ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
+          ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
+          ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
+          const authorNames = ti.authors.map((author: Author) => author.name);
+          if (authorNames.length > 1) {
+            const last = authorNames.pop();
+            authorNames[authorNames.length - 1] += ` and ${last}`;
+          }
+          ti.formattedAuthors = authorNames.join(', ');
+          return ti;
+        });
+        let minDate: Date|null = null;
+        let maxDate: Date|null = null;
+        timelineItems.forEach((item: TimelineItem, index: number) => {
+          item.index = index;
+          item.next = timelineItems[index + 1] || null;
+          item.prev = timelineItems[index - 1] || null;
+          if (item.post_timestamp) {
+            if (!minDate || item.post_timestamp < minDate) {
+              minDate = item.post_timestamp;
+            }
+            if (!maxDate || item.post_timestamp > maxDate) {
+              maxDate = item.post_timestamp;
+            }
+          }
+          item.relatedItems = item.related
+              .map((ci: ContentItem) => (timelineItems.find((i: TimelineItem) => i.id === ci.id) || {}) as TimelineItem)
+              .filter((i: TimelineItem) => !!i);
+        });
+        minDate = minDate || new Date();
+        maxDate = maxDate || new Date();
+        const delta = (maxDate.getTime() - minDate.getTime()) / 10;
+        this.minDate.set(new Date(minDate.getTime() - delta));
+        this.maxDate.set(new Date(maxDate.getTime() + delta));
+        this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
+        this.timelineItems.set(timelineItems);
+        console.log('GOT CONTENT ITEMS', this.title(), timelineItems.length);
+        this.ready.next(true);
+        this.ready.complete();
       })
     );
   }
@@ -310,12 +318,12 @@ export class DirectoryDatabase extends BaserowDatabase {
   zoomUntil = signal<number>(2100);
   url = signal<string>('');
 
-  constructor(dbId: number, private http: HttpClient) {
-    super(BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN, dbId);
+  constructor(dbId: number, http: HttpClient) {
+    super(BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN, dbId, http);
   }
 
   fetchMaps() {
-    this.fetchTables(this.http).subscribe();
+    this.fetchTables().subscribe();
     this.getTable('Settings').subscribe((settingsTable) => {
       const keyValues: any = {};
       settingsTable?.rows.forEach((element: any) => {
@@ -339,10 +347,10 @@ export class DirectoryDatabase extends BaserowDatabase {
         const map = new ChronomapDatabase(this.database, chronomap, this.http);        
         return map;
       }) || []);
-      forkJoin([...this.chronomaps().map(map => map.fetch())]).subscribe((maps) => {
+      forkJoin([...this.chronomaps().map(map => map.fetchMeta())]).subscribe((maps) => {
         console.log('all maps loaded');
-        const byUpdateTime = this.chronomaps().sort((a, b) => b.lastModified().getTime() - a.lastModified().getTime());
-        this.chronomaps.set(byUpdateTime);
+        // const byUpdateTime = this.chronomaps().sort((a, b) => b.lastModified().getTime() - a.lastModified().getTime());
+        // this.chronomaps.set(byUpdateTime);
       });
     });
   }

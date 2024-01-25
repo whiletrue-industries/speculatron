@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { marked } from 'marked';
 import { first, interval, Subscription, switchMap } from 'rxjs';
@@ -119,12 +119,14 @@ export class AddNewBarComponent implements OnInit {
   closeMe() {
     this.subscription?.unsubscribe();
     this.subscription = null;
+    this.closeMap();
+    this.closeTimeline();
     this.close.emit();
   }
 
   initPolling() {
     this.subscription = interval(5000).pipe(
-      switchMap(() => this.chronomap.fetch())
+      switchMap(() => this.chronomap.fetchContent(true))
     ).subscribe((records) => {
       this.chronomap.nonces.forEach((nonce: string) => {
         if (nonce === this.nonce) {

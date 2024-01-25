@@ -1,7 +1,7 @@
 import { Component, OnInit, effect, signal } from '@angular/core';
 import { ChronomapDatabase, DataService } from '../data.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, first, map, timer } from 'rxjs';
+import { delay, filter, first, map, tap, timer } from 'rxjs';
 import { MapService } from '../map.service';
 import { StateService } from '../state.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -35,13 +35,16 @@ export class ChronomapPageComponent {
   constructor(private data: DataService, private route: ActivatedRoute, private mapSvc: MapService,
       private router: Router, private state: StateService, public layout: LayoutService) {
     this.route.params.pipe(
-      first()
-    ).subscribe(params => {
-      const dbId = parseInt(params['dbid']);
-      this.data.fetchData(dbId);
-      this.slug = params['slug'];
-      this.loadChronomap(this.data.directory.chronomaps(), this.slug);
-      this._info = localStorage.getItem(this.storageKey) !== 'opened';
+      first(),
+      tap((params) => {
+        const dbId = parseInt(params['dbid']);
+        this.data.fetchData(dbId);
+        this.slug = params['slug'];
+        this.loadChronomap(this.data.directory.chronomaps(), this.slug);
+      }),
+      delay(3000),
+    ).subscribe(() => {
+      this.info = localStorage.getItem(this.storageKey) !== 'opened';
     });
     effect(() => {
       const chronomaps = this.data.directory.chronomaps();
@@ -69,7 +72,9 @@ export class ChronomapPageComponent {
     if (slug && chronomaps.length > 0) {
       const chronomap = chronomaps.find(c => c.slug() === slug);
       if (chronomap) {
-        this.chronomap.set(chronomap);
+        chronomap.fetchContent().subscribe(() => {
+          this.chronomap.set(chronomap);
+        });
       }
     }
   }
