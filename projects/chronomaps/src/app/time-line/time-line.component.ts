@@ -32,6 +32,7 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() includeTime: WritableSignal<boolean>;
   @Input() showHovers = true;
   @Input() hoverable = true;
+  @Input() limitless = false;
   @Input() hovered: WritableSignal<boolean>;;
 
   @Output() selected = new EventEmitter<any>();
@@ -150,10 +151,13 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 
   init() {
     this.timeline.nativeElement.innerHTML = '';
-    this.zoomBehaviour = zoom<SVGSVGElement, unknown>()
-                    .scaleExtent([1, 100000])
-                    .translateExtent([[0, 0], [this.WIDTH, 0]])
-                    .on('zoom', (e) => this.onZoom(e))
+    this.zoomBehaviour = zoom<SVGSVGElement, unknown>();
+    if (!this.limitless) {
+      this.zoomBehaviour = this.zoomBehaviour
+          .scaleExtent([1, 100000])
+          .translateExtent([[0, 0], [this.WIDTH, 0]]);
+    }
+    this.zoomBehaviour = this.zoomBehaviour.on('zoom', (e: D3ZoomEvent<SVGSVGElement, unknown>) => this.onZoom(e))
     this.svg = select<SVGSVGElement, unknown>(this.timeline.nativeElement)
                     .append('svg')
                     .attr('width', '100%')

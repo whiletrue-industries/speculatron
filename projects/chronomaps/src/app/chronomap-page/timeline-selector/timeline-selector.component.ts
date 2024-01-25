@@ -50,7 +50,7 @@ export class TimelineSelectorComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {
       const minDate = this.chronomap.minDate();
       const maxDate = this.chronomap.maxDate();
-      const delta = (maxDate.getTime() - minDate.getTime());
+      const delta = (maxDate.getTime() - minDate.getTime()) + 1000 * 60 * 60 * 24;
       this.minDate = new Date(minDate.getTime() - delta);
       this.maxDate = new Date(maxDate.getTime() + delta);
 
