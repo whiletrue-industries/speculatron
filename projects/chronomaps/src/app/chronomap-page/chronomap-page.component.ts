@@ -25,6 +25,7 @@ export class ChronomapPageComponent {
   _info = false;
   _addNew = false;
   _sortFilter = false;
+  infoOpen = false;
   addNewOpen = false;
   sortFilterOpen = false;
   mobileMenu = false;
@@ -78,8 +79,14 @@ export class ChronomapPageComponent {
     console.log('INFO=', value);
     this._addNew = false;
     this._sortFilter = false;
-    this._info = value;
     localStorage.setItem(this.storageKey, 'opened');
+    if (value) {
+      this._info = value;
+      timer(0).subscribe(() => {this.infoOpen = value;});
+    } else {
+      this.infoOpen = value;
+      timer(300).subscribe(() => {this._info = value;});
+    }
   }
 
   get addNew() { return this._addNew; }

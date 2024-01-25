@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapService } from '../../map.service';
 
 import * as mapboxgl from 'mapbox-gl';
@@ -6,13 +6,14 @@ import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 import { MapSelectorService } from '../../map-selector.service';
 import { ChronomapDatabase } from '../../data.service';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-map-selector',
   templateUrl: './map-selector.component.html',
   styleUrls: ['./map-selector.component.less']
 })
-export class MapSelectorComponent implements AfterViewInit {
+export class MapSelectorComponent implements AfterViewInit, OnDestroy {
 
   @Input() chronomap: ChronomapDatabase;
   @Input() flyToOptions: mapboxgl.FlyToOptions;
@@ -20,8 +21,9 @@ export class MapSelectorComponent implements AfterViewInit {
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
   
   theMap: mapboxgl.Map;
+  resizeObserver: ResizeObserver;
 
-  constructor(private mapSvc: MapService, private mapSelector: MapSelectorService) { }
+  constructor(private mapSvc: MapService, private mapSelector: MapSelectorService, private el: ElementRef) { }
 
   ngAfterViewInit(): void {
     this.chronomap.ready.subscribe(() => {
@@ -51,5 +53,16 @@ export class MapSelectorComponent implements AfterViewInit {
         this.mapSelector.submitMapResult(geo);
       });
     });
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = new ResizeObserver(() => {
+      timer(0).subscribe(() => {
+        this.theMap.resize();
+      });
+    });
+    this.resizeObserver.observe(this.el.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
   }
 }

@@ -13,6 +13,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
   styleUrls: ['./add-new-bar.component.less'],
   host: {
     '[style.border-color]': 'chronomap.primaryColor() + "40"',
+    '[class.maximized]': 'slide !== 1 && slide !== 2'
   }
 })
 export class AddNewBarComponent implements OnInit {
@@ -28,6 +29,7 @@ export class AddNewBarComponent implements OnInit {
   selectedDate: string;
   selectedGeo: string;
   mapSubscription: Subscription | null = null;
+  timelineSubscription: Subscription | null = null;
 
   iframeURL: string | null = null;
   iframeSafeURL: SafeResourceUrl | null;
@@ -97,8 +99,8 @@ export class AddNewBarComponent implements OnInit {
 
   openTimeline() {
     this.mapSelector.showTimelineSelector = true;
-    this.mapSubscription?.unsubscribe();
-    this.mapSubscription = this.mapSelector.timelineResults.pipe(
+    this.timelineSubscription?.unsubscribe();
+    this.timelineSubscription = this.mapSelector.timelineResults.pipe(
       untilDestroyed(this)
     ).subscribe((value) => {
       console.log('GOT DATE', value);
@@ -110,8 +112,8 @@ export class AddNewBarComponent implements OnInit {
 
   closeTimeline() {
     this.mapSelector.showTimelineSelector = false;
-    this.mapSubscription?.unsubscribe();
-    this.mapSubscription = null;
+    this.timelineSubscription?.unsubscribe();
+    this.timelineSubscription = null;
   }
   
   closeMe() {
@@ -138,12 +140,12 @@ export class AddNewBarComponent implements OnInit {
     this.slide_ = value;
     if (this.slide_ === 1) {
       this.openMap();
+    } else {
+      this.closeMap();
     }
     if (this.slide_ === 2) {
-      this.closeMap();
       this.openTimeline();
-    }
-    if (this.slide_ === 3) {
+    } else {
       this.closeTimeline();
     }
   }
