@@ -1,7 +1,7 @@
 import { Component, OnInit, effect, signal } from '@angular/core';
 import { ChronomapDatabase, DataService } from '../data.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { delay, filter, first, map, tap, timer } from 'rxjs';
+import { delay, filter, first, map, switchMap, tap, timer } from 'rxjs';
 import { MapService } from '../map.service';
 import { StateService } from '../state.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -72,7 +72,9 @@ export class ChronomapPageComponent {
     if (slug && chronomaps.length > 0) {
       const chronomap = chronomaps.find(c => c.slug() === slug);
       if (chronomap) {
-        chronomap.fetchContent().subscribe(() => {
+        chronomap.fetchMeta().pipe(
+          switchMap(() => chronomap.fetchContent()),
+        ).subscribe(() => {
           this.chronomap.set(chronomap);
         });
       }

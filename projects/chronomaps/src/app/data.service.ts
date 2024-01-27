@@ -347,11 +347,11 @@ export class DirectoryDatabase extends BaserowDatabase {
         const map = new ChronomapDatabase(this.database, chronomap, this.http);        
         return map;
       }) || []);
-      forkJoin([...this.chronomaps().map(map => map.fetchMeta())]).subscribe((maps) => {
-        console.log('all maps loaded');
-        // const byUpdateTime = this.chronomaps().sort((a, b) => b.lastModified().getTime() - a.lastModified().getTime());
-        // this.chronomaps.set(byUpdateTime);
-      });
+      // forkJoin([...this.chronomaps().map(map => map.fetchMeta())]).subscribe((maps) => {
+      //   console.log('all maps loaded');
+      //   // const byUpdateTime = this.chronomaps().sort((a, b) => b.lastModified().getTime() - a.lastModified().getTime());
+      //   // this.chronomaps.set(byUpdateTime);
+      // });
     });
   }
 }

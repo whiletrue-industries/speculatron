@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { Author, ChronomapDatabase, DataService, DirectoryDatabase } from '../../data.service';
 import * as dayjs from 'dayjs';
-import { last } from 'rxjs';
+import { last, switchMap } from 'rxjs';
 import { marked } from 'marked';
 import { Router } from '@angular/router';
 
@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
     '(click)': 'navigate()'
   }
 })
-export class DirectoryItemComponent implements AfterViewInit {
+export class DirectoryItemComponent implements OnInit, AfterViewInit {
 
   @Input() chronomap: ChronomapDatabase;
   @Input() timelineState: WritableSignal<string>;
@@ -70,6 +70,12 @@ export class DirectoryItemComponent implements AfterViewInit {
       console.log('items', this.chronomap.title(), items);
       console.log('timelineState', this.timelineState());
     });
+  }
+
+  ngOnInit(): void {
+    this.chronomap.fetchMeta().pipe(
+      switchMap(() => this.chronomap.fetchContent()),
+    ).subscribe();
   }
 
   ngAfterViewInit(): void {

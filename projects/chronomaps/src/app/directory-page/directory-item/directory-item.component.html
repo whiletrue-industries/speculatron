@@ -18,5 +18,7 @@
         <div class='counts'>{{authorsMsg()}}</div>
     </div>
 </div>
-<app-time-line [id]='chronomap.title()' [state]='timelineState' [minDate]='minDate()' [maxDate]='maxDate()'
-    [chronomap]='chronomap' [showHovers]='false' [hoverable]='false' [hovered]='hovered'></app-time-line>
+@if (chronomap.timelineItems().length > 0) {
+    <app-time-line [id]='chronomap.title()' [state]='timelineState' [minDate]='minDate()' [maxDate]='maxDate()'
+        [chronomap]='chronomap' [showHovers]='false' [hoverable]='false' [limitless]='true' [hovered]='hovered'></app-time-line>    
+}

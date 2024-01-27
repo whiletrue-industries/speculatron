@@ -131,7 +131,6 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.chronomap.fetchContent().subscribe();
     this.parseState(this.state ? (this.state() || '') : '');
   }
 
@@ -153,10 +152,14 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
   init() {
     this.timeline.nativeElement.innerHTML = '';
     this.zoomBehaviour = zoom<SVGSVGElement, unknown>();
+    const maxZoom = (this.maxDate.getTime() - this.minDate.getTime()) / (1000 * 10 * 60);
     if (!this.limitless) {
       this.zoomBehaviour = this.zoomBehaviour
-          .scaleExtent([1, 100000])
+          .scaleExtent([1, maxZoom])
           .translateExtent([[0, 0], [this.WIDTH, 0]]);
+    } else {
+      this.zoomBehaviour = this.zoomBehaviour
+          .scaleExtent([0, maxZoom]);
     }
     this.zoomBehaviour = this.zoomBehaviour.on('zoom', (e: D3ZoomEvent<SVGSVGElement, unknown>) => this.onZoom(e))
     this.svg = select<SVGSVGElement, unknown>(this.timeline.nativeElement)
