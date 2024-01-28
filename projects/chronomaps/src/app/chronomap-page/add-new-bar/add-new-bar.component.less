@@ -22,7 +22,7 @@
         overflow-y: scroll;
         padding: 16px;
         .no-scrollbars;
-        height: 242px;
+        height: 309px;
         &.maximized {
             height: 80vh;
         }
@@ -119,7 +119,12 @@
                     padding-bottom: 8px;
                     &:last-child {
                         border-bottom: 0.5px solid @gray1;
-                        margin-bottom: 32px;
+                        .desktop({
+                            margin-bottom: 32px;
+                        });
+                        .mobile({
+                            margin-bottom: 16px;
+                        });
                     }
                 }
             }

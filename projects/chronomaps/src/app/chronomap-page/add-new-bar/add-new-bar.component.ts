@@ -26,6 +26,7 @@ export class AddNewBarComponent implements OnInit {
   contributeMessage: any = '';
   slide_ = 0;
   contentType = '';
+  contentTypeName = '';
   selectedDate: string;
   selectedGeo: string;
   mapSubscription: Subscription | null = null;
@@ -46,8 +47,9 @@ export class AddNewBarComponent implements OnInit {
     this.nonce = '' + (Math.floor(Math.random() * 1000000000));
   }
 
-  selectCT(ct: string) {
+  selectCT(ct: string, ctName: string) {
     this.contentType = ct;
+    this.contentTypeName = ctName;
     this.slide += 1;
   }
 

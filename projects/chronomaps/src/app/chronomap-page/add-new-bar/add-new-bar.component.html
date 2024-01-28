@@ -19,49 +19,49 @@
             <h2>Let’s indeed start by choosing the format for this perspective:</h2>
         </div>
         <div class='content-types' [style.color]='chronomap.primaryColor()'>
-            <div class='content-type' (click)='selectCT("note")'>
+            <div class='content-type' (click)='selectCT("note", "sticky note")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"note"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
                 <div class='name'>Sticky Note</div>
             </div>
-            <div class='content-type' (click)='selectCT("audio")'>
+            <div class='content-type' (click)='selectCT("audio", "audio clip")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"audio"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>  
                 <div class='name'>Audio clip</div>
             </div>
-            <div class='content-type' (click)='selectCT("twitter")'>
+            <div class='content-type' (click)='selectCT("twitter", "Tweet")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"twitter"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
                 <div class='name'>Twitter post</div>
             </div>
-            <div class='content-type' (click)='selectCT("instagram")'>
+            <div class='content-type' (click)='selectCT("instagram", "Instagram post")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"instagram"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
                 <div class='name'>Instagram post</div>
             </div>
-            <div class='content-type' (click)='selectCT("video")'>
+            <div class='content-type' (click)='selectCT("video", "video clip")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"video"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
                 <div class='name'>Youtube video</div>
             </div>
-            <div class='content-type' (click)='selectCT("wikipedia")'>
+            <div class='content-type' (click)='selectCT("wikipedia", "Wikipedia snippet")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"wikipedia"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
                 <div class='name'>Wikipedia article</div>
             </div>
-            <div class='content-type' (click)='selectCT("news")'>
+            <div class='content-type' (click)='selectCT("news", "news article")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"news"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
                 <div class='name'>News</div>
             </div>
-            <div class='content-type' (click)='selectCT("image")'>
+            <div class='content-type' (click)='selectCT("image", "image")'>
                 <div class='icon' [style.border-color]='chronomap.primaryColor()'>
                     <app-media-icon [type]='"image"' [color]="chronomap.primaryColor()"></app-media-icon>
                 </div>
@@ -86,7 +86,7 @@
     <div class='slide' [class.pre]='slide < 2' [class.post]='slide > 2'>
         <div class='header'>
             <h1 class='indented'>When?</h1>
-            <h2>The exact year is less important than the order of events</h2>
+            <h2>Drag the timeline left and right to position your {{contentTypeName}} in time. Zoom the timeline (using the scroll wheel or the + & - buttons) to adjust between years, days, hours and minutes.</h2>
         </div>
         <div class='bottom'>
             <button class='next-button' *ngIf='selectedDate' (click)='slide = slide + 1;' [style.color]='chronomap.primaryColor()' [style.border-color]='chronomap.secondaryColor() + "40"'>
@@ -100,7 +100,7 @@
     <div class='slide' [class.pre]='slide < 3' [class.post]='slide > 3'>
         <div class='header'>
             <h1 class='indented'>Add The Details</h1>
-            <h2>Now that we know time and space, let’s add the details of your {{contentType}}</h2>
+            <h2>Now that we know time and space, let’s add the details of your {{contentTypeName}}</h2>
         </div>
         <iframe [src]='iframeSrc' frameborder='0' onmousewheel='' width='100%' height='100%' *ngIf='iframeSrc'></iframe>
     </div>
