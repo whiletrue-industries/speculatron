@@ -3,7 +3,7 @@ import { DomSanitizer, SafeStyle, Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import * as mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
-import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime, Subscription } from 'rxjs';
+import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime, Subscription, fromEvent, take, from, map, forkJoin } from 'rxjs';
 import { TimeLineComponent } from '../time-line/time-line.component';
 import { MapSelectorService } from '../map-selector.service';
 import { ChronomapDatabase, TimelineItem } from '../data.service';
@@ -29,6 +29,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('baseMarkers') baseMarkersElement: ElementRef;
   @ViewChild('detailMarkers') detailMarkersElement: ElementRef;
   @ViewChild('description') descriptionElement: ElementRef;
+  @ViewChild('detail') detail: ElementRef;
 
   @ViewChild('contentFiller', {static: false}) contentFiller: ElementRef<HTMLDivElement>;
   @ViewChild('contentItem', {static: false}) contentItem: ElementRef<HTMLDivElement>;
@@ -54,7 +55,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   mapMode: 'Map' | 'SmallMap' | 'Media' | 'More' = 'Media';
   mapModeSetter = new Subject<'Map' | 'SmallMap' | 'Media' | 'More'>();
   lastMapState: mapboxgl.FlyToOptions;
-  selectItemMapState: mapboxgl.FlyToOptions;
+  selectItemMapState: mapboxgl.FlyToOptions | null;
   fragmentChanger = new Subject<void>();
   actionSub: Subscription | null;
   observer: IntersectionObserver;
@@ -114,9 +115,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.updateMarkers();
     this.chronomap.fetchContent().subscribe();
-    // this.contentBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${PRIMARY_COLOR}00 68.75%, ${PRIMARY_COLOR}33 90.62%), ${PRIMARY_COLOR}66`);
     this.backdropBackground = this.sanitizer.bypassSecurityTrustStyle(`linear-gradient(180deg, ${this.chronomap.primaryColor()}00 10.32%, ${this.chronomap.primaryColor()}80 35.85%)`);
-    console.log('CT BG', this.contentBackground);
   }
 
   ngAfterViewInit(): void {
@@ -205,10 +204,10 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.baseWidthPx = this.baseWidth + 'px';
     this.detailWidth = Math.min(this.baseWidth, Math.max(450, this.baseWidth/2));
     this.detailWidthPx = this.detailWidth + 'px';
-    timer(100).subscribe(() => {
+    if (this.detailOpen) {
       const el = this.scrollerComponent.nativeElement as HTMLElement;
-      el.querySelector('.current')?.scrollIntoView({behavior: 'smooth', inline: 'center'});
-    });
+      el.querySelector('.current')?.scrollIntoView({behavior: 'auto', inline: 'center'});
+    }
   }
 
   getDetailWidth() {
@@ -246,7 +245,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.actionSub?.unsubscribe();
       this.actionSub = timer(0).pipe(
         tap(() => {
-          if (this.detailOpen) {
+          if (this.detailOpen && this.selectItemMapState) {
             this.baseMap.flyTo({
               center: this.selectItemMapState.center,
               zoom: this.selectItemMapState.zoom,
@@ -255,6 +254,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
               padding: 0,
               duration: 1000,
             });
+            this.selectItemMapState = null;
           }  
           this.detailOpen = false;
         }),
@@ -276,12 +276,31 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       tap(() => {
         this.timeLineComponent?.scrollTo(item.timestamp, item);    
       }),
-      delay(this.detailOpen ? 0 : 1000),
-      tap(() => {
+      switchMap(() => {
+        const el = this.scrollerComponent.nativeElement as HTMLElement;
+        const behavior = this.detailOpen ? 'smooth' : 'auto';
+        const currentEl = el.querySelector('.current');
+        if (currentEl) {
+          currentEl.scrollIntoView({behavior, inline: 'center', block: 'center'});
+          return fromEvent(el, 'scrollend').pipe(
+            take(1),
+          );
+        } else {
+          return from([true]);
+        }
+      }),
+      delay(0),//this.detailOpen ? 0 : 1000),
+      switchMap(() => {
+        const ret: Observable<any>[] = [
+          from([true]),
+        ];
         if (!this.detailOpen) {
           this.mapMode = 'SmallMap';
-          this.contentFiller.nativeElement?.scrollIntoView({behavior: 'auto'});
-          this.selectItemMapState = this.lastMapState;
+          this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
+          ret.push(fromEvent(this.detail.nativeElement, 'transitionend').pipe(
+            take(1),
+          ));
+          // this.selectItemMapState = this.lastMapState;
         } else {
           this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
         }
@@ -292,27 +311,20 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         };
         this.applyMapView(item, this.detailMap, options);
         this.updateMarkers();
+        return forkJoin(ret);
+      }),
+      delay(1000),
+      tap(() => {
+        const el = this.scrollerComponent.nativeElement as HTMLElement;
+        const currentEl = el.querySelector('.current');
+        if (currentEl) {
+          currentEl.scrollIntoView({behavior: 'smooth', inline: 'center'});
+        }
       }),
       delay(3000),
       tap(() => {
-        const el = this.scrollerComponent.nativeElement as HTMLElement;
-        el.querySelector('.current')?.scrollIntoView({behavior: 'smooth', inline: 'center'});
-        console.log('SCROLL', el.querySelector('.current'));
-        // el.scrollLeft = scrollLeft;
-        // children[item.index].scrollIntoView({behavior: 'smooth'});
-        timer(1000).subscribe(() => {
-          this.changing -= 1;
-        });
+        this.changing -= 1;
       }),
-      switchMap(() => {
-        return this.moveEnded;
-      }),
-      first(),
-      delay(500),
-      tap(() => {
-        console.log('MOVE ENDED');
-        this.contentItem.nativeElement?.scrollIntoView({behavior: 'smooth'});
-      })
     ).subscribe(() => {
       this.observer?.disconnect();
       this.observer = new IntersectionObserver((entries) => {

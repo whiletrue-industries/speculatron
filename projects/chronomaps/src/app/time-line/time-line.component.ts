@@ -288,7 +288,6 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
       this.zoomK = item.k;
       this.scrollTo(item.centerTimestamp, item);
     } else {
-      // console.log('click', item);
       this.scrollTo(item.timestamp, item);
       this.selected.next(item);
     }

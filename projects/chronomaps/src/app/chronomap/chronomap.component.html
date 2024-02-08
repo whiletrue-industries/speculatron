@@ -10,7 +10,7 @@
     ></app-time-line>
     <div class='detail-bg'>
         <div class='detail' [class.open]='detailOpen' [style.width]='getDetailWidth()' [class.map-mode]='this.mapMode === "Map"'
-                            [style.border-color]='chronomap.primaryColor()'>
+                            [style.border-color]='chronomap.primaryColor()' #detail>
             <div class='detail-map' #detailMapEl [style.width]='baseWidthPx'>
             </div>
             <div class='content' [style.background-color]='this.mapMode === "Map" ? "#00000000" : chronomap.primaryColor() + "66"'
