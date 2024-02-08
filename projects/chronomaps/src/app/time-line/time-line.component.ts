@@ -320,6 +320,11 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
     points
         .attr('transform', (d: any) => `translate(${d.x}, ${this.CIRCLE_RADIUS + this.HOVER_HEIGHT})`);
     points
+        .select('circle.point-inactive')
+        .attr('cx', (d: any) => d.cx)
+        .attr('cy', (d: any) => d.cy)
+        .attr('r', (d: any) => d.clustered > 1 ? 0 : 3);
+    points
         .select('circle.point-bg')
         .attr('cx', (d: any) => d.cx)
         .attr('cy', (d: any) => d.cy)
