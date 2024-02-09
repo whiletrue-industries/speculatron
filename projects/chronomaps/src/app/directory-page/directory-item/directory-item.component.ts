@@ -55,7 +55,7 @@ export class DirectoryItemComponent implements OnInit, AfterViewInit {
     let ret = editors.join(', ');
     if (contrubutors > 0) {
       if (ret.length > 0) {
-        ret += ` +${contrubutors} more`;
+        ret += ` +${contrubutors} contributors`;
       } else {
         ret += `${contrubutors} contributor${contrubutors > 1 ? 's' : ''}`;
       }
