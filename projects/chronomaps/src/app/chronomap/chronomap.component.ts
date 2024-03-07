@@ -272,22 +272,24 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedItemId = item.id;
     this.changing += 1;
     this.actionSub?.unsubscribe();
+    let scrollBehavior: 'smooth' | 'auto' = 'smooth';
     this.actionSub = timer(0).pipe(
       tap(() => {
         this.timeLineComponent?.scrollTo(item.timestamp, item);    
       }),
       switchMap(() => {
         const el = this.scrollerComponent.nativeElement as HTMLElement;
-        const behavior = this.detailOpen ? 'smooth' : 'auto';
+        scrollBehavior = this.detailOpen ? 'smooth' : 'auto';
         const currentEl = el.querySelector('.current');
         if (currentEl) {
-          currentEl.scrollIntoView({behavior, inline: 'center', block: 'center'});
-          return fromEvent(el, 'scrollend').pipe(
-            take(1),
-          );
-        } else {
-          return from([true]);
+          currentEl.scrollIntoView({behavior: scrollBehavior, inline: 'center', block: 'center'});
+          if (this.detailOpen) {
+            return fromEvent(el, 'scrollend').pipe(
+              take(1),
+            );
+          }
         }
+        return from([true]);
       }),
       delay(0),//this.detailOpen ? 0 : 1000),
       switchMap(() => {
@@ -318,7 +320,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         const el = this.scrollerComponent.nativeElement as HTMLElement;
         const currentEl = el.querySelector('.current');
         if (currentEl) {
-          currentEl.scrollIntoView({behavior: 'smooth', inline: 'center'});
+          currentEl.scrollIntoView({behavior: scrollBehavior, inline: 'center'});
         }
       }),
       delay(3000),
