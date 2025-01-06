@@ -225,6 +225,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   goto(state: State) {
     this.timelineState.set(state.timelineState);
     const item = this.chronomap.timelineItems().find(t => t.id === state.selectedItemId) || null;
+    console.log('GOTO', state, item);
     this.itemSelected(item);
   }
 
@@ -235,6 +236,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   itemSelected(item: TimelineItem | null) {
+    console.log('SELECTING ITEM?', item);
     if (item === this.currentItem) {
       return;
     }
@@ -242,25 +244,36 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.state.selectedItemId = item?.id || null;
     if (!item) {
       this.selectedItemId = null;
+      this.currentItem = null;
       this.actionSub?.unsubscribe();
       this.actionSub = timer(0).pipe(
         tap(() => {
-          if (this.detailOpen && this.selectItemMapState) {
-            this.baseMap.flyTo({
-              center: this.selectItemMapState.center,
-              zoom: this.selectItemMapState.zoom,
-              bearing: this.selectItemMapState.bearing,
-              pitch: this.selectItemMapState.pitch,
-              padding: 0,
-              duration: 1000,
-            });
-            this.selectItemMapState = null;
+          if (this.detailOpen) {
+            if (this.selectItemMapState) {
+              this.baseMap.flyTo({
+                center: this.selectItemMapState.center,
+                zoom: this.selectItemMapState.zoom,
+                bearing: this.selectItemMapState.bearing,
+                pitch: this.selectItemMapState.pitch,
+                padding: {top: 0, bottom: 0, left: 0, right: 0},
+                duration: 1000,
+              });
+              this.selectItemMapState = null;
+            } else {
+              this.baseMap.flyTo({
+                center: this.detailMap.getCenter(),
+                zoom: this.detailMap.getZoom(),
+                bearing: this.detailMap.getBearing(),
+                pitch: this.detailMap.getPitch(),
+                padding: {top: 0, bottom: 0, left: 0, right: 0},
+                duration: 1000,
+              });
+            }
           }  
           this.detailOpen = false;
         }),
         delay(1000)
       ).subscribe(() => {
-        this.currentItem = null;
         this.contentVisible = false;
         this.updateMarkers();
         this.actionSub = null;
@@ -309,7 +322,13 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.detailOpen = true;
         this.contentVisible = true;
         const options: mapboxgl.FlyToOptions = {
-          speed: 2
+          speed: 2,
+          padding: {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: this.layout.mobile() ? 0 : this.detailWidth,
+          }
         };
         this.applyMapView(item, this.detailMap, options);
         this.updateMarkers();
@@ -334,11 +353,11 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         const entry = entries[0];
         let mode: 'Map' | 'SmallMap' | 'Media' | 'More' | null = null;
         if (entry && entry.isIntersecting) {
-          if (entry.target === this.contentItem.nativeElement) {
+          if (entry.target === this.contentItem?.nativeElement) {
             mode = 'Media';
-          } else if (entry.target === this.contentDescription.nativeElement) {
+          } else if (entry.target === this.contentDescription?.nativeElement) {
             mode = 'More';
-          } else if (entry.target === this.contentFiller.nativeElement) {
+          } else if (entry.target === this.contentFiller?.nativeElement) {
             mode = 'Map';
           }
           console.log('INTERSECTING', entries.length, entry.isIntersecting, entry.intersectionRatio, mode);
