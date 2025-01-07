@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, effect, signal } from '@angular/core';
 import { DomSanitizer, SafeStyle, Title } from '@angular/platform-browser';
-import * as mapboxgl from 'mapbox-gl';
 import { timer, tap, delay, debounceTime, Subject, filter, first, switchMap, Observable, scheduled, animationFrameScheduler, throttleTime, Subscription, fromEvent, take, from, map, forkJoin } from 'rxjs';
 import { TimeLineComponent } from '../time-line/time-line.component';
 import { MapSelectorService } from '../map-selector.service';
@@ -9,7 +8,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { State, StateService } from '../state.service';
 import { LayoutService } from '../layout.service';
 import { marked } from 'marked';
-import { MapHandler } from '../map-handler/map-handler';
+import { getMapHandler } from '../map-handler/map-handler';
+import { FlyToOptions } from '../map-handler/map-utils';
+import { MapHandler } from '../map-handler/map-handler-base';
 
 @UntilDestroy()
 @Component({
@@ -59,19 +60,12 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   backdropBackground: SafeStyle;
   
   marked = marked;
-  mapHandler: MapHandler;
+  mapHandler: MapHandler<any, any>;
 
   constructor(
     private titleSvc: Title, private sanitizer: DomSanitizer, public mapSelector: MapSelectorService, public state: StateService,
     private layout: LayoutService, private el: ElementRef
   ) {
-    this.mapHandler = new MapHandler(this, layout);
-    this.resizeObserver = new ResizeObserver(() => {
-      timer(0).subscribe(() => {
-        this.syncWidths();
-        this.mapHandler.resize();
-      });
-    });
     this.itemActivations.pipe(
       untilDestroyed(this),
       filter(() => this.changing === 0),
@@ -94,16 +88,6 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
     ).subscribe((mode) => {
       this.mapMode = mode;
     });
-    this.mapHandler.itemHovered.pipe(
-      untilDestroyed(this),
-    ).subscribe((item) => {
-      this.timeLineComponent.updateHovers(item?.index || null);
-    });
-    this.mapHandler.itemSelected.pipe(
-      untilDestroyed(this),
-    ).subscribe((item) => {
-      this.itemSelected(item);
-    });
   }
 
   ngOnInit(): void {
@@ -113,8 +97,24 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.chronomap.ready.subscribe(() => {
+      this.mapHandler = getMapHandler(this, this.layout, this.chronomap);
+      this.resizeObserver = new ResizeObserver(() => {
+        timer(0).subscribe(() => {
+          this.syncWidths();
+          this.mapHandler.resize();
+        });
+      });
+      this.mapHandler.itemHovered.pipe(
+        untilDestroyed(this),
+      ).subscribe((item: TimelineItem | null) => {
+        this.timeLineComponent.updateHovers(item?.index || null);
+      });
+      this.mapHandler.itemSelected.pipe(
+        untilDestroyed(this),
+      ).subscribe((item: TimelineItem) => {
+        this.itemSelected(item);
+      });
       this.mapHandler.init(
-        this.chronomap, 
         this.baseMapEl, this.detailMapEl,
         this.baseMarkersElement, this.detailMarkersElement
       );
@@ -127,7 +127,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.resizeObserver.disconnect();
+    this.resizeObserver?.disconnect();
   }
 
   get baseWidth() {
@@ -238,7 +238,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.detailOpen = true;
         this.contentVisible = true;
-        const options: mapboxgl.FlyToOptions = {
+        const options: FlyToOptions = {
           speed: 2,
           padding: {
             top: 0,

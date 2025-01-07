@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { Author, ChronomapDatabase, DataService, DirectoryDatabase } from '../../data.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { last, switchMap } from 'rxjs';
 import { marked } from 'marked';
 import { Router } from '@angular/router';

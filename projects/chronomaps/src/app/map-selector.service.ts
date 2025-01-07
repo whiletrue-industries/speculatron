@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { FlyToOptions } from 'mapbox-gl';
+import { CameraOptions } from 'mapbox-gl';
 import { Subject } from 'rxjs';
 import { DataService } from './data.service';
-import { MapUtils } from './map-handler/map-utils';
+import { FlyToOptions, MapUtils } from './map-handler/map-utils';
 
 @Injectable({
   providedIn: 'root'

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { marked  } from 'marked';
 import { ChronomapDatabase, TimelineItem } from '../../data.service';
 

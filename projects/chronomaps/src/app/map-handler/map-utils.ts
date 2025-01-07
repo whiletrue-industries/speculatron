@@ -1,9 +1,30 @@
-import * as mapboxgl from 'mapbox-gl';
+export type LatLon = {
+  lat: number;
+  lon: number;
+};
+
+export type FlyToOptions = {
+  center?: LatLon;
+  zoom?: number;
+  bearing?: number;
+  pitch?: number;
+  padding?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+  speed?: number;
+  duration?: number;
+  curve?: number;
+};
+
+export type BoundsOptions = [[number, number], [number, number]];
 
 export class MapUtils {
 
   static setLayerSource(map: mapboxgl.Map, layerId: string, source: string) {
-    const oldLayers = map.getStyle().layers;
+    const oldLayers = map.getStyle()?.layers || [];
     const layerIndex = oldLayers.findIndex(l => l.id === layerId);
     const layerDef: any = oldLayers[layerIndex];
     const before = oldLayers[layerIndex + 1] && oldLayers[layerIndex + 1].id;
@@ -15,7 +36,7 @@ export class MapUtils {
     map.addLayer(layerDef, before);
   }
 
-  static parseMapView(view: string): mapboxgl.FlyToOptions {
+  static parseMapView(view: string): FlyToOptions {
     if (!view) {
       return {};
     }
@@ -25,7 +46,7 @@ export class MapUtils {
     }
     const parsed = geoConcat.split('/');
     if (parsed !== null) {
-      const options: mapboxgl.FlyToOptions = {
+      const options: FlyToOptions = {
         zoom: parseFloat(parsed[0]),
         center: {
           lat: parseFloat(parsed[1]),
@@ -34,9 +55,15 @@ export class MapUtils {
       };
       if (parsed.length > 3) {
         options.bearing = parseFloat(parsed[3]);
+        if (isNaN(options.bearing)) {
+          options.bearing = undefined;
+        }
       }
       if (parsed.length > 4) {
         options.pitch = parseFloat(parsed[4]);
+        if (isNaN(options.pitch)) {
+          options.pitch = undefined;
+        }
       }
       return options;
     } else {

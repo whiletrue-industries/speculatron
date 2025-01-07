@@ -1,8 +1,8 @@
 <div class='wrapper'>
     <div class='base-map'>
         <div #baseMapEl></div>
-        <app-map-selector *ngIf='mapSelector.showMapSelector' [chronomap]='chronomap' [flyToOptions]='mapHandler.lastMapState'></app-map-selector>
-        <app-timeline-selector *ngIf='mapSelector.showTimelineSelector' [chronomap]='chronomap' [flyToOptions]='mapSelector.selectedGeo'></app-timeline-selector>
+        <app-map-selector *ngIf='mapSelector.showMapSelector' [chronomap]='chronomap' [mapHandler]='mapHandler' [position]='mapHandler.lastMapState'></app-map-selector>
+        <app-timeline-selector *ngIf='mapSelector.showTimelineSelector' [chronomap]='chronomap' [mapHandler]='mapHandler' [position]='mapSelector.selectedGeo'></app-timeline-selector>
     </div>
     <app-time-line #timeLine *ngIf='timelineState() !== null' 
         [minDate]='chronomap.minDate()' [maxDate]='chronomap.maxDate()' [chronomap]='chronomap' [state]='timelineState' 

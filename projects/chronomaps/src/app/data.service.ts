@@ -4,7 +4,7 @@ import { BASEROW_ENDPOINT, BASEROW_ADMIN_TOKEN } from 'CONFIGURATION';
 import { BaserowDatabase } from './baserow/baserow-database';
 import { HttpClient } from '@angular/common/http';
 import { Observable, ReplaySubject, Subject, forkJoin, from, map, switchMap, tap } from 'rxjs';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 export type Author = {
   name: string;
@@ -54,7 +54,7 @@ export class TimelineItem extends ContentItem {
   next: TimelineItem | null;
   prev: TimelineItem | null;
   timestamp: Date;
-  relatedItems: TimelineItem[] = [];
+  relatedItems?: TimelineItem[] = [];
 
   x: number;
   cx: number = 0;

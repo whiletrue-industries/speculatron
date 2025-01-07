@@ -3,9 +3,9 @@ import { marked } from 'marked';
 import { DataService } from './data.service';
 
 // import * as durationPlugin from 'dayjs/plugin/duration';
-import * as relativeTimePlugin from 'dayjs/plugin/relativeTime';
-import * as utcPlugin from 'dayjs/plugin/utc';
-import * as dayjs from 'dayjs';
+import relativeTimePlugin from 'dayjs/plugin/relativeTime';
+import utcPlugin from 'dayjs/plugin/utc';
+import dayjs from 'dayjs';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { filter, map } from 'rxjs';

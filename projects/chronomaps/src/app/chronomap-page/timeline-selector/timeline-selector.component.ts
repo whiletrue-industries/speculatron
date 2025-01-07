@@ -1,10 +1,9 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, effect, signal } from '@angular/core';
 
-import * as mapboxgl from 'mapbox-gl';
-import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-
 import { MapSelectorService } from '../../map-selector.service';
 import { ChronomapDatabase } from '../../data.service';
+import { FlyToOptions } from '../../map-handler/map-utils';
+import { MapHandler } from '../../map-handler/map-handler-base';
 
 @Component({
   selector: 'app-timeline-selector',
@@ -14,7 +13,8 @@ import { ChronomapDatabase } from '../../data.service';
 export class TimelineSelectorComponent implements AfterViewInit, OnInit {
 
   @Input() chronomap: ChronomapDatabase;
-  @Input() flyToOptions: mapboxgl.FlyToOptions;
+  @Input() mapHandler: MapHandler<any, any>;
+  @Input() position: FlyToOptions;
 
   @ViewChild('mapEl', {static: true}) mapEl: ElementRef;
 
@@ -24,8 +24,6 @@ export class TimelineSelectorComponent implements AfterViewInit, OnInit {
   date = signal<Date>(new Date());
   includeTime = signal<boolean>(false);
   
-  theMap: mapboxgl.Map;
-
   constructor(public mapSelector: MapSelectorService) {
     effect(() => {
       console.log('SELECTED DATE', this.date().toISOString());
@@ -57,20 +55,8 @@ export class TimelineSelectorComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.chronomap.ready.subscribe(() => {
-      this.theMap = new mapboxgl.Map({
-        container: this.mapEl.nativeElement,
-        style: this.chronomap.backgroundMapStyle(),
-        minZoom: 3,
-        center: this.flyToOptions.center,
-        zoom: this.flyToOptions.zoom,
-        bearing: this.flyToOptions.bearing,
-        pitch: this.flyToOptions.pitch,
-        interactive: false,
-      });
-      var geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        marker: false,
-      });
+      console.log('ININININI1', this.mapEl.nativeElement, this.position);
+      this.mapHandler.initSelectorMap(this.mapEl.nativeElement, this.position);
     });
   }
 }
