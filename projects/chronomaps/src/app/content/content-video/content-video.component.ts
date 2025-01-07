@@ -6,9 +6,10 @@ import { ChronomapDatabase, TimelineItem } from '../../data.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
-  selector: 'app-content-video',
-  templateUrl: './content-video.component.html',
-  styleUrls: ['./content-video.component.less']
+    selector: 'app-content-video',
+    templateUrl: './content-video.component.html',
+    styleUrls: ['./content-video.component.less'],
+    standalone: false
 })
 export class ContentVideoComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 

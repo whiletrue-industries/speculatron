@@ -2,11 +2,10 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-homepage',
-  standalone: true,
-  imports: [],
-  templateUrl: './homepage.component.html',
-  styleUrl: './homepage.component.less'
+    selector: 'app-homepage',
+    imports: [],
+    templateUrl: './homepage.component.html',
+    styleUrl: './homepage.component.less'
 })
 export class HomepageComponent {
 

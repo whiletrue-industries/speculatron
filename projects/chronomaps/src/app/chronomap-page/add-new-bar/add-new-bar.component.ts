@@ -8,13 +8,14 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
 @Component({
-  selector: 'app-add-new-bar',
-  templateUrl: './add-new-bar.component.html',
-  styleUrls: ['./add-new-bar.component.less'],
-  host: {
-    '[style.border-color]': 'chronomap.primaryColor() + "40"',
-    '[class.maximized]': 'slide !== 1 && slide !== 2'
-  }
+    selector: 'app-add-new-bar',
+    templateUrl: './add-new-bar.component.html',
+    styleUrls: ['./add-new-bar.component.less'],
+    host: {
+        '[style.border-color]': 'chronomap.primaryColor() + "40"',
+        '[class.maximized]': 'slide !== 1 && slide !== 2'
+    },
+    standalone: false
 })
 export class AddNewBarComponent implements OnInit {
   

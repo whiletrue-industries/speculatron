@@ -3,9 +3,10 @@ import { VisibilityDetector } from '../visibility-detector';
 import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
-  selector: 'app-content-item',
-  templateUrl: './content-item.component.html',
-  styleUrls: ['./content-item.component.less'],
+    selector: 'app-content-item',
+    templateUrl: './content-item.component.html',
+    styleUrls: ['./content-item.component.less'],
+    standalone: false
 })
 export class ContentItemComponent implements OnInit, AfterViewInit {
 

@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-layers-bar-item',
-  templateUrl: './layers-bar-item.component.html',
-  styleUrls: ['./layers-bar-item.component.less']
+    selector: 'app-layers-bar-item',
+    templateUrl: './layers-bar-item.component.html',
+    styleUrls: ['./layers-bar-item.component.less'],
+    standalone: false
 })
 export class LayersBarItemComponent implements OnInit {
 

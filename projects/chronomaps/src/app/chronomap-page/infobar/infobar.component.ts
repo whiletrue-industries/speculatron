@@ -6,12 +6,13 @@ import { first } from 'rxjs/operators';
 import { ChronomapDatabase } from '../../data.service';
 
 @Component({
-  selector: 'app-infobar',
-  templateUrl: './infobar.component.html',
-  styleUrls: ['./infobar.component.less'],
-  host: {
-    '[style.border-color]': 'chronomap.primaryColor() + "40"',
-  }
+    selector: 'app-infobar',
+    templateUrl: './infobar.component.html',
+    styleUrls: ['./infobar.component.less'],
+    host: {
+        '[style.border-color]': 'chronomap.primaryColor() + "40"',
+    },
+    standalone: false
 })
 export class InfobarComponent {
 

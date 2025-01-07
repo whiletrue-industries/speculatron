@@ -6,9 +6,10 @@ import { Player } from './player';
 import { PlayerService } from './player.service';
 
 @Component({
-  selector: 'app-audio-player',
-  templateUrl: './audio-player.component.html',
-  styleUrls: ['./audio-player.component.less']
+    selector: 'app-audio-player',
+    templateUrl: './audio-player.component.html',
+    styleUrls: ['./audio-player.component.less'],
+    standalone: false
 })
 export class AudioPlayerComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 

@@ -8,9 +8,10 @@ import { ActivatedRoute } from '@angular/router';
 
 @UntilDestroy()
 @Component({
-  selector: 'app-directory-page',
-  templateUrl: './directory-page.component.html',
-  styleUrl: './directory-page.component.less'
+    selector: 'app-directory-page',
+    templateUrl: './directory-page.component.html',
+    styleUrl: './directory-page.component.less',
+    standalone: false
 })
 export class DirectoryPageComponent implements AfterViewInit {
 

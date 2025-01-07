@@ -14,12 +14,13 @@ import { LayoutService } from '../layout.service';
 import { RtlDetectDirective } from '../rtl-detect.directive';
 
 @Component({
-  selector: 'app-time-line',
-  templateUrl: './time-line.component.html',
-  styleUrls: ['./time-line.component.less'],
-  host: {
-    '[class.visible]': 'hovered? hovered() : true',
-  }
+    selector: 'app-time-line',
+    templateUrl: './time-line.component.html',
+    styleUrls: ['./time-line.component.less'],
+    host: {
+        '[class.visible]': 'hovered? hovered() : true',
+    },
+    standalone: false
 })
 export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 

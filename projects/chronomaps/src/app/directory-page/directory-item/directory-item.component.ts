@@ -6,14 +6,15 @@ import { marked } from 'marked';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-directory-item',
-  templateUrl: './directory-item.component.html',
-  styleUrl: './directory-item.component.less',
-  host: {
-    '(mouseenter)': 'hovered.set(true)',
-    '(mouseleave)': 'hovered.set(false)',
-    '(click)': 'navigate()'
-  }
+    selector: 'app-directory-item',
+    templateUrl: './directory-item.component.html',
+    styleUrl: './directory-item.component.less',
+    host: {
+        '(mouseenter)': 'hovered.set(true)',
+        '(mouseleave)': 'hovered.set(false)',
+        '(click)': 'navigate()'
+    },
+    standalone: false
 })
 export class DirectoryItemComponent implements OnInit, AfterViewInit {
 

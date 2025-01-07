@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ChronomapDatabase } from '../data.service';
 
 @Component({
-  selector: 'app-layers-bar',
-  templateUrl: './layers-bar.component.html',
-  styleUrls: ['./layers-bar.component.less']
+    selector: 'app-layers-bar',
+    templateUrl: './layers-bar.component.html',
+    styleUrls: ['./layers-bar.component.less'],
+    standalone: false
 })
 export class LayersBarComponent implements OnInit {
   

@@ -1,7 +1,8 @@
 import { AfterViewInit, Directive, ElementRef, Input } from '@angular/core';
 
 @Directive({
-  selector: '[rtlDetect]',
+    selector: '[rtlDetect]',
+    standalone: false
 })
 export class RtlDetectDirective implements AfterViewInit {
 

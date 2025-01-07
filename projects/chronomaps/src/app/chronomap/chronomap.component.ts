@@ -14,9 +14,10 @@ import { MapHandler } from '../map-handler/map-handler-base';
 
 @UntilDestroy()
 @Component({
-  selector: 'app-chronomap',
-  templateUrl: './chronomap.component.html',
-  styleUrls: ['./chronomap.component.less']
+    selector: 'app-chronomap',
+    templateUrl: './chronomap.component.html',
+    styleUrls: ['./chronomap.component.less'],
+    standalone: false
 })
 export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
 

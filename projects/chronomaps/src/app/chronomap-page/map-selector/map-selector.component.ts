@@ -10,9 +10,10 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
 @Component({
-  selector: 'app-map-selector',
-  templateUrl: './map-selector.component.html',
-  styleUrls: ['./map-selector.component.less']
+    selector: 'app-map-selector',
+    templateUrl: './map-selector.component.html',
+    styleUrls: ['./map-selector.component.less'],
+    standalone: false
 })
 export class MapSelectorComponent implements AfterViewInit, OnDestroy {
 

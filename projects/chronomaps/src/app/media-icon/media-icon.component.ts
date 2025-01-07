@@ -2,9 +2,10 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-media-icon',
-  templateUrl: './media-icon.component.html',
-  styleUrls: ['./media-icon.component.less']
+    selector: 'app-media-icon',
+    templateUrl: './media-icon.component.html',
+    styleUrls: ['./media-icon.component.less'],
+    standalone: false
 })
 export class MediaIconComponent implements OnInit, OnChanges {
 

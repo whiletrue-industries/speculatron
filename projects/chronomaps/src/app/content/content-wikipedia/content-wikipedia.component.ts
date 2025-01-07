@@ -3,9 +3,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { marked } from 'marked';
 import { ChronomapDatabase, TimelineItem } from '../../data.service';
 @Component({
-  selector: 'app-content-wikipedia',
-  templateUrl: './content-wikipedia.component.html',
-  styleUrls: ['./content-wikipedia.component.less']
+    selector: 'app-content-wikipedia',
+    templateUrl: './content-wikipedia.component.html',
+    styleUrls: ['./content-wikipedia.component.less'],
+    standalone: false
 })
 export class ContentWikipediaComponent implements OnInit {
 

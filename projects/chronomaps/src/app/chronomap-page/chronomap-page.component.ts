@@ -9,9 +9,10 @@ import { LayoutService } from '../layout.service';
 
 @UntilDestroy()
 @Component({
-  selector: 'app-chronomap-page',
-  templateUrl: './chronomap-page.component.html',
-  styleUrls: ['./chronomap-page.component.less']
+    selector: 'app-chronomap-page',
+    templateUrl: './chronomap-page.component.html',
+    styleUrls: ['./chronomap-page.component.less'],
+    standalone: false
 })
 export class ChronomapPageComponent {
 

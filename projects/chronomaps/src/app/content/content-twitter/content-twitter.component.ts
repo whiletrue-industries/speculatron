@@ -4,9 +4,10 @@ import { marked  } from 'marked';
 import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
-  selector: 'app-content-twitter',
-  templateUrl: './content-twitter.component.html',
-  styleUrls: ['./content-twitter.component.less']
+    selector: 'app-content-twitter',
+    templateUrl: './content-twitter.component.html',
+    styleUrls: ['./content-twitter.component.less'],
+    standalone: false
 })
 export class ContentTwitterComponent implements OnInit {
 

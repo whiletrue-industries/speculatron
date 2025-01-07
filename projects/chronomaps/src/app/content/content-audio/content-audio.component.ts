@@ -3,9 +3,10 @@ import { AudioPlayerComponent } from './audio-player/audio-player.component';
 import { ChronomapDatabase, TimelineItem } from '../../data.service';
 
 @Component({
-  selector: 'app-content-audio',
-  templateUrl: './content-audio.component.html',
-  styleUrls: ['./content-audio.component.less']
+    selector: 'app-content-audio',
+    templateUrl: './content-audio.component.html',
+    styleUrls: ['./content-audio.component.less'],
+    standalone: false
 })
 export class ContentAudioComponent implements OnInit, OnChanges, AfterViewInit{
 

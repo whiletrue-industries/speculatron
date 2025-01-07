@@ -6,9 +6,10 @@ import { FlyToOptions } from '../../map-handler/map-utils';
 import { MapHandler } from '../../map-handler/map-handler-base';
 
 @Component({
-  selector: 'app-timeline-selector',
-  templateUrl: './timeline-selector.component.html',
-  styleUrls: ['./timeline-selector.component.less']
+    selector: 'app-timeline-selector',
+    templateUrl: './timeline-selector.component.html',
+    styleUrls: ['./timeline-selector.component.less'],
+    standalone: false
 })
 export class TimelineSelectorComponent implements AfterViewInit, OnInit {
 
