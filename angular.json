@@ -16,12 +16,15 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/chronomaps",
+            "outputPath": {
+              "base": "dist/chronomaps"
+            },
             "index": "projects/chronomaps/src/index.html",
-            "main": "projects/chronomaps/src/main.ts",
-            "polyfills": "projects/chronomaps/src/polyfills.ts",
+            "polyfills": [
+              "projects/chronomaps/src/polyfills.ts"
+            ],
             "tsConfig": "projects/chronomaps/tsconfig.app.json",
             "inlineStyleLanguage": "less",
             "assets": [
@@ -33,7 +36,8 @@
             "styles": [
               "projects/chronomaps/src/styles.less"
             ],
-            "scripts": []
+            "scripts": [],
+            "browser": "projects/chronomaps/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -58,9 +62,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true

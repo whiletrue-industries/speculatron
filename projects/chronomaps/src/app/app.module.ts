@@ -13,7 +13,7 @@ import { ContentTwitterComponent } from './content/content-twitter/content-twitt
 import { ContentInstagramComponent } from './content/content-instagram/content-instagram.component';
 import { ContentWikipediaComponent } from './content/content-wikipedia/content-wikipedia.component';
 import { AudioPlayerComponent } from './content/content-audio/audio-player/audio-player.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AddNewBarComponent } from './chronomap-page/add-new-bar/add-new-bar.component';
 import { FormsModule } from '@angular/forms';
 import { MapSelectorComponent } from './chronomap-page/map-selector/map-selector.component';
@@ -29,40 +29,33 @@ import { RtlDetectDirective } from './rtl-detect.directive';
 import { ContentNoteComponent } from './content/content-note/content-note.component';
 import { TimelineSelectorComponent } from './chronomap-page/timeline-selector/timeline-selector.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    ChronomapPageComponent,
-    InfobarComponent,
-    ContentAudioComponent,
-    ContentVideoComponent,
-    ContentImageComponent,
-    ContentNewsComponent,
-    ContentTwitterComponent,
-    ContentInstagramComponent,
-    ContentWikipediaComponent,
-    ContentNoteComponent,
-    AudioPlayerComponent,
-    AddNewBarComponent,
-    LayersBarComponent,
-    MapSelectorComponent,
-    TimelineSelectorComponent,
-    LayersBarItemComponent,
-    ChronomapComponent,
-    TimeLineComponent,
-    ContentItemComponent,
-    MediaIconComponent,
-    DirectoryPageComponent,
-    DirectoryItemComponent,
-    RtlDetectDirective
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AppRoutingModule,
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        ChronomapPageComponent,
+        InfobarComponent,
+        ContentAudioComponent,
+        ContentVideoComponent,
+        ContentImageComponent,
+        ContentNewsComponent,
+        ContentTwitterComponent,
+        ContentInstagramComponent,
+        ContentWikipediaComponent,
+        ContentNoteComponent,
+        AudioPlayerComponent,
+        AddNewBarComponent,
+        LayersBarComponent,
+        MapSelectorComponent,
+        TimelineSelectorComponent,
+        LayersBarItemComponent,
+        ChronomapComponent,
+        TimeLineComponent,
+        ContentItemComponent,
+        MediaIconComponent,
+        DirectoryPageComponent,
+        DirectoryItemComponent,
+        RtlDetectDirective
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        FormsModule,
+        AppRoutingModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }
