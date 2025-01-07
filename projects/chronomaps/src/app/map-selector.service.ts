@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { FlyToOptions } from 'mapbox-gl';
 import { Subject } from 'rxjs';
 import { DataService } from './data.service';
-import { MapService } from './map.service';
+import { MapUtils } from './map-handler/map-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class MapSelectorService {
 
   submitMapResult(value: string | null) {
     if (value) {
-      this.selectedGeo = MapService.parseMapView(value);
+      this.selectedGeo = MapUtils.parseMapView(value);
     }
     this.mapResults.next(value);
   }

@@ -2,7 +2,6 @@ import { Component, OnInit, effect, signal } from '@angular/core';
 import { ChronomapDatabase, DataService } from '../data.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { delay, filter, first, map, switchMap, tap, timer } from 'rxjs';
-import { MapService } from '../map.service';
 import { StateService } from '../state.service';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { marked } from 'marked';
@@ -32,8 +31,8 @@ export class ChronomapPageComponent {
 
   marked = marked;
 
-  constructor(private data: DataService, private route: ActivatedRoute, private mapSvc: MapService,
-      private router: Router, private state: StateService, public layout: LayoutService) {
+  constructor(private data: DataService, private route: ActivatedRoute, private router: Router, 
+      private state: StateService, public layout: LayoutService) {
     this.route.params.pipe(
       first(),
       tap((params) => {

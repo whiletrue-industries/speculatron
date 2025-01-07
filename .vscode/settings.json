@@ -3,6 +3,7 @@
         "https://json.schemastore.org/github-workflow.json": "file:///Users/adam/Code/art/speculatron/.github/workflows/deploy.yml"
     },
     "cSpell.words": [
-        "chronomap"
+        "chronomap",
+        "mapboxgl"
     ]
 }

@@ -1,16 +1,6 @@
 import * as mapboxgl from 'mapbox-gl';
 
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class MapService {
-
-  constructor(private http: HttpClient) {
-  }
-
+export class MapUtils {
 
   static setLayerSource(map: mapboxgl.Map, layerId: string, source: string) {
     const oldLayers = map.getStyle().layers;

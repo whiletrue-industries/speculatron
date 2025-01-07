@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MapService } from '../../map.service';
 
 import * as mapboxgl from 'mapbox-gl';
 import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
@@ -23,7 +22,7 @@ export class MapSelectorComponent implements AfterViewInit, OnDestroy {
   theMap: mapboxgl.Map;
   resizeObserver: ResizeObserver;
 
-  constructor(private mapSvc: MapService, private mapSelector: MapSelectorService, private el: ElementRef) { }
+  constructor(private mapSelector: MapSelectorService, private el: ElementRef) { }
 
   ngAfterViewInit(): void {
     this.chronomap.ready.subscribe(() => {

@@ -1,7 +1,7 @@
 <div class='wrapper'>
     <div class='base-map'>
         <div #baseMapEl></div>
-        <app-map-selector *ngIf='mapSelector.showMapSelector' [chronomap]='chronomap' [flyToOptions]='lastMapState'></app-map-selector>
+        <app-map-selector *ngIf='mapSelector.showMapSelector' [chronomap]='chronomap' [flyToOptions]='mapHandler.lastMapState'></app-map-selector>
         <app-timeline-selector *ngIf='mapSelector.showTimelineSelector' [chronomap]='chronomap' [flyToOptions]='mapSelector.selectedGeo'></app-timeline-selector>
     </div>
     <app-time-line #timeLine *ngIf='timelineState() !== null' 
@@ -41,7 +41,6 @@
                         </div>
                     }
                 </div>
-
 
                 @if (currentItem) {
                     <div class='target-icon' #targetIcon>

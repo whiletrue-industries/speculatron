@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, effect, signal } from '@angular/core';
-import { MapService } from '../../map.service';
 
 import * as mapboxgl from 'mapbox-gl';
 import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
@@ -27,7 +26,7 @@ export class TimelineSelectorComponent implements AfterViewInit, OnInit {
   
   theMap: mapboxgl.Map;
 
-  constructor(private mapSvc: MapService, public mapSelector: MapSelectorService) {
+  constructor(public mapSelector: MapSelectorService) {
     effect(() => {
       console.log('SELECTED DATE', this.date().toISOString());
       if (this.includeTime()) {
