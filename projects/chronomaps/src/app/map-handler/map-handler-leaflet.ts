@@ -1,26 +1,24 @@
 import { MapHandler } from './map-handler-base';
 import { BoundsOptions, FlyToOptions, MapUtils } from './map-utils';
 import * as L from 'leaflet';
-
+import 'leaflet.sync';
 
 export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
 
   private getBgLayer(): L.ImageOverlay | null {
     const backgroundUrl = this.chronomap.Map_BG();
     const boundsCommaSeparated = this.chronomap.Map_BG_Bounds();
-    console.log('BBBBB__0', backgroundUrl, boundsCommaSeparated);
     if (!backgroundUrl || !boundsCommaSeparated) {
       return null;
     }
     const bounds = boundsCommaSeparated.split(',').map(parseFloat);
-    console.log('BBBBB', backgroundUrl, bounds);
     return L.imageOverlay(backgroundUrl, [[bounds[0], bounds[1]], [bounds[2], bounds[3]]]);
   }
 
   private makeMap(el: HTMLElement): L.Map {
     const map = L.map(el, {
       crs: L.CRS.Simple,
-      maxBounds: [[-1, -1], [1, 2]],
+      maxBounds: [[-3, -3], [3, 5]],
       center: [0, 0],
       zoom: 3,
       minZoom: 3,
@@ -64,14 +62,16 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
             right: 0,
           }
           };
-          this.mapSyncMoveStart(map, jumpTo);
+          // this.mapSyncMoveStart(map, jumpTo);
         });
-        map.on('moveend', () => {
-          this.mapSyncMoveEnd();
-        });
+        // map.on('moveend', () => {
+        //   this.mapSyncMoveEnd();
+        // });
       }
       initCount += 1;
       if (initCount === 2) {
+        this.baseMap.sync(this.detailMap);
+        this.detailMap.sync(this.baseMap);
         this.initMapsComplete();
       }
     });
@@ -154,7 +154,7 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
   override markerCreate(el: HTMLElement, coordinates: { lat: number; lon: number }, map: L.Map): L.Marker {
     const icon = L.divIcon({
       html: el,
-      iconSize: [32, 32],
+      iconSize: [el.offsetWidth, el.offsetHeight],
       className: 'leaflet-marker',
     });
     return L.marker([coordinates.lat, coordinates.lon], {icon}).addTo(map);
