@@ -47,6 +47,7 @@ export class ContentItem {
   tags: string[];
   related: ContentItem[];
   lastModified: Date;
+  extraProperties: [string, any][];
 };
 
 export class TimelineItem extends ContentItem {
@@ -104,7 +105,7 @@ export class ChronomapDatabase extends BaserowDatabase {
   // Leaflet
   Map_BG = signal<string>('');
   Map_BG_Bounds = signal<string>('');
-
+  HotSpotsGeoJson = signal<any>(null);
 
   timelineItems = signal<TimelineItem[]>([]);
 
@@ -162,6 +163,15 @@ export class ChronomapDatabase extends BaserowDatabase {
           this.newEntryForm.set(keyValues.New_Entry_Form?.value || '');
           this.Map_BG.set(keyValues.Map_BG?.images?.[0]?.url || '');
           this.Map_BG_Bounds.set(keyValues.Map_BG_Bounds?.value || '');
+          if (keyValues.HotSpotsGeoJson?.value) {
+            try {
+              this.HotSpotsGeoJson.set(JSON.parse(keyValues.HotSpotsGeoJson.value));
+            } catch (e) {
+              this.HotSpotsGeoJson.set(null);
+            }
+          } else {
+            this.HotSpotsGeoJson.set(null);
+          }
         });    
       }),
     );
@@ -176,7 +186,7 @@ export class ChronomapDatabase extends BaserowDatabase {
     return forkJoin([
       this.getTable('MapLayers'),
       this.getTable('Authors'),
-      this.getTable('Content'),
+      this.getTable('Content', force),
     ]).pipe(
       map(([mapLayersTable, authorsTable, contentTable]) => {
         this.allLayers = [];
@@ -229,6 +239,12 @@ export class ChronomapDatabase extends BaserowDatabase {
             related: row.Related,
             lastModified: dayjs(row.Last_Modified).toDate(),
           };
+          try {
+            item.extraProperties = row.Properties ? JSON.parse(row.Properties) : {};
+          } catch (e) {
+            item.extraProperties = {};
+          }
+          item.extraProperties = Object.keys(item.extraProperties).map((key) => [key, item.extraProperties[key]]);
           item.alt_post_timestamp = row.Alt_Post_Timestamp ? dayjs(row.Alt_Post_Timestamp).toDate() : item.post_timestamp;
           row.Map_Layer.forEach((x: any) => {
             const name = x.value;
@@ -302,7 +318,7 @@ export class ChronomapDatabase extends BaserowDatabase {
         this.maxDate.set(new Date(maxDate.getTime() + delta));
         this.lastModified.set(timelineItems.map(x => x.lastModified).reduce((a, b) => a > b ? a : b, new Date(1970, 1, 1)));
         this.timelineItems.set(timelineItems);
-        console.log('GOT CONTENT ITEMS', this.title(), timelineItems.length);
+        console.log('GOT CONTENT ITEMS', this.title(), timelineItems.length, this.allContentItems.length);
         this.ready.next(true);
         this.ready.complete();
       })

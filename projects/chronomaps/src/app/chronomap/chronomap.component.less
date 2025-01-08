@@ -33,9 +33,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            & > div {
+            .main-map {
                 width: 100%;
                 height: 100%;
+                & > div {
+                    width: 100%;
+                    height: 100%;    
+                }
+                z-index: 0;
+                position: relative;
             }
             z-index: 0;
         }
@@ -400,6 +406,17 @@
                                     strong {
                                         font-weight: 700;
                                     }
+                                }
+                                .extra-property {
+                                    .font-manrope;
+                                    font-size: 16px;
+                                    font-weight: 400;
+                                    strong {
+                                        font-weight: 700;
+                                    }
+                                    line-height: normal;
+                                    align-self: flex-start;
+    
                                 }
                                 .notes {
                                     color: @color-white;

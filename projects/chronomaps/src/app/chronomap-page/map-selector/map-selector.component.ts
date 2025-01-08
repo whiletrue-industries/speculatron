@@ -7,6 +7,8 @@ import { FlyToOptions } from '../../map-handler/map-utils';
 import { MapHandler } from '../../map-handler/map-handler-base';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { point, polygon } from '@turf/helpers';
 
 @UntilDestroy()
 @Component({
@@ -29,11 +31,27 @@ export class MapSelectorComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.chronomap.ready.subscribe(() => {
+      console.log('IIIII', this.mapEl.nativeElement, this.position);
       this.mapHandler.initSelectorMap(this.mapEl.nativeElement, this.position, true);
       this.mapHandler.selectorMapMoved.pipe(
         untilDestroyed(this)
-      ).subscribe((geo: string) => {
-        this.mapSelector.submitMapResult(geo);
+      ).subscribe((d: {geo: string, position: FlyToOptions}) => {
+        let props: any = {
+          geo: d.geo,
+        };
+        const geoJson = this.chronomap.HotSpotsGeoJson();
+        console.log('GEOJSON', geoJson);
+        console.log('CENTER', d.position.center);
+        if (d.position.center && geoJson) {
+          const pt = point([d.position.center.lon, d.position.center.lat]);
+          // Use TURF.js to load the geoJson object, and find features that contain the point:
+          const features = geoJson.features.filter((feature: any) => {
+            return booleanPointInPolygon(pt, polygon(feature.geometry.coordinates));
+          });
+          Object.assign(props, ...features.map((feature: any) => feature.properties));
+        }
+        console.log('SELECTED MAP', props);
+        this.mapSelector.submitMapResult(props);
       });
     });
     this.resizeObserver?.disconnect();

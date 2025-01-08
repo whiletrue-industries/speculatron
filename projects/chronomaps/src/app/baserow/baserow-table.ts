@@ -11,7 +11,7 @@ export class BaserowTable {
 
     fetchRows(http: HttpClient, force = false) {
         if (!this.hasRows || force) {
-            return http.get(`${this.endpoint}/api/database/rows/table/${this.id}/?user_field_names=true`, {
+            return http.get(`${this.endpoint}/api/database/rows/table/${this.id}/?user_field_names=true&size=100`, {
                 headers: {
                     Authorization: `Token ${this.token}`
                 }

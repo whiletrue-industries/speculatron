@@ -13,14 +13,14 @@ export class MapSelectorService {
   public showTimelineSelector = false;
   public selectedGeo: FlyToOptions = {};
   public selectedDate = '';
-  public mapResults = new Subject<string | null>();
+  public mapResults = new Subject<{[key: string]: any}>();
   public timelineResults = new Subject<string | null>();
 
   constructor() {}
 
-  submitMapResult(value: string | null) {
-    if (value) {
-      this.selectedGeo = MapUtils.parseMapView(value);
+  submitMapResult(value: {[key: string]: any}) {
+    if (value['geo']) {
+      this.selectedGeo = MapUtils.parseMapView(value['geo']);
     }
     this.mapResults.next(value);
   }

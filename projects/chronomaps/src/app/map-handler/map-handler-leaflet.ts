@@ -1,3 +1,4 @@
+import { timer } from 'rxjs';
 import { MapHandler } from './map-handler-base';
 import { BoundsOptions, FlyToOptions, MapUtils } from './map-utils';
 import * as L from 'leaflet';
@@ -20,8 +21,9 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
       crs: L.CRS.Simple,
       maxBounds: [[-3, -3], [3, 5]],
       center: [0, 0],
-      zoom: 3,
-      minZoom: 3,
+      zoom: 9,
+      minZoom: 9,
+      maxZoom: 12,
       zoomControl: false,
       attributionControl: false,
     });
@@ -46,28 +48,17 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
       }
     });
     this.detailMap.whenReady(() => {
-      for (const map of maps) {
-        map.on('move', () => {
-          const center = map.getCenter();
-          const jumpTo: FlyToOptions = {
+      this.detailMap.on('move', () => {
+        const center = this.detailMap.getCenter();
+        this.lastMapState = {
           center: {
             lat: center.lat,
             lon: center.lng,
           },
-          zoom: map.getZoom(),
-          padding: {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-          }
-          };
-          // this.mapSyncMoveStart(map, jumpTo);
-        });
-        // map.on('moveend', () => {
-        //   this.mapSyncMoveEnd();
-        // });
-      }
+          zoom: this.detailMap.getZoom(),
+        };
+        console.log('ZZZZZ', this.lastMapState.zoom);
+      });
       initCount += 1;
       if (initCount === 2) {
         this.baseMap.sync(this.detailMap);
@@ -116,21 +107,27 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
 
   override initSelectorMapAux(el: HTMLElement, position: FlyToOptions, interactive: boolean): L.Map {
     const map = new L.Map(el, {
+      crs: L.CRS.Simple,
       center: [position.center?.lat || 0, position.center?.lon || 0],
-      zoom: position.zoom || 3,      
-      minZoom: 3,
+      zoom: position.zoom || 9,      
+      maxBounds: [[-3, -3], [3, 5]],
+      minZoom: 9,
+      maxZoom: 12,
       attributionControl: false,
       dragging: interactive,     
       zoomControl: interactive, 
     })
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: ''
-    }).addTo(map);
+    timer(100).subscribe(() => {
+      map.invalidateSize();
+    });
+    this.getBgLayer()?.addTo(map);
     map.on('load', () => {
       this.mapJumpTo(map, position);
     });
     if (interactive) {
+      map.on('click', (e) => {
+        console.log('MARKER CLICK', e.latlng);
+      });
       map.on('moveend', () => {
         const center = map.getCenter();
         const position: FlyToOptions = {

@@ -19,7 +19,7 @@ export abstract class MapHandler<T, M> {
   
   itemSelected = new Subject<TimelineItem>();
   itemHovered = new Subject<TimelineItem | null>();
-  selectorMapMoved = new Subject<string>();
+  selectorMapMoved = new Subject<{geo: string, position: FlyToOptions}>();
 
   // Internal
   syncing: boolean;
@@ -148,7 +148,10 @@ export abstract class MapHandler<T, M> {
   protected selectorMapOnMove(position: FlyToOptions) {
     const params = [position.zoom, position.center?.lat, position.center?.lon, position?.bearing, position?.pitch]
     const geo = 'https://labs.mapbox.com/location-helper/#' + params.map(p => Number.isFinite(p) ? p?.toString() : '').join('/');
-    this.selectorMapMoved.next(geo);
+    this.selectorMapMoved.next({
+      geo,
+      position
+    });
   }
 
   updateMarkers() {

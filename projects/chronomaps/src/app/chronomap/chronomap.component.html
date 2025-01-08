@@ -1,6 +1,8 @@
 <div class='wrapper'>
     <div class='base-map'>
-        <div #baseMapEl></div>
+        <div class='main-map'>
+            <div #baseMapEl></div>
+        </div>
         <app-map-selector *ngIf='mapSelector.showMapSelector' [chronomap]='chronomap' [mapHandler]='mapHandler' [position]='mapHandler.lastMapState'></app-map-selector>
         <app-timeline-selector *ngIf='mapSelector.showTimelineSelector' [chronomap]='chronomap' [mapHandler]='mapHandler' [position]='mapSelector.selectedGeo'></app-timeline-selector>
     </div>
@@ -62,6 +64,13 @@
                                         <div class='tag' [style.background-color]='chronomap.primaryColor() + "40"'>{{tag}}</div>
                                     }
                                 </div>
+                                @if (currentItem.extraProperties) {
+                                    @for (item of currentItem.extraProperties; track item[0]) {
+                                        <div class='extra-property'>
+                                            <strong>{{item[0]}}</strong>: {{item[1]}}
+                                        </div>
+                                    }
+                                }
                                 @if (currentItem.notes) {
                                     <div class='notes' [innerHTML]='marked(currentItem.notes)' [rtlDetect]='currentItem.notes'></div>
                                 }

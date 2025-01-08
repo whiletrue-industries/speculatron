@@ -29,11 +29,11 @@ export class BaserowDatabase {
         );
     }
 
-    getTable(name: string) {
+    getTable(name: string, force = false) {
         return this.tables.pipe(
             first(),
             map((tables) => tables.find((table: BaserowTable) => table.name === name)),
-            switchMap((table: BaserowTable | undefined) => table ? table.fetchRows(this.http) : from([]))
+            switchMap((table: BaserowTable | undefined) => table ? table.fetchRows(this.http, force) : from([]))
         );
     }
 }

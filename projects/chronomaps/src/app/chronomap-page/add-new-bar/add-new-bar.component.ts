@@ -30,6 +30,7 @@ export class AddNewBarComponent implements OnInit {
   contentTypeName = '';
   selectedDate: string;
   selectedGeo: string;
+  selectedProperties: any = {};
   mapSubscription: Subscription | null = null;
   timelineSubscription: Subscription | null = null;
 
@@ -60,6 +61,7 @@ export class AddNewBarComponent implements OnInit {
     if (!this.selectedGeo) return null;
     if (!this.chronomap.newEntryForm()) return null;
     const url = new URL(this.chronomap.newEntryForm());
+    console.log('PREFILL', this.contentType);
     url.searchParams.append('prefill_Media Type', this.contentType);
     url.searchParams.append('hide_Media Type', 'true');
     url.searchParams.append('prefill_Post_Timestamp', this.selectedDate + 'T00:00:00.000');
@@ -70,6 +72,12 @@ export class AddNewBarComponent implements OnInit {
     url.searchParams.append('hide_Nonce', 'true');
     url.searchParams.append('prefill_Status', 'Review');
     url.searchParams.append('hide_Status', 'true');
+    url.searchParams.append('prefill_Properties', JSON.stringify(this.selectedProperties));
+    url.searchParams.append('hide_Properties', 'true');
+    for (const key of Object.keys(this.selectedProperties)) {
+      url.searchParams.append('hide_' + key, 'true');
+      url.searchParams.append('prefill_' + key, this.selectedProperties[key]);
+    }
     if (!this.iframeURL) {
       this.initPolling();
     }
@@ -88,8 +96,13 @@ export class AddNewBarComponent implements OnInit {
       untilDestroyed(this)
     ).subscribe((value) => {
       console.log('GOT GEO', value);
-      if (value) {
-        this.selectedGeo = value;
+      if (value['geo']) {
+        this.selectedGeo = value['geo'];
+      }
+      for (const key of Object.keys(value)) {
+        if (key !== 'geo') {
+          this.selectedProperties[key] = value[key];
+        }
       }
     });
   }
