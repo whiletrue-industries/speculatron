@@ -349,6 +349,9 @@ export class TimeLineComponent implements OnInit, OnChanges, AfterViewInit {
 
   updateAxis() {
     const items: TimelineItem[] = this.chronomap.timelineItems();
+    if (!this.g) {
+      return;
+    }
     this.g.call(this.xAxis.scale(this.xt))
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")

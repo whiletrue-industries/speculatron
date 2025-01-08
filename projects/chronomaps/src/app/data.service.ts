@@ -88,9 +88,6 @@ export class ChronomapDatabase extends BaserowDatabase {
   logo = signal<string>('');
   thumbnail = signal<string>('');
   parentLink = signal<string>('..');
-  mapStyle = signal<string>('');
-  backgroundMapStyle = signal<string>('');
-  mapboxKey = signal<string>('');
   showTooltips = signal<boolean>(true);
   altTimestampLabel = signal<string>('');
   postDateFormat = signal<string>('');
@@ -98,6 +95,16 @@ export class ChronomapDatabase extends BaserowDatabase {
   primaryColor = signal<string>('');
   secondaryColor = signal<string>('');
   newEntryForm = signal<string>('');
+
+  // MapBox
+  mapStyle = signal<string>('');
+  backgroundMapStyle = signal<string>('');
+  mapboxKey = signal<string>('');
+
+  // Leaflet
+  Map_BG = signal<string>('');
+  Map_BG_Bounds = signal<string>('');
+
 
   timelineItems = signal<TimelineItem[]>([]);
 
@@ -153,6 +160,8 @@ export class ChronomapDatabase extends BaserowDatabase {
           this.primaryColor.set(keyValues.Primary_Color?.value || '');
           this.secondaryColor.set(keyValues.Secondary_Color?.value || '');
           this.newEntryForm.set(keyValues.New_Entry_Form?.value || '');
+          this.Map_BG.set(keyValues.Map_BG?.images?.[0]?.url || '');
+          this.Map_BG_Bounds.set(keyValues.Map_BG_Bounds?.value || '');
         });    
       }),
     );

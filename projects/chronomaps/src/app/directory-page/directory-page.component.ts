@@ -63,7 +63,7 @@ export class DirectoryPageComponent implements AfterViewInit {
       this.maxDate.set(maxDate);
 
       if (!this.titleOpen()) {
-        this.title.nativeElement.scrollTo({top: 0, behavior: 'smooth'});
+        this.title?.nativeElement?.scrollTo({top: 0, behavior: 'smooth'});
       }
     }, {allowSignalWrites: true});
   }

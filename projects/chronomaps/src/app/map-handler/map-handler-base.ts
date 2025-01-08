@@ -110,6 +110,7 @@ export abstract class MapHandler<T, M> {
             minLon = Math.min(minLon, coordinates.lon);
           });
           const bounds: BoundsOptions = [[minLon, minLat], [maxLon, maxLat]];
+          console.log('FIT BOUNDS', bounds);
           this.mapFitBounds(this.baseMap, bounds);
         }
       }),
