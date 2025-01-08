@@ -38,14 +38,14 @@ jobs:
           git checkout -b dist
           rm .gitignore
           npm run prod
-          cp dist/chronomaps/index.html dist/chronomaps/404.html
-          cp CNAME dist/chronomaps/ || true
+          cp dist/chronomaps/browser/index.html dist/chronomaps/browser/404.html
+          cp CNAME dist/chronomaps/browser/ || true
       - name: deploy
         run: |
-          git add dist/chronomaps && \
+          git add dist/chronomaps/browser/ && \
           git commit -m dist && \
           (git branch -D gh-pages || true) && \
-          git subtree split --prefix dist/chronomaps -b gh-pages && \
+          git subtree split --prefix dist/chronomaps/browser/ -b gh-pages && \
           git push -f origin gh-pages:gh-pages && \
           git checkout main && \
           git branch -D gh-pages && \
