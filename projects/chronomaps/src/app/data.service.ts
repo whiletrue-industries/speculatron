@@ -5,6 +5,7 @@ import { BaserowDatabase } from './baserow/baserow-database';
 import { HttpClient } from '@angular/common/http';
 import { Observable, ReplaySubject, Subject, forkJoin, from, map, switchMap, tap } from 'rxjs';
 import dayjs from 'dayjs';
+import { MapUtils } from './map-handler/map-utils';
 
 export type Author = {
   name: string;
@@ -96,6 +97,7 @@ export class ChronomapDatabase extends BaserowDatabase {
   primaryColor = signal<string>('');
   secondaryColor = signal<string>('');
   newEntryForm = signal<string>('');
+  disableTimeline = signal<boolean>(false);
 
   // MapBox
   mapStyle = signal<string>('');
@@ -163,6 +165,7 @@ export class ChronomapDatabase extends BaserowDatabase {
           this.newEntryForm.set(keyValues.New_Entry_Form?.value || '');
           this.Map_BG.set(keyValues.Map_BG?.images?.[0]?.url || '');
           this.Map_BG_Bounds.set(keyValues.Map_BG_Bounds?.value || '');
+          this.disableTimeline.set(keyValues.Disable_Timeline?.value === 'true');
           if (keyValues.HotSpotsGeoJson?.value) {
             try {
               this.HotSpotsGeoJson.set(JSON.parse(keyValues.HotSpotsGeoJson.value));
@@ -216,7 +219,7 @@ export class ChronomapDatabase extends BaserowDatabase {
             id: row.id,
             title: row.Title,
             notes: row.Notes,
-            post_timestamp: dayjs(row.Post_Timestamp).toDate(),
+            post_timestamp: row.Post_Timestamp ? dayjs(row.Post_Timestamp).toDate() : null,
             status: row.Status?.value,
             type: row.Type?.value,
             youtube_video_id: row.Youtube_Video_Id,
@@ -268,13 +271,17 @@ export class ChronomapDatabase extends BaserowDatabase {
           const contentItem: ContentItem = item;
           if (contentItem.status !== 'Published') { return; }
           if (!contentItem.authors.find((author: Author) => author.status === 'Editor' || author.status === 'Contributor')) { return; }
-          if (!contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
+          if (!this.disableTimeline() && !contentItem.post_timestamp && !contentItem.alt_post_timestamp) { return; }
           contentItems.push(contentItem);
         });
         contentItems.forEach((item: ContentItem) => {
           item.related = item.related.map((id: ContentItem) => (contentItems.find((i: ContentItem) => i.id === id.id) || {}) as ContentItem).filter((i: ContentItem) => !!i.id);
         });
-        return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
+        if (this.disableTimeline()) {
+          return contentItems.sort((a: ContentItem, b: ContentItem) => (MapUtils.parseMapView(a.geo).center?.lon || 0) - (MapUtils.parseMapView(b.geo).center?.lon || 0));
+        } else {
+          return contentItems.sort((a: ContentItem, b: ContentItem) => a.post_timestamp.getTime() - b.post_timestamp.getTime());
+        }
       }),
       tap((contentItems: ContentItem[]) => {
         this.allContentItems = contentItems;
@@ -282,9 +289,11 @@ export class ChronomapDatabase extends BaserowDatabase {
         const timelineItems: TimelineItem[] = contentItems.map((item: ContentItem, index: number) => {
           const ti = new TimelineItem();
           Object.assign(ti, item);
-          ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
-          ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
-          ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
+          if (!this.disableTimeline()) {
+            ti.timestamp = ti.post_timestamp || ti.alt_post_timestamp;
+            ti.formattedPostTimestamp = (FORMATTERS[this.postDateFormat()] || FORMATTERS['year'])(item.post_timestamp);
+            ti.formattedAltPostTimestamp = (FORMATTERS[this.altTimestampLabel()] || FORMATTERS['year'])(item.alt_post_timestamp);
+          }
           const authorNames = ti.authors.map((author: Author) => author.name);
           if (authorNames.length > 1) {
             const last = authorNames.pop();

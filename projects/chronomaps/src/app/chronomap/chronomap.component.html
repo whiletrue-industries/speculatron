@@ -6,10 +6,12 @@
         <app-map-selector *ngIf='mapSelector.showMapSelector' [chronomap]='chronomap' [mapHandler]='mapHandler' [position]='mapHandler.lastMapState'></app-map-selector>
         <app-timeline-selector *ngIf='mapSelector.showTimelineSelector' [chronomap]='chronomap' [mapHandler]='mapHandler' [position]='mapSelector.selectedGeo'></app-timeline-selector>
     </div>
-    <app-time-line #timeLine *ngIf='timelineState() !== null' 
-        [minDate]='chronomap.minDate()' [maxDate]='chronomap.maxDate()' [chronomap]='chronomap' [state]='timelineState' 
-        (selected)='itemSelected($event)'
-    ></app-time-line>
+    @if (!chronomap.disableTimeline()) {
+        <app-time-line #timeLine *ngIf='timelineState() !== null' 
+            [minDate]='chronomap.minDate()' [maxDate]='chronomap.maxDate()' [chronomap]='chronomap' [state]='timelineState' 
+            (selected)='itemSelected($event)'
+        ></app-time-line>
+    }    
     <div class='detail-bg'>
         <div class='detail' [class.open]='detailOpen' [style.width]='getDetailWidth()' [class.map-mode]='this.mapMode === "Map"'
                             [style.border-color]='chronomap.primaryColor()' #detail>

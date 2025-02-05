@@ -56,7 +56,7 @@ export class AddNewBarComponent implements OnInit {
   }
 
   get iframeSrc() {
-    if (!this.selectedDate) return null;
+    if (!this.selectedDate && !this.chronomap.disableTimeline()) return null;
     if (!this.contentType) return null;
     if (!this.selectedGeo) return null;
     if (!this.chronomap.newEntryForm()) return null;
@@ -162,7 +162,11 @@ export class AddNewBarComponent implements OnInit {
       this.closeMap();
     }
     if (this.slide_ === 2) {
-      this.openTimeline();
+      if (this.chronomap.disableTimeline()) {
+        this.slide = 3;
+      } else {
+        this.openTimeline();
+      }
     } else {
       this.closeTimeline();
     }
