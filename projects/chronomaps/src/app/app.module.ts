@@ -28,6 +28,7 @@ import { ChronomapComponent } from './chronomap/chronomap.component';
 import { RtlDetectDirective } from './rtl-detect.directive';
 import { ContentNoteComponent } from './content/content-note/content-note.component';
 import { TimelineSelectorComponent } from './chronomap-page/timeline-selector/timeline-selector.component';
+import { ImageIconComponent } from "./image-icon/image-icon.component";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -56,6 +57,6 @@ import { TimelineSelectorComponent } from './chronomap-page/timeline-selector/ti
         RtlDetectDirective
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
-        FormsModule,
-        AppRoutingModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
+    FormsModule,
+    AppRoutingModule, ImageIconComponent], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }

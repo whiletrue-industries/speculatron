@@ -57,10 +57,10 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
           },
           zoom: this.detailMap.getZoom(),
         };
-        console.log('ZZZZZ', this.lastMapState.zoom);
       });
       initCount += 1;
       if (initCount === 2) {
+        console.log('SYNC MAPS');
         this.baseMap.sync(this.detailMap);
         this.detailMap.sync(this.baseMap);
         this.initMapsComplete();
@@ -159,5 +159,30 @@ export class MapHandlerLeaflet extends MapHandler<L.Map, L.Marker> {
 
   override markerRemove(marker: L.Marker): void {
     marker.remove();
+  }
+
+  override pauseSync(seconds: number): void {
+    this.baseMap.unsync(this.detailMap);
+    this.detailMap.unsync(this.baseMap);
+    timer(seconds * 1000).subscribe(() => {
+      
+      this.baseMap.sync(this.detailMap, {noInitialSync: true});
+      this.detailMap.sync(this.baseMap, {noInitialSync: true});
+    });
+  }
+
+  override processFlyToOptions(options: FlyToOptions): void {
+    if (options.padding?.right && options.center && options.zoom) {
+      const center = {
+        lat: options.center.lat,
+        lng: options.center.lon,
+      }
+      const targetPoint = this.detailMap.project(center, options.zoom).add([options.padding.right / 2, 0])
+      const targetLatLng = this.detailMap.unproject(targetPoint, options.zoom);
+      options.center = {
+        lat: targetLatLng.lat,
+        lon: targetLatLng.lng,
+      };
+    }
   }
 }

@@ -159,4 +159,12 @@ export class MapHandlerMapbox extends MapHandler<mapboxgl.Map, mapboxgl.Marker> 
   override markerRemove(marker: mapboxgl.Marker): void {
     marker.remove();
   }
+
+  override pauseSync(seconds: number): void {
+    // Do nothing
+  }
+
+  override processFlyToOptions(options: FlyToOptions): void {
+    // Do nothing
+  }
 }

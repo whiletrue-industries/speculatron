@@ -112,15 +112,23 @@
 </div>
 <div #baseMarkers style='display:none'>
     <ng-container *ngFor='let item of chronomap.timelineItems()'>
-        <div class='mapmarker' [style.border-color]='this.chronomap.primaryColor()'>
-            <app-media-icon [type]='item.type' [color]='markerColor()' [breathing]='item === currentItem'></app-media-icon>
-        </div>
+        @if (chronomap.imageItemMarkers() && item.type === 'image') {
+            <app-image-icon class='mapmarker' [item]='item' [chronomap]='chronomap' [breathing]='item === currentItem'></app-image-icon>
+        } @else {
+            <div class='mapmarker media-icon' [style.border-color]='this.chronomap.primaryColor()'>
+                <app-media-icon [type]='item.type' [color]='markerColor()' [breathing]='item === currentItem'></app-media-icon>
+            </div>
+        }
     </ng-container>
 </div>
 <div #detailMarkers style='display:none'>
     <ng-container *ngFor='let item of chronomap.timelineItems()'>
-        <div class='mapmarker' [style.border-color]='this.chronomap.primaryColor()'>
-            <app-media-icon [type]='item.type' [color]='markerColor()' [breathing]='item === currentItem'></app-media-icon>
-        </div>
+        @if (chronomap.imageItemMarkers() && item.type === 'image') {
+            <app-image-icon class='mapmarker' [item]='item' [chronomap]='chronomap' [breathing]='item === currentItem'></app-image-icon>
+        } @else {
+            <div class='mapmarker media-icon' [style.border-color]='this.chronomap.primaryColor()'>
+                <app-media-icon [type]='item.type' [color]='markerColor()' [breathing]='item === currentItem'></app-media-icon>
+            </div>
+        }
     </ng-container>
 </div>

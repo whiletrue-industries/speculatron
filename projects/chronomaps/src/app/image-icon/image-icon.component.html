@@ -1,0 +1,9 @@
+<div class='container' [style.background-color]='altBgColor' [style.height]='imgHeight'>
+    <div class='bg' [style.background-color]='bgColor'></div>
+    <div class='img-container'>
+        <img [src]='item.image' (load)='updateHeight($event)'>
+    </div>
+    @if (breathing) {
+        <div class='breathing' [style.background-color]='chronomap.primaryColor()'></div>
+    }
+</div>

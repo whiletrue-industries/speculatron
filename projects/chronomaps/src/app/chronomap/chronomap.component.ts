@@ -108,7 +108,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mapHandler.itemHovered.pipe(
         untilDestroyed(this),
       ).subscribe((item: TimelineItem | null) => {
-        this.timeLineComponent.updateHovers(item?.index || null);
+        this.timeLineComponent?.updateHovers(item?.index || null);
       });
       this.mapHandler.itemSelected.pipe(
         untilDestroyed(this),
@@ -240,7 +240,7 @@ export class ChronomapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.detailOpen = true;
         this.contentVisible = true;
         const options: FlyToOptions = {
-          speed: 2,
+          duration: 2,
           padding: {
             top: 0,
             bottom: 0,

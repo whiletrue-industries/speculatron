@@ -97,7 +97,10 @@ export class ChronomapDatabase extends BaserowDatabase {
   primaryColor = signal<string>('');
   secondaryColor = signal<string>('');
   newEntryForm = signal<string>('');
+
+  // Feature Flags
   disableTimeline = signal<boolean>(false);
+  imageItemMarkers = signal<boolean>(true);
 
   // MapBox
   mapStyle = signal<string>('');
@@ -166,6 +169,7 @@ export class ChronomapDatabase extends BaserowDatabase {
           this.Map_BG.set(keyValues.Map_BG?.images?.[0]?.url || '');
           this.Map_BG_Bounds.set(keyValues.Map_BG_Bounds?.value || '');
           this.disableTimeline.set(keyValues.Disable_Timeline?.value === 'true');
+          this.imageItemMarkers.set(keyValues.Image_Item_Markers?.value === 'true');
           if (keyValues.HotSpotsGeoJson?.value) {
             try {
               this.HotSpotsGeoJson.set(JSON.parse(keyValues.HotSpotsGeoJson.value));

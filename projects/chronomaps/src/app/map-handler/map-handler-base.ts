@@ -62,10 +62,14 @@ export abstract class MapHandler<T, M> {
 
   public applyMapView(item: TimelineItem, extraOptions: any = null) {
     const options = Object.assign({}, MapUtils.parseMapView(item.geo), extraOptions || {});
+    this.processFlyToOptions(options);
     this.mapApplyLayers(this.detailMap, item.map_layers, item.off_map_layers);
+    if (options.duration) {
+      this.pauseSync(options.duration + 1);
+    }
     this.mapFlyTo(this.detailMap, options);
+    this.mapFlyTo(this.baseMap, options);
   }
-
 
   public initSelectorMap(el: HTMLElement, position: FlyToOptions, interactive=false) {
     this.selectorMap = this.initSelectorMapAux(el, position, interactive);
@@ -88,6 +92,8 @@ export abstract class MapHandler<T, M> {
   abstract mapApplyLayers(map: T, mapLayers: string[], offMapLayers: string[]): void;
   abstract markerCreate(el: HTMLElement, coordinates: LatLon, map: T): M;
   abstract markerRemove(marker: M): void;
+  abstract pauseSync(seconds: number): void;
+  abstract processFlyToOptions(options: FlyToOptions): void;
 
   protected initMapsComplete() {
     this.updateMarkers();
